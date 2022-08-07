@@ -1,0 +1,31 @@
+@layer base {
+    /** Scrollbar **/
+    /* width */
+    ::-webkit-scrollbar {
+        width: 0.5rem;
+        height: 0.5rem;
+    }
+
+    /* Track */
+    ::-webkit-scrollbar-track {
+        background: rgb(241, 241, 241);
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb {
+        background: rgba(128, 128, 128, 0.40);
+        border-radius: 8px;
+    }
+
+    /* Handle on hover */
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgb(164, 164, 164, 0.40);
+        border-radius: 8px;
+    }
+
+    /* Handle */
+    ::-webkit-scrollbar-thumb:horizontal {
+        background: rgb(164, 164, 164, 0.25);
+        border-radius: 8px;
+    }
+}

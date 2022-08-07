@@ -1,0 +1,24 @@
+@layer components {
+    .d-none {
+        @apply hidden
+    }
+
+    .d-md-block {
+        @apply md:block
+    }
+
+    .active {
+        @apply border border-0 font-bold text-lhg-blue px-2.5 py-1 rounded-md
+    }
+
+    .pagination{
+        @apply flex justify-between items-center whitespace-nowrap min-h-min
+    }
+
+    .page-link{
+        @apply flex space-x-1
+    }
+    .pagination li {
+        @apply flex justify-center
+    }
+}

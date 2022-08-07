@@ -1,0 +1,27 @@
+jobs:
+  - job: Testing
+    displayName: Testing code quality and measure coverage
+    steps:
+      - bash: |
+          composer install --no-interaction --prefer-dist
+          composer dump-autoload
+        displayName: 'Installing Package Dependencies'
+
+      - script: php artisan passport:keys
+        displayName: 'Generate Passport Certificates'
+
+      - script: vendor/bin/phpunit --configuration $(System.DefaultWorkingDirectory)/phpunit.xml -d memory_limit=2048M --log-junit tests.xml --coverage-cobertura coverage.xml
+        displayName: 'Run Integration Tests'
+
+      - task: PublishTestResults@2
+        displayName: 'Publish Test Results'
+        inputs:
+          testResultsFiles: '**/tests.xml'
+
+      - task: PublishCodeCoverageResults@1
+        displayName: 'Publish Coverage Report'
+        inputs:
+          codeCoverageTool: 'Cobertura'
+          summaryFileLocation: 'coverage.xml'
+          pathToSources: '$(System.DefaultWorkingDirectory)'
+          failIfCoverageEmpty: true

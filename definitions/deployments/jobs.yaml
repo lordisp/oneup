@@ -1,0 +1,47 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: job
+  namespace: oneup
+spec:
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    metadata:
+      name: job
+      namespace: oneup
+    spec:
+      template:
+        metadata:
+          name: job
+          namespace: oneup
+        spec:
+          containers:
+            - name: job
+              image: acrlhggixiservicesp.azurecr.io/oneup:latest
+              imagePullPolicy: Always
+              volumeMounts:
+                - name: apache-config
+                  mountPath: /etc/apache2/sites-available/
+                - name: oneup-storage
+                  mountPath: /var/www/html/storage/app/
+              envFrom:
+                - secretRef:
+                    name: app-secret
+                - configMapRef:
+                    name: apache-env
+              command:
+                - php
+              args:
+                - artisan
+                - schedule:run
+          restartPolicy: OnFailure
+          volumes:
+            - name: apache-config
+              configMap:
+                name: apache-config
+                items:
+                  - key: config
+                    path: 000-default.conf
+            - name: oneup-storage
+              persistentVolumeClaim:
+                claimName: oneup-storage

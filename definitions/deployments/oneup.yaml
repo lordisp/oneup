@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oneup
+  namespace: oneup
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oneup
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: oneup
+    spec:
+      containers:
+        - name: oneup-app
+          image: acrlhggixiservicesp.azurecr.io/oneup:0.11
+          imagePullPolicy: Always
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "/bin/sh"
+                  - "-c"
+                  - >
+                    php artisan optimize:clear;
+                    php artisan config:clear;
+                    php artisan migrate --force;
+                    php artisan down --secret="rcamison" --render="maintenance.index";
+          resources:
+            requests:
+              cpu: "250m"
+              memory:  "512Mi"
+            limits:
+              cpu: "842m"
+              memory:  "2560Mi"
+          volumeMounts:
+            - name: apache-config
+              mountPath: /etc/apache2/sites-enabled/
+              readOnly: true
+            - name: oneup-storage
+              mountPath: /var/www/html/storage/app/
+          envFrom:
+            - secretRef:
+                name: oneup-env
+            - configMapRef:
+                name: oneup-env
+          ports:
+            - containerPort: 8000
+              name: oneup
+      volumes:
+        - name: apache-config
+          configMap:
+            name: oneup-env
+            items:
+              - key: apache
+                path: 000-default.conf
+        - name: oneup-storage
+          persistentVolumeClaim:
+            claimName: oneup-storage
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: oneup
+  namespace: oneup
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: oneup
+  selector:
+    app: oneup

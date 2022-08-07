@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: queue-default
+  namespace: oneup
+spec:
+  parallelism: 2
+  template:
+    metadata:
+      name: queue-default
+      namespace: oneup
+    spec:
+      volumes:
+        - name: apache-config
+          configMap:
+            name: apache-config
+            items:
+              - key: config
+                path: 000-default.conf
+        - name: oneup-storage
+          persistentVolumeClaim:
+            claimName: oneup-storage
+
+      containers:
+        - name: queue-default
+          image: acrlhggixiservicesp.azurecr.io/oneup:latest
+          volumeMounts:
+            - name: apache-config
+              mountPath: /etc/apache2/sites-available/
+            - name: oneup-storage
+              mountPath: /var/www/html/storage/app/
+          envFrom:
+            - secretRef:
+                name: app-secret
+            - configMapRef:
+                name: apache-env
+          command:
+            - php
+          args:
+            - artisan
+            - queue:work
+            - --queue=default
+            - --memory=836
+      restartPolicy: OnFailure

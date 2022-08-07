@@ -1,0 +1,15 @@
+.git/
+vendor/
+node_modules/
+.idea
+public/js/
+public/css/app.css
+.env.*
+.env
+!.env.testing
+.gitignore
+definitions/
+coverage-html
+coverage.xml
+storage/logs/laravel.log
+docker-compose.yml

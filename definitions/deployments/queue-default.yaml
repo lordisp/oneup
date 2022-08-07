@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+  namespace: oneup
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: queue
+  minReadySeconds: 10
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      containers:
+        - name: queue-default
+          image: acrlhggixiservicesp.azurecr.io/oneup:latest
+          imagePullPolicy: Always
+          command:
+            - php
+          args:
+            - artisan
+            - queue:work
+            - --queue=default,mail,imports
+            - --memory=2560
+          resources:
+            requests:
+              cpu: "250m"
+              memory:  "512Mi"
+            limits:
+              cpu: "842m"
+              memory:  "2560Mi"
+          volumeMounts:
+            - name: apache-config
+              mountPath: /etc/apache2/sites-available/
+              readOnly: true
+            - name: oneup-storage
+              mountPath: /var/www/html/storage/app/
+            #- name: oneup-php-ini
+            #  mountPath: /usr/local/etc/php/conf.d/
+            #  readOnly: true
+          envFrom:
+            - secretRef:
+                name: app-secret
+            - configMapRef:
+                name: apache-env
+          ports:
+            - containerPort: 80
+      volumes:
+        - name: apache-config
+          configMap:
+            name: apache-config
+            items:
+              - key: config
+                path: 000-default.conf
+        - name: oneup-php-ini
+          configMap:
+            name: oneup-php-ini
+            items:
+              - key: php.ini
+                path: docker-php.ini
+        - name: oneup-storage
+          persistentVolumeClaim:
+            claimName: oneup-storage

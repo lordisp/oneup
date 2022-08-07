@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: private-dns-sync
+  name: app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app
+  template:
+    metadata:
+      labels:
+        app: app
+    spec:
+      containers:
+        - name: app
+          image: acrlhgamsoneupd.azurecr.io/dns-sync:latest
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+          #ports:
+          #  - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: svc-app
+  namespace: private-dns-sync
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+  selector:
+    app: app

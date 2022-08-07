@@ -1,0 +1,70 @@
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - definitions/*
+      - pipeline/*
+      - README.md
+pool:
+  name: LHG-WEUR-GIXI-DEVAGENT-VMSS-01-P
+
+variables:
+  - group: vltlhgsmgixi01p
+  - name: environment
+    value: 'production'
+
+# Testing OneUp code and measure coverage
+# Publish test and coverage report to azure devops
+
+stages:
+- stage: Test
+  jobs:
+  - job: Testing
+    steps:
+      - script: composer install --no-interaction --prefer-dist
+        displayName: 'Installing Package Dependencies'
+        workingDirectory: $(System.DefaultWorkingDirectory)
+
+      - task: NodeTool@0
+        displayName: 'Use Node 18.x'
+        inputs:
+          versionSpec: 18.x
+
+      - script: npm install && npm run build
+        displayName: 'Install NPM Dependencies'
+        workingDirectory: $(System.DefaultWorkingDirectory)
+
+      - script: cp .env.testing .env && php artisan key:generate
+        displayName: 'Generate App-Key'
+        workingDirectory: $(System.DefaultWorkingDirectory)
+
+      - script: vendor/bin/phpunit --configuration $(System.DefaultWorkingDirectory)/phpunit.xml -d memory_limit=2048M --log-junit tests.xml --coverage-cobertura coverage.xml --coverage-html $(System.DefaultWorkingDirectory)/coverage
+        displayName: 'Run Integration Tests'
+
+      - task: PublishTestResults@2
+        displayName: 'Publish Test Results'
+        inputs:
+          testResultsFiles: '**/tests.xml'
+
+      - task: PublishCodeCoverageResults@1
+        displayName: 'Publish Coverage Report'
+        inputs:
+          codeCoverageTool: 'Cobertura'
+          summaryFileLocation: 'coverage.xml'
+          reportDirectory: '$(System.DefaultWorkingDirectory)/coverage/'
+          pathToSources: '$(System.DefaultWorkingDirectory)'
+
+- stage: Build
+  dependsOn: Test
+  condition: and(succeeded(), eq(variables.isMain, 'true'))
+  variables:
+    - template: vars/production.yaml
+    - template: vars/global.yaml
+  jobs:
+    - template: jobs/build.yaml
+      parameters:
+        registry: ${{ variables.registry }}
+        repository: ${{ variables.repository }}
+        tag: $(Build.BuildNumber)

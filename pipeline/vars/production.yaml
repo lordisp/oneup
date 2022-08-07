@@ -1,0 +1,3 @@
+variables:
+  registry: "acrlhggixiservicesp.azurecr.io"
+  repository: "oneup"

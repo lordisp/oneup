@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pma
+  namespace: pma
+  labels:
+    app: pma
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pma
+  template:
+    metadata:
+      labels:
+        app: pma
+    spec:
+      containers:
+        - name: pma
+          image: phpmyadmin/phpmyadmin:5.2.0
+          resources:
+            requests:
+              cpu: "100m"
+              memory:  "128Mi"
+            limits:
+              cpu: "842m"
+              memory:  "2560Mi"
+          ports:
+            - containerPort: 80
+              name: pma
+          volumeMounts:
+            - name: pma-cfg
+              mountPath: /etc/phpmyadmin/
+            - name: pma-disk
+              mountPath: /var/www/html/files/
+      volumes:
+         - name: pma-cfg
+           configMap:
+             name: pma-cfg
+             items:
+               - key: config-inc
+                 path: config.inc.php
+               - key: ssl-cert
+                 path: ssl/BaltimoreCyberTrustRoot.crt.pem
+         - name: pma-disk
+           persistentVolumeClaim:
+             claimName: pma-disk
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pma-disk
+  namespace: pma
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: azurefile
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pma
+  namespace: pma
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: pma
+  selector:
+    app: pma

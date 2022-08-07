@@ -1,0 +1,26 @@
+parameters:
+  - name: registry
+  - name: repository
+  - name: tag
+    default: latest
+jobs:
+  - job: Build
+    displayName: Build container image and pull it to container registry
+    steps:
+      - bash: |
+          az login --identity
+          az acr login --name ${{ parameters.registry }}
+        displayName: 'Login'
+
+      - bash: |
+          docker build -t ${{ parameters.registry }}/${{ parameters.repository }}:${{ parameters.tag }} .
+        displayName: 'Build image'
+
+      - bash: |
+          docker tag ${{ parameters.registry }}/${{ parameters.repository }}:${{ parameters.tag }} ${{ parameters.registry }}/${{ parameters.repository }}:latest
+          docker push ${{ parameters.registry }}/${{ parameters.repository }}:${{ parameters.tag }}
+          docker push ${{ parameters.registry }}/${{ parameters.repository }}:latest
+        displayName: 'Push to Acr'
+
+      - bash: docker images
+        displayName: 'list images'

@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  namespace: oneup
+  name: oneup-env
+  labels:
+    app: oneup
+data:
+  APP_NAME: "OneUp"
+  APP_ENV: "production"
+  CURL_VERIFY: "false"
+  APP_DEBUG: "false"
+  DEBUGBAR_ENABLED: "false"
+  APP_URL: "https://oneup.az.lhgroup.de"
+  LOG_CHANNEL: "stderr"
+  LOG_DEPRECATIONS_CHANNEL: "null"
+  LOG_LEVEL: "info"
+  DB_CONNECTION: "mysql"
+  DB_HOST: "masql-lhg-sm-giti-p01.mariadb.database.azure.com"
+  DB_PORT: "3306"
+  DB_DATABASE: "oneup"
+  DB_USERNAME: "oneup_admin"
+  BROADCAST_DRIVER: "log"
+  CACHE_DRIVER: "redis"
+  REDIS_HOST: "tls://acfr-lhg-giti-p.redis.cache.windows.net"
+  REDIS_PORT: "6380"
+  REDIS_DB: "0"
+  REDIS_CACHE_DB: "1"
+  QUEUE_CONNECTION: "redis"
+  SESSION_DRIVER: "redis"
+  SESSION_LIFETIME: "120"
+  SESSION_COOKIE: "oneup_session"
+  MEMCACHED_HOST: "memcached"
+  APACHE_RUN_USER: "www-data"
+  APACHE_RUN_GROUP: "www-data"
+  apache : |
+    <VirtualHost *:8000>
+      DocumentRoot /var/www/html/public
+
+      <Directory "/">
+        AllowOverride all
+        Require all granted
+      </Directory>
+
+      ErrorLog ${APACHE_LOG_DIR}/error.log
+      CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>
