@@ -4,7 +4,7 @@
     <span :class="{'hidden': darkMode === true}">
         <x-icon.sun solid size="{{ $size }}" class="text-lhg-yellow"/>
     </span>
-    <span :class="{'hidden': darkMode === false}">
+    <span :class="{'hidden': darkMode != true}">
         <x-icon.moon solid size="{{ $size }}" class="text-lhg-yellow"/>
     </span>
 </button>
