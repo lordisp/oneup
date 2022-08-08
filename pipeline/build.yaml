@@ -10,14 +10,6 @@ trigger:
 pool:
   name: LHG-WEUR-GIXI-DEVAGENT-VMSS-01-P
 
-variables:
-  - group: vltlhgsmgixi01p
-  - name: environment
-    value: 'production'
-
-# Testing OneUp code and measure coverage
-# Publish test and coverage report to azure devops
-
 stages:
 - stage: Test
   jobs:
