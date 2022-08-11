@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Passport;
 
+use App\Models\Passport\Client;
 use App\Models\Passport\PersonalAccessClient;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
