@@ -177,7 +177,7 @@ return [
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         \Barryvdh\Debugbar\ServiceProvider::class,
-
+        App\Providers\TokenCacheServiceProvider::class,
     ],
 
     /*
@@ -193,6 +193,7 @@ return [
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
+        'TokenCache' => App\Facades\TokenCache::class,
     ])->toArray(),
 
 ];
