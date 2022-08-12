@@ -40,6 +40,7 @@ class TokenCacheProviderTest extends TestCase
             ->assertOk();
 
         $this->assertCount(5, $data->json('data'));
+        $this->assertArrayHasKey('name', $data->json('data')[0]);
         $this->assertArrayHasKey('auth_url', $data->json('data')[0]);
         $this->assertArrayHasKey('token_url', $data->json('data')[0]);
         $this->assertArrayHasKey('auth_endpoint', $data->json('data')[0]);
@@ -89,6 +90,7 @@ class TokenCacheProviderTest extends TestCase
             ->get('/api/v1/tokencacheprovider/' . $provider)
             ->assertOk();
 
+        $this->assertArrayHasKey('name', $data->json('data')[0]);
         $this->assertArrayHasKey('auth_url', $data->json('data')[0]);
         $this->assertArrayHasKey('token_url', $data->json('data')[0]);
         $this->assertArrayHasKey('auth_endpoint', $data->json('data')[0]);
