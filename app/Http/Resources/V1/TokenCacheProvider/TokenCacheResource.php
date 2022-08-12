@@ -19,6 +19,7 @@ class TokenCacheResource extends ResourceCollection
     {
         return [
             'data' => $this->collection->map(fn($item) => collect([
+                'name' => $item->name,
                 'auth_url' => $item->auth_url,
                 'token_url' => $item->token_url,
                 'auth_endpoint' => $item->auth_endpoint,
