@@ -118,7 +118,7 @@ class TokenCacheProviderTest extends TestCase
             'name' => 'Foo',
             'auth_url' => '/foo/bar/baz',
             'token_url' => '/baz/foo/bar',
-            'auth_endpoint' => 'https://login.microsoftonline.com/',
+            'auth_endpoint' => 'https://login.microsoftonline.com',
             'client' => json_encode($client),
         ];
         $response = $this->withToken($token)

@@ -12,7 +12,7 @@ class TokenCacheProviderSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         TokenCacheProvider::factory()->state([
             'name' => 'azure_ad',
@@ -20,22 +20,36 @@ class TokenCacheProviderSeeder extends Seeder
             'token_url' => '/oauth2/v2.0/token',
             'auth_endpoint' => 'https://login.microsoftonline.com/',
             'client' => json_encode([
-                'tenant' => env('AZURE_TENANT'),
-                'client_id' => env('AZURE_CLIENT_ID'),
-                'client_secret' => encrypt(env('AZURE_CLIENT_SECRET')),
+                'tenant' => config('tokencache.azure.client.tenant'),
+                'client_id' => config('tokencache.azure.client.client_id'),
+                'client_secret' => encrypt(config('tokencache.azure.client.client_secret')),
                 'scope' => 'https://graph.microsoft.com/.default',
             ])
         ])->create();
+
         TokenCacheProvider::factory()->state([
             'name' => 'azure',
             'auth_url' => '/oauth2/authorize',
             'token_url' => '/oauth2/token',
             'auth_endpoint' => 'https://login.microsoftonline.com/',
             'client' => json_encode([
-                'tenant' => env('AZURE_TENANT'),
-                'client_id' => env('AZURE_CLIENT_ID'),
-                'client_secret' => encrypt(env('AZURE_CLIENT_SECRET')),
-                'resource' => 'https://management.azure.com/',
+                'tenant' => config('tokencache.azure_ad.client.tenant'),
+                'client_id' => config('tokencache.azure_ad.client.client_id'),
+                'client_secret' => encrypt(config('tokencache.azure_ad.client.client_secret')),
+                'resource' => 'https://management.azure.com',
+            ])
+        ])->create();
+
+        TokenCacheProvider::factory()->state([
+            'name' => 'lhtest',
+            'auth_url' => '/oauth2/authorize',
+            'token_url' => '/oauth2/token',
+            'auth_endpoint' => 'https://login.microsoftonline.com/',
+            'client' => json_encode([
+                'tenant' => config('tokencache.azure_test.client.tenant'),
+                'client_id' => config('tokencache.azure_test.client.client_id'),
+                'client_secret' => encrypt(config('tokencache.azure_test.client.client_secret')),
+                'resource' => 'https://management.azure.com',
             ])
         ])->create();
     }

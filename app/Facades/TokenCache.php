@@ -5,10 +5,11 @@ namespace App\Facades;
 use Illuminate\Support\Facades\Facade;
 
 /**
- * @method static get()
- * @method static withoutEncryption()
- * @method static jwt(mixed $decryptedToken)
- * @method static provider(string $string)
+ * @method static \App\Services\TokenCache get()
+ * @method static \App\Services\TokenCache withoutEncryption()
+ * @method static \App\Services\TokenCache jwt(mixed $decryptedToken)
+ * @method static \App\Services\TokenCache provider(string $string)
+ * @see \App\Services\TokenCache
  */
 class TokenCache extends Facade
 {
