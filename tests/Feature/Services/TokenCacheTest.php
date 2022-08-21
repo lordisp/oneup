@@ -5,12 +5,12 @@ namespace Tests\Feature\Services;
 use App\Facades\TokenCache;
 use Database\Seeders\TokenCacheProviderSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use ReflectionClass;
+use Tests\Helper;
 use Tests\TestCase;
 
 class TokenCacheTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, Helper;
 
     protected function setUp(): void
     {
@@ -21,7 +21,7 @@ class TokenCacheTest extends TestCase
     /** @test */
     public function can_acquire_an_access_token()
     {
-        $token = TokenCache::get();
+        $token = TokenCache::provider('azure')->get();
         $this->assertIsString($token);
         // the $token is encrypted and must be decrypted to decode it
         $this->assertIsObject($this->decode(decrypt($token)));
@@ -30,18 +30,14 @@ class TokenCacheTest extends TestCase
     /** @test */
     public function can_disable_token_encryption()
     {
-        $instance = TokenCache::withoutEncryption();
-        $this->assertFalse($this->accessProtected($instance, 'config')['encrypt']);
-        // the $token is NOT encrypted and must be decrypted to decode it
-        $token =$instance->get();
-        $this->assertIsString($token);
-        $this->assertIsObject($this->decode($token));
+        $token1= TokenCache::provider('azure')->get();
+        $token2= TokenCache::provider('azure')->withoutEncryption()->get();
+        $this->assertEquals(decrypt($token1),$token2);
     }
 
     /** @test */
     public function can_reuse_a_token()
     {
-        // 'azure_ad' is the default provider. The second request should
         $first = TokenCache::provider('azure')->get();
         $second = TokenCache::provider('azure')->get();
         $this->assertEquals($first, $second);
@@ -53,22 +49,6 @@ class TokenCacheTest extends TestCase
         $instance = TokenCache::provider('azure');
         $this->assertEquals('azure', $this->accessProtected($instance, 'provider'));
         $this->assertIsString($instance->get());
-    }
-
-    protected function accessProtected($obj, $prop)
-    {
-        $property = (new ReflectionClass($obj))->getProperty($prop);
-        $property->setAccessible(true);
-        return $property->getValue($obj);
-    }
-
-    protected function setProtected($objectOrClass, $property, $object, $value)
-    {
-        $reflectionClass = new ReflectionClass($objectOrClass);
-        $reflectionProperty = $reflectionClass->getProperty($property);
-        $reflectionProperty->setAccessible(true);
-        $reflectionProperty->setValue($object, $value);
-        return $object;
     }
 
     protected function decode($token)

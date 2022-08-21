@@ -16,15 +16,6 @@ class TokenCache
     public function __construct()
     {
         $this->config = $this->loadConfig();
-        $this->provider = config('tokencache.default');
-    }
-
-    protected function loadConfig()
-    {
-        $config = config('tokencache.source') == 'database' ? $this->providers() : config('tokencache.provider');
-        $config['default'] = config('tokencache.default');
-        $config['encrypt'] = config('tokencache.encrypt');
-        return $config;
     }
 
     public function get(): string
@@ -43,6 +34,18 @@ class TokenCache
     {
         $this->config['encrypt'] = false;
         return $this;
+    }
+
+    public static function jwt($token)
+    {
+        return json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', $token)[1]))));
+    }
+
+    protected function loadConfig()
+    {
+        $config = $this->providers();
+        $config['encrypt'] = true;
+        return $config;
     }
 
     protected function providers()
@@ -67,13 +70,13 @@ class TokenCache
         $url = $this->getTokenUrl();
         $this->setRequestBody();
         $body = $this->client;
-        if (config('tokencache.source') == 'database') $body['client_secret'] = decrypt($this->client['client_secret']);
-        $response = Http::asForm()->post($url, $body);
+        $body['client_secret'] = decrypt($this->client['client_secret']);
+        $response = Http::asForm()->retry(10, 200, null, false)->post($url, $body);
         if ($response->successful()) {
             return $response->json();
         } else {
             Log::error(__('tokencache.token_acquire_failed'), $response->json());
-            throw new Exception(__('tokencache.token_acquire_failed'));
+            throw new Exception(__('tokencache.token_acquire_failed'),500);
         }
     }
 
@@ -119,11 +122,6 @@ class TokenCache
         $token = encrypt($keys['access_token']);
         cache()->put($key, $token, $keys['expires_in']);
         return $token;
-    }
-
-    public static function jwt($token)
-    {
-        return json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', $token)[1]))));
     }
 
     public function __toString(): string
