@@ -43,6 +43,7 @@ stages:
           echo $(AZURE_TEST_TENANT) >> .env
           echo $(AZURE_TEST_CLIENT_ID) >> .env
           echo $(AZURE_TEST_CLIENT_SECRET) >> .env
+          cat .env
         displayName: 'Add envirpnment variables'
         workingDirectory: $(System.DefaultWorkingDirectory)
         env:
