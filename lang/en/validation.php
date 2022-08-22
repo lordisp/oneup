@@ -141,8 +141,11 @@ return [
     */
 
     'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
+        'client.scope' => [
+            'required_without' => 'Missing the required value passed for the scope parameter. Should be the identifier (app ID URI) of the resource you want, affixed with the .default suffix. For example, the Microsoft Graph resource app ID URI is https://graph.microsoft.com/.',
+        ],
+        'client.resource' => [
+            'required_without' => 'A identifier URI that\'s specified by the REST API you are calling is required. Eg.: https://management.azure.com',
         ],
     ],
 

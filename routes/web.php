@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Livewire\Admin\Provider;
 use App\Http\Livewire\Profile\Clients;
 use App\Http\Livewire\Rbac\Users;
 use Illuminate\Support\Facades\Route;
@@ -27,11 +28,12 @@ Route::middleware(['auth'])->group(function () {
         return view('dashboard');
     });
 
-    /* Rbac Routes */
-    Route::get('/rbac/users', Users::class)->name('rbac.users');
-
     /* Profile Routes */
     Route::get('/profile/clients', Clients::class)->name('profile.clients');
+
+    /* Admin Routes*/
+    Route::get('/admin/users', Users::class)->name('admin.users');
+    Route::get('/admin/provider', Provider::class)->name('admin.provider');
 
 });
 

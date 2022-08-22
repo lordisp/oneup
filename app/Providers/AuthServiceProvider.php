@@ -6,7 +6,9 @@ use App\Models\Passport\AuthCode;
 use App\Models\Passport\Client;
 use App\Models\Passport\PersonalAccessClient;
 use App\Models\Passport\Token;
+use App\Policies\Admin\TokenCacheProviderPolicy;
 use App\Policies\Profile\ClientPolicy;
+use App\Policies\ProviderPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
@@ -34,6 +36,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPassportScopes();
 
         $this->registerClientGates();
+        $this->registerProviderGates();
     }
 
     protected function registerPassportScopes()
@@ -68,5 +71,9 @@ class AuthServiceProvider extends ServiceProvider
     protected function registerClientGates()
     {
         Gate::define('delete-client', [ClientPolicy::class, 'delete']);
+    }
+    protected function registerProviderGates()
+    {
+        Gate::define('delete-provider', [TokenCacheProviderPolicy::class, 'delete']);
     }
 }

@@ -16,7 +16,10 @@ return [
     'client_created' => 'Client created!',
     'client_deleted' => 'Client deleted!',
     'client_saved' => 'Client saved!',
+    'deleted' => 'Deleted!',
 
-    'client_delete_error' => 'Client could not be deleted. Try again a little later.',
+    'delete_error' => ':attribute could not be deleted. Try again a little later.',
+    'selected_providers' => 'You are currently selecting :attribute provider.',
+    'select_all' => 'Do you want to select all :attribute?',
 
 ];
