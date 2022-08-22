@@ -8,6 +8,8 @@ use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Testing\TestResponse;
 use Laravel\Passport\Passport;
+use ReflectionClass;
+use ReflectionException;
 use stdClass;
 
 trait Helper
@@ -50,5 +52,15 @@ trait Helper
         return DB::table('oauth_clients')
             ->where('personal_access_client', '=', true)
             ->first();
+    }
+
+    /**
+     * @throws ReflectionException
+     */
+    protected function accessProtected($obj, $prop)
+    {
+        $property = (new ReflectionClass($obj))->getProperty($prop);
+        $property->setAccessible(true);
+        return $property->getValue($obj);
     }
 }

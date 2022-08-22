@@ -68,7 +68,7 @@ class Clients extends Component
                     'Resource' => $this->clients->toArray(),
                 ]);
             } else {
-                $this->event(__('messages.client_delete_error'), 'error');
+                $this->event(__('messages.delete_error', ['attribute' => 'Client']), 'error');
             }
         } else {
             $this->event(__('auth.unauthorized', ['value' => 'to delete clients!']), 'error');

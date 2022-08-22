@@ -16,6 +16,7 @@ trait WithBulkActions
     public bool $selectPage = false, $selectPagePopup = false, $selectAll = false;
 
     public array $selected = [];
+    public $objects = [];
 
     public function updatedSelected(): void
     {

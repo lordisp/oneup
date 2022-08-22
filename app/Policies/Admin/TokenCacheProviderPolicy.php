@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Policies\Profile;
+namespace App\Policies\Admin;
 
-use App\Models\Passport\Client;
+use App\Models\TokenCacheProvider;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 use Illuminate\Auth\Access\Response;
 
-class ClientPolicy
+class TokenCacheProviderPolicy
 {
     use HandlesAuthorization;
 
     /**
      * Determine whether the user can view any models.
      *
-     * @param \App\Models\User $user
+     * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function viewAny(User $user)
@@ -25,19 +25,19 @@ class ClientPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Passport\Client $client
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Client $client)
+    public function view(User $user, TokenCacheProvider $tokenCacheProvider)
     {
-        return $user->id === $client->user_id;
+        //
     }
 
     /**
      * Determine whether the user can create models.
      *
-     * @param \App\Models\User $user
+     * @param  \App\Models\User  $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function create(User $user)
@@ -48,11 +48,11 @@ class ClientPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Passport\Client $client
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Client $client)
+    public function update(User $user)
     {
         //
     }
@@ -61,21 +61,21 @@ class ClientPolicy
      * Determine whether the user can delete the model.
      *
      * @param User $user
-     * @return Response|bool
+     * @return bool
      */
     public function delete(User $user)
     {
-        return true; // $user->email != 'rafael.camison@gmail.com';
+        return true;
     }
 
     /**
      * Determine whether the user can restore the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Passport\Client $client
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, Client $client)
+    public function restore(User $user, TokenCacheProvider $tokenCacheProvider)
     {
         //
     }
@@ -83,11 +83,11 @@ class ClientPolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Passport\Client $client
+     * @param  \App\Models\User  $user
+     * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, Client $client)
+    public function forceDelete(User $user, TokenCacheProvider $tokenCacheProvider)
     {
         //
     }

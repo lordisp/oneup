@@ -15,7 +15,7 @@
     x-on:click.outside="close($refs.button)"
     :id="$id('dropdown-button')"
     style="display: none;"
-    class="{{$class .' '.$wide}} right-0 absolute mt-2 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black dark:ring-gray-400 ring-opacity-5 focus:outline-none"
+    class="{{$class .' '.$wide}} right-50 z-auto absolute mt-2 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black dark:ring-gray-400 ring-opacity-5 focus:outline-none"
     role="menu" aria-orientation="vertical"
     aria-labelledby="menu-button"
     tabindex="-1"

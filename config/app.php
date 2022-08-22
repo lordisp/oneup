@@ -178,6 +178,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         \Barryvdh\Debugbar\ServiceProvider::class,
         App\Providers\TokenCacheServiceProvider::class,
+        App\Providers\DnsSyncServiceProvider::class,
     ],
 
     /*
@@ -194,6 +195,7 @@ return [
     'aliases' => Facade::defaultAliases()->merge([
         // 'ExampleClass' => App\Example\ExampleClass::class,
         'TokenCache' => App\Facades\TokenCache::class,
+        'DnsSync' => App\Facades\DnsSync::class,
     ])->toArray(),
 
 ];

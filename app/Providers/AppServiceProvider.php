@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\Accessor;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
@@ -15,7 +16,7 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         Passport::cookie('oneup_token');
     }
@@ -25,11 +26,12 @@ class AppServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->handleHttpSchema();
         $this->registerAccessor();
         $this->registerLivewireMacros();
+        $this->registerAzureMacros();
     }
 
     protected function handleHttpSchema()
@@ -63,6 +65,12 @@ class AppServiceProvider extends ServiceProvider
          */
         Component::macro('flash', function ($message, $type = 'info') {
             session()->flash('notify', ['message' => $message, 'type' => $type]);
+        });
+    }
+    protected function registerAzureMacros()
+    {
+        Http::macro('azure', function () {
+            return Http::baseUrl('https://management.azure.com');
         });
     }
 }

@@ -23,7 +23,7 @@
         </exclude>
     </coverage>
     <php>
-        <env name="APP_KEY" value="base64:CxWqC1O46N4RLocuvAsY7cr7dlM+8Z9iN8wYLYyd738="/>
+        <env name="APP_KEY" value="base64:PIiDNrvn+oDycKw7At2B8DLeDLALVAHQxjfjp20XzfM="/>
         <env name="APP_ENV" value="testing"/>
         <env name="BCRYPT_ROUNDS" value="4"/>
         <env name="CACHE_DRIVER" value="array"/>
