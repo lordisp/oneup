@@ -21,6 +21,7 @@ class TokenCacheTest extends TestCase
     /** @test */
     public function can_acquire_an_access_token()
     {
+        echo "AZURE_TENANT: ". env('AZURE_TENANT');
         $token = TokenCache::provider('azure')->get();
         $this->assertIsString($token);
         // the $token is encrypted and must be decrypted to decode it
