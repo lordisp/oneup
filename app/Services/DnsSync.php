@@ -28,10 +28,6 @@ class DnsSync
 
     public function __construct()
     {
-        $this->hub = 'azure';
-        $this->spoke = 'azure';
-        $this->subscriptionId = config('dnssync.subscription_id');
-        $this->resourceGroup = config('dnssync.resource_group');
         $this->scope = Str::orderedUuid()->toString();
     }
 
@@ -41,6 +37,7 @@ class DnsSync
      */
     public function start(): int
     {
+        Log::info('init sync');
         $this->state = Response::json('Accepted', 202);
 
         $zones = $this->queryZones($this->scope, $this->subscriptionId);
@@ -49,6 +46,7 @@ class DnsSync
 
         $this->cacheRecords($records);
 
+        Log::info('start sync with hub-id:' . $this->subscriptionId);
         $this->sync($this->scope, $zones);
 
         $this->flushCache();
@@ -121,13 +119,17 @@ class DnsSync
                 }
 
             }
+            if (empty($responses)) Log::info('nothing to update'); else {
+                Log::info('updating ' . count($responses) . ' records');
+            }
 
             return $responses ?? [];
 
         });
         if (config('app.debug')) foreach ($responses as $response) {
-            Log::debug('Sync', $response->json());
+            Log::info('Sync', $response->json());
         }
+        Log::info('end sync');
 
     }
 
@@ -166,7 +168,7 @@ class DnsSync
             //Log::debug('Hub and spoke are equal. Skip update', $spokeRecord);
             return ['Skip' => 'true'];
         } else {
-            Log::debug('Spoke differs from hub. Continuing updating ' . $spokeRecord['name'], $spokeRecord);
+            Log::info('Spoke differs from hub. Continuing updating ' . $spokeRecord['name'], $spokeRecord);
             return ['If-Match' => $hubRecord['etag']];
         }
     }
