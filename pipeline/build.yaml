@@ -30,7 +30,7 @@ stages:
         displayName: 'Install NPM Dependencies'
         workingDirectory: $(System.DefaultWorkingDirectory)
 
-      - script: cp .env.testing .env && php artisan key:generate
+      - script: cp .env.testing .env && php artisan key:generate && php artisan config:clear
         displayName: 'Generate App-Key'
         workingDirectory: $(System.DefaultWorkingDirectory)
 
