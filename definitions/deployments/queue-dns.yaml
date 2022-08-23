@@ -20,7 +20,7 @@ spec:
         app: queue
     spec:
       containers:
-        - name: queue-default
+        - name: queue-dns
           image: acrlhggixiservicesp.azurecr.io/oneup:latest
           imagePullPolicy: Always
           command:
@@ -28,8 +28,7 @@ spec:
           args:
             - artisan
             - queue:work
-            - --queue=default,mail,imports
-            - --memory=2560
+            - --queue=dns
           resources:
             requests:
               cpu: "250m"
@@ -43,29 +42,30 @@ spec:
               readOnly: true
             - name: oneup-storage
               mountPath: /var/www/html/storage/app/
-            #- name: oneup-php-ini
-            #  mountPath: /usr/local/etc/php/conf.d/
-            #  readOnly: true
           envFrom:
             - secretRef:
-                name: app-secret
+                name: oneup-env
             - configMapRef:
-                name: apache-env
+                name: oneup-env
           ports:
-            - containerPort: 80
+            - containerPort: 8000
+              name: oneup
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: agentpool
+                    operator: In
+                    values:
+                      - userpool
       volumes:
         - name: apache-config
           configMap:
-            name: apache-config
+            name: oneup-env
             items:
-              - key: config
+              - key: apache
                 path: 000-default.conf
-        - name: oneup-php-ini
-          configMap:
-            name: oneup-php-ini
-            items:
-              - key: php.ini
-                path: docker-php.ini
         - name: oneup-storage
           persistentVolumeClaim:
             claimName: oneup-storage
