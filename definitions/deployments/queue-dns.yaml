@@ -24,11 +24,11 @@ spec:
           image: acrlhggixiservicesp.azurecr.io/oneup:latest
           imagePullPolicy: Always
           command:
-            - php
-          args:
-            - artisan
-            - queue:work
-            - --queue=dns
+            - "/bin/sh"
+            - "-c"
+            - >
+              php artisan config:clear;
+              php artisan queue:work --queue=dns;
           resources:
             requests:
               cpu: "250m"
