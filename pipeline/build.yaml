@@ -33,19 +33,6 @@ stages:
       - script: cp .env.testing .env && php artisan key:generate && php artisan config:clear
         displayName: 'Generate App-Key'
         workingDirectory: $(System.DefaultWorkingDirectory)
-
-      - bash: |
-          echo $(AZURE_TENANT) >> .env
-          echo $(AZURE_CLIENT_ID) >> .env
-          echo $(AZURE_CLIENT_SECRET) >> .env
-          echo $(HUB_SUBSCRIPTION) >> .env
-          echo $(HUB_RESOURCE_GROUP) >> .env
-          echo $(AZURE_TEST_TENANT) >> .env
-          echo $(AZURE_TEST_CLIENT_ID) >> .env
-          echo $(AZURE_TEST_CLIENT_SECRET) >> .env
-          cat .env
-        displayName: 'Add envirpnment variables'
-        workingDirectory: $(System.DefaultWorkingDirectory)
         env:
           AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
           AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
@@ -61,6 +48,18 @@ stages:
 
       - script: vendor/bin/phpunit --configuration $(System.DefaultWorkingDirectory)/phpunit.xml -d memory_limit=2048M --log-junit tests.xml --coverage-cobertura coverage.xml --coverage-html $(System.DefaultWorkingDirectory)/coverage
         displayName: 'Run Integration Tests'
+        env:
+          AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+          AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+          AZURE_TENANT: $(AZURE_TENANT)
+          AZURE_AD_CLIENT_ID: $(AZURE_CLIENT_ID)
+          AZURE_AD_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+          AZURE_AD_TENANT: $(AZURE_TENANT)
+          HUB_SUBSCRIPTION: $(HUB_SUBSCRIPTION)
+          HUB_RESOURCE_GROUP: $(HUB_RESOURCE_GROUP)
+          AZURE_TEST_TENANT: $(AZURE_TEST_TENANT)
+          AZURE_TEST_CLIENT_ID: $(AZURE_TEST_CLIENT_ID)
+          AZURE_TEST_CLIENT_SECRET: $(AZURE_TEST_CLIENT_SECRET)
 
       - task: PublishTestResults@2
         displayName: 'Publish Test Results'
