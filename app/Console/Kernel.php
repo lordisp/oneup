@@ -24,14 +24,15 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('passport:purge')->hourly();
-        $schedule->job(new DnsSyncJob(),'high')
-            ->everySixHours()
+
+        $schedule->job(new DnsSyncJob(),'dns')
+            ->everyThirtyMinutes()
             ->onOneServer()
         ;
-        $schedule->job(new DnsSyncAviatarJob(),'high')
-            ->everySixHours()
-            ->onOneServer()
-        ;
+        // $schedule->job(new DnsSyncAviatarJob(),'aviatar')
+        //     ->everyTenMinutes()
+        //     ->onOneServer()
+        // ;
     }
 
     /**

@@ -20,7 +20,7 @@ data:
   DB_PORT: "3306"
   DB_DATABASE: "oneup"
   DB_USERNAME: "oneup_admin"
-  BROADCAST_DRIVER: "log"
+  BROADCAST_DRIVER: "redis"
   CACHE_DRIVER: "redis"
   REDIS_HOST: "tls://acfr-lhg-giti-p.redis.cache.windows.net"
   REDIS_PORT: "6380"
@@ -30,7 +30,6 @@ data:
   SESSION_DRIVER: "redis"
   SESSION_LIFETIME: "120"
   SESSION_COOKIE: "oneup_session"
-  MEMCACHED_HOST: "memcached"
   APACHE_RUN_USER: "www-data"
   APACHE_RUN_GROUP: "www-data"
   apache : |

@@ -1,4 +1,4 @@
-apiVersion: batch/v1beta1
+apiVersion: batch/v1
 kind: CronJob
 metadata:
   name: job
@@ -25,22 +25,31 @@ spec:
                 - name: oneup-storage
                   mountPath: /var/www/html/storage/app/
               envFrom:
-                - secretRef:
-                    name: app-secret
-                - configMapRef:
-                    name: apache-env
+              - secretRef:
+                  name: oneup-env
+              - configMapRef:
+                  name: oneup-env
               command:
                 - php
               args:
                 - artisan
                 - schedule:run
+          affinity:
+            nodeAffinity:
+              requiredDuringSchedulingIgnoredDuringExecution:
+                nodeSelectorTerms:
+                  - matchExpressions:
+                      - key: agentpool
+                        operator: In
+                        values:
+                          - userpool
           restartPolicy: OnFailure
           volumes:
             - name: apache-config
               configMap:
-                name: apache-config
+                name: oneup-env
                 items:
-                  - key: config
+                  - key: apache
                     path: 000-default.conf
             - name: oneup-storage
               persistentVolumeClaim:
