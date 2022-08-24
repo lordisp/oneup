@@ -205,6 +205,17 @@ class DnsSync
             foreach ($zones as $zone) {
                 $responses[] = $pool->as($zone)
                     ->withToken($this->token($this->spoke))
+                    ->retry(10, 100, function ($exception, $request): bool {
+
+                        if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                            Log::debug($exception->getMessage());
+                            return false;
+                        }
+
+                        $request->withToken($this->token($this->spoke));
+                        return true;
+
+                    }, throw: false)
                     ->get('https://management.azure.com' . $zone . '/ALL?api-version=2018-09-01&$top=1000');
             }
             return $responses ?? [];
@@ -214,7 +225,7 @@ class DnsSync
     protected function cacheRecords($records): void
     {
         foreach ($records as $key => $value) {
-            Cache::tags([$this->scope, 'records'])->put($key, $value->json('value'));
+            if ($value->successful()) Cache::tags([$this->scope, 'records'])->put($key, $value->json('value'));
         }
     }
 
