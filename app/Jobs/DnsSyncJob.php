@@ -15,7 +15,7 @@ class DnsSyncJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public int $timeout = 900;
+    public int $timeout = 1800;
 
     /**
      * Execute the job.
