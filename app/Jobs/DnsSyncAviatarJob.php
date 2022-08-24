@@ -15,22 +15,14 @@ class DnsSyncAviatarJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    /**
-     * Create a new job instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        //
-    }
+    public int $timeout = 900;
 
     /**
      * Execute the job.
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         Log::info('Initiate DNS Sync for aviatar_arm');
         DnsSync::withHub('lhg_arm',config('dnssync.subscription_id'),config('dnssync.resource_group'))

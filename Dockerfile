@@ -6,7 +6,6 @@ RUN apk add --no-cache freetype libpng libjpeg-turbo freetype-dev libpng-dev lib
     --with-jpeg \
   NPROC=$(grep -c ^processor /proc/cpuinfo 2>/dev/null || 1) && \
   docker-php-ext-install -j$(nproc) gd pdo_mysql && \
-  docker-php-ext-configure pcntl --enable-pcntl  && \
   apk del --no-cache freetype-dev libpng-dev libjpeg-turbo-dev
 COPY . /app
 RUN composer install \
@@ -17,7 +16,7 @@ RUN composer dump-autoload
 FROM node:18.4.0  as frontend
 COPY . /app
 WORKDIR /app
-RUN npm install && npm run build
+RUN npm install && npm run build && npm install shiki
 
 # Application
 FROM php:8.1.7-apache
@@ -35,21 +34,19 @@ RUN apt-get update -yqq && apt-get install  \
     unzip  \
     gnupg \
     libnode72 \
-    wget -yyq \
-    && curl -sL https://deb.nodesource.com/setup_18.x | bash \
-    && apt-get install nodejs -yyq \
-    && npm install shiki
-
+    wget -yyq
 
 # download helper script
 # @see https://github.com/mlocati/docker-php-extension-installer/
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 # install extensions
+RUN docker-php-ext-configure pcntl --enable-pcntl
 RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && install-php-extensions \
     opcache \
     pdo_mysql \
     redis \
     gd \
+    pcntl \
 ;
 
 ADD https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem /var/www/html/ssl/
