@@ -215,7 +215,7 @@ class DnsSync
                         $request->withToken($this->token($this->spoke));
                         return true;
 
-                    }, throw: false)
+                    })
                     ->get('https://management.azure.com' . $zone . '/ALL?api-version=2018-09-01&$top=1000');
             }
             return $responses ?? [];
@@ -225,7 +225,8 @@ class DnsSync
     protected function cacheRecords($records): void
     {
         foreach ($records as $key => $value) {
-            if ($value->successful()) Cache::tags([$this->scope, 'records'])->put($key, $value->json('value'));
+            Log::info('Write value '.$value);
+            if ($value) Cache::tags([$this->scope, 'records'])->put($key, $value->json('value'));
         }
     }
 
