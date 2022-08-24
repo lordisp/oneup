@@ -28,7 +28,7 @@ spec:
             - "-c"
             - >
               php artisan config:clear;
-              php artisan queue:work --queue=dns;
+              php artisan queue:work --queue=dns --timeout=1800;
           resources:
             requests:
               cpu: "250m"
