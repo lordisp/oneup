@@ -30,10 +30,11 @@ spec:
               - configMapRef:
                   name: oneup-env
               command:
-                - php
-              args:
-                - artisan
-                - schedule:run
+                - "/bin/sh"
+                - "-c"
+                - >
+                  php artisan config:cache;
+                  php artisan schedule:run;
           affinity:
             nodeAffinity:
               requiredDuringSchedulingIgnoredDuringExecution:

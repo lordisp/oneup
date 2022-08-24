@@ -33,7 +33,7 @@ spec:
                     php artisan optimize:clear;
                     php artisan config:clear;
                     php artisan migrate --force;
-                    php artisan down --secret="rcamison" --render="maintenance.index";
+                  #php artisan down --secret="maintenance" --render="maintenance.index";
           resources:
             requests:
               cpu: "250m"
