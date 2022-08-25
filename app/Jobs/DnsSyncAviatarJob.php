@@ -27,7 +27,7 @@ class DnsSyncAviatarJob implements ShouldQueue, ShouldBeUnique
         Log::info('Initiate DNS Sync for aviatar_arm');
         DnsSync::withHub('lhg_arm',config('dnssync.subscription_id'),config('dnssync.resource_group'))
             ->withSpoke('aviatar_arm')
-            ->withRecordType(['A', 'AAAA','MX','PTR','SRV','TXT'])
+            ->withRecordType(['A'])
             ->start();
     }
 }
