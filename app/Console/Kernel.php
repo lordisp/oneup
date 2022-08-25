@@ -29,10 +29,10 @@ class Kernel extends ConsoleKernel
             ->everyThirtyMinutes()
             ->onOneServer()
         ;
-        // $schedule->job(new DnsSyncAviatarJob(),'aviatar')
-        //     ->everyTenMinutes()
-        //     ->onOneServer()
-        // ;
+         $schedule->job(new DnsSyncAviatarJob(),'dns')
+             ->everyTenMinutes()
+             ->onOneServer()
+         ;
     }
 
     /**
