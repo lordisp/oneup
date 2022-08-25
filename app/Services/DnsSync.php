@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Facades\TokenCache;
 use App\Models\DnsSyncZone;
 use Illuminate\Http\Client\Pool;
-use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -113,6 +112,12 @@ class DnsSync
 
                             $responses[] = $pool->withHeaders($request['headers'])
                                 ->withToken($this->token($this->hub))
+                                ->retry(20, 200, function ($exception, $request): bool {
+                                    Log::warning('sync-pool warning: ' . $exception->getMessage());
+                                    $request->withToken($this->token($this->hub));
+                                    return true;
+
+                                }, throw: false)
                                 ->put($uri, Arr::only($request, ['etag', 'properties']));
                         }
                     }
@@ -143,17 +148,12 @@ class DnsSync
     {
         $hubRecord = Http::azure()
             ->withToken($this->token($this->hub))
-            ->retry(10, 100, function ($exception, $request): bool {
-
-                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
-                    Log::debug($exception->getMessage());
-                    return false;
-                }
-
+            ->retry(20, 200, function ($exception, $request): bool {
+                Log::warning('sync warning: ' . $exception->getMessage());
                 $request->withToken($this->token($this->hub));
                 return true;
 
-            }, throw: false)
+            })
             ->get($uri)
             ->json();
 
@@ -168,7 +168,7 @@ class DnsSync
             //Log::debug('Hub and spoke are equal. Skip update', $spokeRecord);
             return ['Skip' => 'true'];
         } else {
-            Log::info('Spoke differs from hub. Continuing updating ' . $spokeRecord['name'], $spokeRecord);
+            Log::debug('Spoke differs from hub. Continuing updating ' . $spokeRecord['name'], $spokeRecord);
             return ['If-Match' => $hubRecord['etag']];
         }
     }
@@ -192,10 +192,11 @@ class DnsSync
         return Cache::tags([$scope, 'zones'])->rememberForever('zones', fn(): array => Arr::flatten(
             Http::withToken($this->token($this->tokenProvider()))
                 ->acceptJson()
-                ->retry(5, 100, function ($exception) {
-                    Log::error($exception->response->json('error'));
+                ->retry(20, 200, function ($exception, $request): bool {
+                    $request->withToken($this->token($this->tokenProvider()));
                     return true;
-                })->post($url, ["query" => $query])
+                })
+                ->post($url, ["query" => $query])
                 ->json('data')));
     }
 
@@ -205,17 +206,11 @@ class DnsSync
             foreach ($zones as $zone) {
                 $responses[] = $pool->as($zone)
                     ->withToken($this->token($this->spoke))
-                    ->retry(10, 100, function ($exception, $request): bool {
-
-                        if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
-                            Log::debug($exception->getMessage());
-                            return false;
-                        }
-
+                    ->retry(20, 200, function ($exception, $request): bool {
+                        Log::warning('queryRecords-pool warning: ' . $exception->getMessage());
                         $request->withToken($this->token($this->spoke));
                         return true;
-
-                    })
+                    }, throw: false)
                     ->get('https://management.azure.com' . $zone . '/ALL?api-version=2018-09-01&$top=1000');
             }
             return $responses ?? [];
@@ -225,7 +220,6 @@ class DnsSync
     protected function cacheRecords($records): void
     {
         foreach ($records as $key => $value) {
-            Log::info('Write value '.$value);
             if ($value) Cache::tags([$this->scope, 'records'])->put($key, $value->json('value'));
         }
     }
@@ -266,7 +260,10 @@ class DnsSync
         $url = '/subscriptions/' . $this->subscriptionId . '/resourceGroups/' . $this->resourceGroup . '/providers/Microsoft.Authorization/locks?api-version=2016-09-01';
         return Http::azure()
             ->withToken($this->token($this->hub))
-            ->throw()
+            ->retry(20, 200, function ($exception, $request): bool {
+                $request->withToken($this->token($this->hub));
+                return true;
+            })
             ->get($url)
             ->collect('value')
             ->pluck('id')
