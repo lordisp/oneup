@@ -149,11 +149,12 @@ class DnsSync
         $hubRecord = Http::azure()
             ->withToken($this->token($this->hub))
             ->retry(20, 200, function ($exception, $request): bool {
+                if ($exception->response->status() === 404) return false;
                 Log::warning('sync warning: ' . $exception->getMessage());
                 $request->withToken($this->token($this->hub));
                 return true;
 
-            })
+            }, throw: false)
             ->get($uri)
             ->json();
 
