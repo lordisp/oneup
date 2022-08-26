@@ -37,7 +37,8 @@ class DnsSync
      */
     public function start(): int
     {
-        Log::info('init sync');
+        Log::info('Initiate synchronization from ' . $this->spoke . ' to ' . $this->hub);
+
         $this->state = Response::json('Accepted', 202);
 
         $zones = $this->queryZones($this->scope, $this->subscriptionId);
@@ -125,15 +126,25 @@ class DnsSync
                 }
 
             }
-            if (empty($responses)) Log::info('nothing to update'); else {
-                Log::info('updating ' . count($responses) . ' records');
+            if (empty($responses)) Log::info('Nothing to update from' . $this->spoke . ' to ' . $this->hub); else {
+                Log::info('updating ' . count($responses) . ' records from ' . $this->spoke . ' to ' . $this->hub);
             }
 
             return $responses ?? [];
 
         });
-        if (config('app.debug')) foreach ($responses as $response) {
-            if ($response instanceof \Illuminate\Http\Response) Log::info('Sync', $response->json());
+        if (config('app.debug')) {
+            foreach ($responses as $response) {
+                if ($response instanceof \Illuminate\Http\Client\Response) {
+
+                    $properties = $response->json('properties');
+
+                    $fqdn = $properties['fqdn'];
+
+                    Arr::forget($properties, ['fqdn']);
+                    Log::info('Updated ' . $fqdn . ' from ' . $this->spoke . ' to ' . $this->hub, $properties);
+                }
+            }
         }
         Log::info('end sync');
 
@@ -225,7 +236,7 @@ class DnsSync
     protected function cacheRecords($records): void
     {
         foreach ($records as $key => $value) {
-            if ($value instanceof Response) Cache::tags([$this->scope, 'records'])->put($key, $value->json('value'));
+            if ($value instanceof \Illuminate\Http\Client\Response) Cache::tags([$this->scope, 'records'])->put($key, $value->json('value'));
         }
     }
 
