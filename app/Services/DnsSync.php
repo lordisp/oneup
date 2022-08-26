@@ -6,11 +6,12 @@ use App\Facades\TokenCache;
 use App\Models\DnsSyncZone;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Support\Arr;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Arr;
 use Response;
 
 
@@ -132,7 +133,7 @@ class DnsSync
 
         });
         if (config('app.debug')) foreach ($responses as $response) {
-            Log::info('Sync', $response->json());
+            if ($response instanceof \Illuminate\Http\Response::class) Log::info('Sync', $response->json());
         }
         Log::info('end sync');
 
@@ -149,7 +150,7 @@ class DnsSync
         $hubRecord = Http::azure()
             ->withToken($this->token($this->hub))
             ->retry(20, 200, function ($exception, $request): bool {
-                if ($exception->response->status() === 404) return false;
+                if ($exception instanceof ConnectionException && $exception->response->status() === 404) return false;
                 Log::warning('sync warning: ' . $exception->getMessage());
                 $request->withToken($this->token($this->hub));
                 return true;
