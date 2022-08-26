@@ -133,7 +133,7 @@ class DnsSync
 
         });
         if (config('app.debug')) foreach ($responses as $response) {
-            if ($response instanceof \Illuminate\Http\Response::class) Log::info('Sync', $response->json());
+            if ($response instanceof \Illuminate\Http\Response) Log::info('Sync', $response->json());
         }
         Log::info('end sync');
 

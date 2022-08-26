@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\TokenCacheProvider;
 use Exception;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
 class TokenCache
 {
@@ -71,13 +70,8 @@ class TokenCache
         $this->setRequestBody();
         $body = $this->client;
         $body['client_secret'] = decrypt($this->client['client_secret']);
-        $response = Http::asForm()->retry(10, 200, null, false)->post($url, $body);
-        if ($response->successful()) {
-            return $response->json();
-        } else {
-            Log::error(__('tokencache.token_acquire_failed'), $response->json());
-            throw new Exception(__('tokencache.token_acquire_failed'),500);
-        }
+        return Http::asForm()->retry(20, 200)->post($url, $body)->json();
+
     }
 
     protected function getKey()
