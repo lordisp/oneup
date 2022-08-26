@@ -132,8 +132,18 @@ class DnsSync
             return $responses ?? [];
 
         });
-        if (config('app.debug')) foreach ($responses as $response) {
-            if ($response instanceof \Illuminate\Http\Response) Log::info('Sync', $response->json());
+        if (config('app.debug')) {
+            foreach ($responses as $response) {
+                if ($response instanceof \Illuminate\Http\Client\Response) {
+
+                    $properties = $response->json('properties');
+
+                    $fqdn = $properties['fqdn'];
+
+                    Arr::forget($properties,['fqdn']);
+                    Log::info('Updated ' . $fqdn .' from '. $this->spoke.' to '. $this->hub, $properties);
+                }
+            }
         }
         Log::info('end sync');
 
