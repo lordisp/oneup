@@ -222,7 +222,7 @@ class DnsSync
     protected function cacheRecords($records): void
     {
         foreach ($records as $key => $value) {
-            if ($value) Cache::tags([$this->scope, 'records'])->put($key, $value->json('value'));
+            if ($value instanceof Response) Cache::tags([$this->scope, 'records'])->put($key, $value->json('value'));
         }
     }
 
