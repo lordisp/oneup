@@ -37,7 +37,7 @@ class DnsSync
      */
     public function start(): int
     {
-        Log::info('Initiate synchronization from ' . $this->spoke . ' to ' . $this->hub);
+        Log::info('Initiate synchronization from ' . $this->spoke . ' to ' . $this->hub . ' with SubscriptionId:' . $this->subscriptionId);
 
         $this->state = Response::json('Accepted', 202);
 
@@ -47,7 +47,6 @@ class DnsSync
 
         $this->cacheRecords($records);
 
-        Log::info('start sync with hub-id:' . $this->subscriptionId);
         $this->sync($this->scope, $zones);
 
         $this->flushCache();
@@ -55,9 +54,7 @@ class DnsSync
         $this->state = Response::json(['No Content'], 204);
 
         return $this->state->status();
-
     }
-
 
     public function withSpoke(string $provider): static
     {
@@ -94,7 +91,6 @@ class DnsSync
      */
     protected function sync($scope, $zones): void
     {
-
         $responses = Http::pool(function (Pool $pool) use ($scope, $zones) {
 
             foreach ($zones as $zone) {
@@ -115,8 +111,11 @@ class DnsSync
                             $responses[] = $pool->withHeaders($request['headers'])
                                 ->withToken($this->token($this->hub))
                                 ->retry(20, 200, function ($exception, $request): bool {
-                                    Log::warning('sync-pool warning: ' . $exception->getMessage());
+
+                                    Log::warning('Sync-Pool warning: ' . $exception->getMessage());
+
                                     $request->withToken($this->token($this->hub));
+
                                     return true;
 
                                 }, throw: false)
@@ -124,34 +123,38 @@ class DnsSync
                         }
                     }
                 }
-
             }
-            if (empty($responses)) Log::info('Nothing to update from' . $this->spoke . ' to ' . $this->hub); else {
-                Log::info('updating ' . count($responses) . ' records from ' . $this->spoke . ' to ' . $this->hub);
+
+            if (empty($responses)) Log::info('Nothing to update between ' . $this->spoke . ' and ' . $this->hub); else {
+                Log::info('Updating ' . count($responses) . ' records from ' . $this->spoke . ' to ' . $this->hub);
             }
 
             return $responses ?? [];
 
         });
-        if (config('app.debug')) {
-            foreach ($responses as $response) {
-                if ($response instanceof \Illuminate\Http\Client\Response) {
+        if (config('logging.channels.stderr.level') == 'debug') {
+            $this->debugLogging($responses);
+        }
+    }
 
-                    $code = $response->status();
 
-                    if ($code >= 400) {
-                        Log::warning('Spoke ' . $this->spoke . ' to ' . $this->hub . ': ' . $response->json('message'));
-                    } elseif ($code >= 200 && $code < 300) {
-                        $properties = $response->json('properties');
-                        $fqdn = $properties['fqdn'];
-                        Arr::forget($properties, ['fqdn']);
-                        Log::info('Updated ' . $fqdn . ' from ' . $this->spoke . ' to ' . $this->hub, $properties);
-                    }
+    protected function debugLogging($responses): void
+    {
+        foreach ($responses as $response) {
+            if ($response instanceof \Illuminate\Http\Client\Response) {
+
+                $code = $response->status();
+
+                if ($code >= 400) {
+                    Log::warning('Spoke ' . $this->spoke . ' to ' . $this->hub . ': ' . $response->json('message'));
+                } elseif ($code >= 200 && $code < 300) {
+                    $properties = $response->json('properties');
+                    $fqdn = $properties['fqdn'];
+                    Arr::forget($properties, ['fqdn']);
+                    Log::debug('Updated ' . $fqdn . ' from ' . $this->spoke . ' to ' . $this->hub, $properties);
                 }
             }
         }
-        Log::info('end sync');
-
     }
 
     /**
@@ -168,7 +171,7 @@ class DnsSync
                 if ($exception instanceof ConnectionException && $exception->getCode() === 404) {
                     return false;
                 } else {
-                    Log::warning('sync warning: ' . $exception->getMessage());
+                    Log::warning('Etag warning: ' . $exception->getMessage());
                     $request->withToken($this->token($this->hub));
                     return true;
                 }
@@ -184,11 +187,13 @@ class DnsSync
 
     protected function skipIfEqual($hubRecord, $spokeRecord): array
     {
+        Arr::forget($hubRecord['properties'],'metadata');
+        Arr::forget($spokeRecord['properties'],'metadata');
         if (json_encode($hubRecord['properties']) == json_encode($spokeRecord['properties'])) {
             //Log::debug('Hub and spoke are equal. Skip update', $spokeRecord);
             return ['Skip' => 'true'];
         } else {
-            Log::debug('Spoke differs from hub. Continuing updating ' . $spokeRecord['name'], $spokeRecord);
+            Log::debug('Spoke differs from hub. Continuing updating ' . $spokeRecord['properties']['fqdn'], $spokeRecord);
             return ['If-Match' => $hubRecord['etag']];
         }
     }
