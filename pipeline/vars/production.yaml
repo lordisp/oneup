@@ -3,4 +3,4 @@ variables:
   repository: "oneup"
   namespave: "oneup"
   cluster: "AKS-LHG-SM-GIXI-01P"
-  resource-group: "rg_lhg_aks_gixi_01_p"
+  resourceGroup: "rg_lhg_aks_gixi_01_p"

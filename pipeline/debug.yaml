@@ -27,7 +27,7 @@ stages:
     - template: jobs/debug.yaml
       parameters:
         cluster: ${{ variables.cluster }}
-        resource-group: ${{ variables.resource-group }}
+        resourceGroup: ${{ variables.resourceGroup }}
         namespace: ${{ variables.namespace }}
         loglevel: ${{ parameters.loglevel }}
         debug: ${{ parameters.debug }}

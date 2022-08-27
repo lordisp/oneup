@@ -1,6 +1,6 @@
 parameters:
   - name: cluster
-  - name: resource-group
+  - name: resourceGroup
   - name: namespace
     default: "oneup"
   - name: loglevel
@@ -13,7 +13,7 @@ jobs:
     steps:
       - bash: |
           az login --identity
-          az aks get-credentials --resource-group ${{ parameters.resource-group }} --name ${{ parameters.cluster-name }} --overwrite-existing
+          az aks get-credentials --resourceGroup ${{ parameters.resourceGroup }} --name ${{ parameters.cluster-name }} --overwrite-existing
           export KUBECONFIG=/home/AzDevOps/.kube/config
           kubelogin convert-kubeconfig -l msi
         displayName: 'Login to Kubernetes'
