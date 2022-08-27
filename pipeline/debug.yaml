@@ -20,7 +20,7 @@ parameters:
     default: "false"
 
 stages:
-- stage: Update Debug-Mode
+- stage: Update Debug Mode
   variables:
     - template: vars/production.yaml
   jobs:
