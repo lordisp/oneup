@@ -1,0 +1,25 @@
+parameters:
+  - name: cluster
+  - name: resource-group
+  - name: namespace
+    default: "oneup"
+  - name: loglevel
+    default: "info"
+  - name: debug
+    default: "false"
+jobs:
+  - job: Updating
+    displayName: Updating debug-mode and loglevel
+    steps:
+      - bash: |
+          az login --identity
+          az aks get-credentials --resource-group ${{ parameters.resource-group }} --name ${{ parameters.cluster-name }} --overwrite-existing
+          export KUBECONFIG=/home/AzDevOps/.kube/config
+          kubelogin convert-kubeconfig -l msi
+        displayName: 'Login to Kubernetes'
+      - bash: |
+          kubectl set env deployment/oneup APP_DEBUG=${{ parameters.debug }} --namespace ${{ parameters.namespace }}
+          kubectl set env deployment/queue APP_DEBUG=${{ parameters.debug }} --namespace ${{ parameters.namespace }}
+          kubectl set env deployment/oneup LOG_LEVEL=${{ parameters.loglevel }} --namespace ${{ parameters.namespace }}
+          kubectl set env deployment/queue LOG_LEVEL=${{ parameters.loglevel }} --namespace ${{ parameters.namespace }}
+        displayName: 'Updating debug-mode and loglevel'
