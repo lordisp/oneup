@@ -143,8 +143,9 @@ class DnsSync
                         Log::warning('Spoke ' . $this->spoke . ' to ' . $this->hub . ': ' . $response->json('message'));
                     } elseif ($code >= 200 && $code < 300) {
                         $properties = $response->json('properties');
+                        $fqdn = $properties['fqdn'];
                         Arr::forget($properties, ['fqdn']);
-                        Log::info('Updated ' . $properties['fqdn'] . ' from ' . $this->spoke . ' to ' . $this->hub, $properties);
+                        Log::info('Updated ' . $fqdn . ' from ' . $this->spoke . ' to ' . $this->hub, $properties);
                     }
                 }
             }
