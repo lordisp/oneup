@@ -187,13 +187,13 @@ class DnsSync
 
     protected function skipIfEqual($hubRecord, $spokeRecord): array
     {
-        Arr::forget($hubRecord['properties'],'metadata');
-        Arr::forget($spokeRecord['properties'],'metadata');
+        Arr::forget($hubRecord['properties'], ['metadata', 'ttl', 'isAutoRegistered']);
+        Arr::forget($spokeRecord['properties'], ['metadata', 'ttl', 'isAutoRegistered']);
         if (json_encode($hubRecord['properties']) == json_encode($spokeRecord['properties'])) {
-            //Log::debug('Hub and spoke are equal. Skip update', $spokeRecord);
+            Log::debug('Hub and spoke are equal. Skip updating ' . $spokeRecord['properties']['fqdn'], ['spoke' => $spokeRecord, 'hub' => $hubRecord]);
             return ['Skip' => 'true'];
         } else {
-            Log::debug('Spoke differs from hub. Continuing updating ' . $spokeRecord['properties']['fqdn'], $spokeRecord);
+            Log::debug('Spoke differs from hub. Continuing updating ' . $spokeRecord['properties']['fqdn'], ['spoke' => $spokeRecord, 'hub' => $hubRecord]);
             return ['If-Match' => $hubRecord['etag']];
         }
     }
