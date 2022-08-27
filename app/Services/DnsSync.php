@@ -137,12 +137,15 @@ class DnsSync
             foreach ($responses as $response) {
                 if ($response instanceof \Illuminate\Http\Client\Response) {
 
-                    $properties = $response->json('properties');
+                    $code = $response->status();
 
-                    $fqdn = $properties['fqdn'];
-
-                    Arr::forget($properties, ['fqdn']);
-                    Log::info('Updated ' . $fqdn . ' from ' . $this->spoke . ' to ' . $this->hub, $properties);
+                    if ($code >= 400) {
+                        Log::warning('Spoke ' . $this->spoke . ' to ' . $this->hub . ': ' . $response->json('message'));
+                    } elseif ($code >= 200 && $code < 300) {
+                        $properties = $response->json('properties');
+                        Arr::forget($properties, ['fqdn']);
+                        Log::info('Updated ' . $properties['fqdn'] . ' from ' . $this->spoke . ' to ' . $this->hub, $properties);
+                    }
                 }
             }
         }
