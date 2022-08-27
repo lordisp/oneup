@@ -1,6 +1,6 @@
 variables:
   registry: "acrlhggixiservicesp.azurecr.io"
   repository: "oneup"
-  namespave: "oneup"
+  namespace: "oneup"
   cluster: "AKS-LHG-SM-GIXI-01P"
   resourceGroup: "rg_lhg_aks_gixi_01_p"
