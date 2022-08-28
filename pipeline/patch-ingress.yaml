@@ -9,7 +9,7 @@ stages:
 - stage: Import
   condition: eq(variables.isMain, 'true')
   jobs:
-  - template: ../jobs/import-ingress.yaml
+  - template: /jobs/import-ingress.yaml
     parameters:
       registry_name: ${{variables.registry_name}}
       resource_group: ${{variables.resource_group}}
@@ -25,7 +25,7 @@ stages:
   dependsOn: Import
   condition: and(succeeded(), eq(variables.isMain, 'true'))
   jobs:
-    - template: ../jobs/patch-ingress.yaml
+    - template: /jobs/patch-ingress.yaml
       parameters:
         registry_name: ${{variables.registry_name}}
         resource_group: ${{variables.resource_group}}
