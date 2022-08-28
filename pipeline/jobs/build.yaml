@@ -9,17 +9,17 @@ jobs:
     steps:
       - bash: |
           az login --identity
-          az acr login --name ${{ parameters.registry }}
+          az acr login --name ${{ parameters.registry_name }}
         displayName: 'Login'
 
       - bash: |
-          docker build -t ${{ parameters.registry }}/${{ parameters.repository }}:${{ parameters.tag }} .
+          docker build -t ${{ parameters.registry_name }}/${{ parameters.repository }}:${{ parameters.tag }} .
         displayName: 'Build image'
 
       - bash: |
-          docker tag ${{ parameters.registry }}/${{ parameters.repository }}:${{ parameters.tag }} ${{ parameters.registry }}/${{ parameters.repository }}:latest
-          docker push ${{ parameters.registry }}/${{ parameters.repository }}:${{ parameters.tag }}
-          docker push ${{ parameters.registry }}/${{ parameters.repository }}:latest
+          docker tag ${{ parameters.registry_name }}/${{ parameters.repository }}:${{ parameters.tag }} ${{ parameters.registry_name }}/${{ parameters.repository }}:latest
+          docker push ${{ parameters.registry_name }}/${{ parameters.repository }}:${{ parameters.tag }}
+          docker push ${{ parameters.registry_name }}/${{ parameters.repository }}:latest
         displayName: 'Push to Acr'
 
       - bash: docker images

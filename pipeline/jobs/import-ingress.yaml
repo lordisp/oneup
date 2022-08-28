@@ -1,0 +1,42 @@
+parameters:
+  - name: registry_name
+  - name: resource_group
+  - name: source_registry
+  - name: controller_image
+  - name: controller_tag
+  - name: patch_image
+  - name: patch_tag
+  - name: defaultbackend_image
+  - name: defaultbackend_tag
+
+jobs:
+  - template: ../steps/acr-login
+    parameters:
+      registry_name: {{parameters.registry_name}}
+  - template: ../steps/acr-import.yaml
+    parameters:
+      registry_name: {{parameters.registry_name}}
+      resource_group: {{parameters.resource_group}}
+      source_registry: {{parameters.source_registry}}
+      source_image: {{parameters.controller_image}}
+      source_tag: {{parameters.controller_tag}}
+      image: {{parameters.controller_image}}
+      tag: {{parameters.controller_tag}}
+  - template: ../steps/acr-import.yaml
+    parameters:
+      registry_name: {{parameters.registry_name}}
+      resource_group: {{parameters.resource_group}}
+      source_registry: {{parameters.source_registry}}
+      source_image: {{parameters.patch_image}}
+      source_tag: {{parameters.patch_tag}}
+      image: {{parameters.patch_image}}
+      tag: {{parameters.patch_tag}}
+  - template: ../steps/acr-import.yaml
+    parameters:
+      registry_name: {{parameters.registry_name}}
+      resource_group: {{parameters.resource_group}}
+      source_registry: {{parameters.source_registry}}
+      source_image: {{parameters.defaultbackend_image}}
+      source_tag: {{parameters.defaultbackend_tag}}
+      image: {{parameters.defaultbackend_image}}
+      tag: {{parameters.defaultbackend_tag}}

@@ -83,6 +83,6 @@ stages:
   jobs:
     - template: jobs/build.yaml
       parameters:
-        registry: ${{ variables.registry }}
+        registry: ${{ variables.registry_name }}
         repository: ${{ variables.repository }}
         tag: $(Build.BuildNumber)

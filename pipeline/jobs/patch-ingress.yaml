@@ -1,0 +1,50 @@
+# variables are stored in /pipeline/vars/ingress.yaml
+parameters:
+  - name: registry_name
+  - name: resource_group
+  - name: source_registry
+  - name: chart_version
+  - name: controller_image
+  - name: controller_tag
+  - name: patch_image
+  - name: patch_tag
+  - name: defaultbackend_image
+  - name: defaultbackend_tag
+  - name: ingress_config
+
+steps:
+- bash: helm repo add ingress-nginx https://kubernetes.github.io/ingress-nginx
+  displayName: "Add ingress-nginx repository"
+- bash: helm repo update
+  displayName: "Update repository"
+- bash: |
+    upgrade nginx-ingress ingress-nginx/ingress-nginx \
+        --force \
+        --version ${{parameters.chart_version}} \
+        --namespace ingress-basic \
+        --set controller.replicaCount=2 \
+        --set controller.nodeSelector."kubernetes\.io/os"=linux \
+        --set controller.image.registry=${{parameters.registry_name}} \
+        --set controller.image.image=${{parameters.controller_image}} \
+        --set controller.image.tag=${{parameters.controller_tag}} \
+        --set controller.image.digest="" \
+        --set controller.admissionWebhooks.patch.nodeSelector."kubernetes\.io/os"=linux \
+        --set controller.service.annotations."service\.beta\.kubernetes\.io/azure-load-balancer-health-probe-request-path"=/healthz \
+        --set controller.admissionWebhooks.patch.image.registry=${{parameters.registry_name}} \
+        --set controller.admissionWebhooks.patch.image.image=${{parameters.patch_image}} \
+        --set controller.admissionWebhooks.patch.image.tag=${{parameters.patch_tag}} \
+        --set controller.admissionWebhooks.patch.image.digest="" \
+        --set controller.resources.requests.cpu="100m" \
+        --set controller.resources.limits.cpu="200m" \
+        --set controller.resources.requests.memory="90Mi" \
+        --set controller.resources.limits.memory="180Mi" \
+        --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux \
+        --set defaultBackend.image.registry=${{parameters.registry_name}} \
+        --set defaultBackend.image.image=${{parameters.defaultbackend_image}} \
+        --set defaultBackend.image.tag=${{parameters.defaultbackend_tag}} \
+        --set defaultBackend.image.digest="" \
+        --timeout 5m00s \
+        -f ${{parameters.ingress_config}}
+  displayName: "Patch Controller"
+
+
