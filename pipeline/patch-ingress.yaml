@@ -7,7 +7,6 @@ variables:
 
 stages:
 - stage: Import
-  condition: eq(variables.isMain, 'true')
   jobs:
     - template: steps/acr-login.yaml
       parameters:
