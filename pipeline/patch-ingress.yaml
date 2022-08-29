@@ -6,11 +6,12 @@ variables:
   - template: vars/production.yaml
 
 stages:
-- stage: Import
-  jobs:
-    - template: steps/acr-login.yaml
-      parameters:
-        registry_name: ${{variables.registry_name}}
+  - stage: Import
+    jobs:
+      - template: steps/acr-login.yaml
+        parameters:
+          registry_name: ${{variables.registry_name}}
+
 #    - template: jobs/import-ingress.yaml
 #    parameters:
 #      registry_name: ${{variables.registry_name}}
