@@ -4,4 +4,3 @@ steps:
 - bash: |
     az login --identity --output none
     az acr login --name ${{ parameters.registry_name }} --output none
-  displayName: 'ACR Login'
