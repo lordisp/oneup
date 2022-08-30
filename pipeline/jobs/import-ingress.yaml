@@ -10,9 +10,11 @@ parameters:
   - name: defaultbackend_tag
 
 jobs:
-  - template: ../steps/acr-login.yaml
-    parameters:
-      registry_name: ${{parameters.registry_name}}
+  - job: Import
+    steps:
+    - template: ../steps/acr-login.yaml
+      parameters:
+        registry_name: ${{parameters.registry_name}}
   - template: ../steps/acr-import.yaml
     parameters:
       registry_name: ${{parameters.registry_name}}
