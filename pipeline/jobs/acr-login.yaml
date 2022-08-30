@@ -1,0 +1,11 @@
+# File: simple-param.yml
+parameters:
+  - name: registry_name
+    type: string
+jobs:
+  - job: Login
+    steps:
+      - bash: |
+          az login --identity --output none
+          az acr login --name ${{ parameters.registry_name }} --output none
+        displayName: Login ACR
