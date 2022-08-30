@@ -8,17 +8,26 @@ variables:
 stages:
   - stage: Import
     jobs:
-      - template: jobs/import-ingress.yaml
+      - job: Import
+      - template: steps/acr-login.yaml
         parameters:
-          registry_name: ${{variables.registry_name}}
-          resource_group: ${{variables.resource_group}}
-          source_registry: ${{variables.source_registry}}
-          controller_image: ${{variables.controller_image}}
-          controller_tag: ${{variables.controller_tag}}
-          patch_image: ${{variables.patch_image}}
-          patch_tag: ${{variables.patch_tag}}
-          defaultbackend_image: ${{variables.defaultbackend_image}}
-          defaultbackend_tag: ${{variables.defaultbackend_tag}}
+          registry_name: ${{parameters.registry_name}}
+
+
+#stages:
+#  - stage: Import
+#    jobs:
+#      - template: jobs/import-ingress.yaml
+#        parameters:
+#          registry_name: ${{variables.registry_name}}
+#          resource_group: ${{variables.resource_group}}
+#          source_registry: ${{variables.source_registry}}
+#          controller_image: ${{variables.controller_image}}
+#          controller_tag: ${{variables.controller_tag}}
+#          patch_image: ${{variables.patch_image}}
+#          patch_tag: ${{variables.patch_tag}}
+#          defaultbackend_image: ${{variables.defaultbackend_image}}
+#          defaultbackend_tag: ${{variables.defaultbackend_tag}}
 
 #- stage: Patch
 #  dependsOn: Import
