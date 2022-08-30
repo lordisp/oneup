@@ -24,7 +24,7 @@ jobs:
     - bash: helm repo update
       displayName: "Update repository"
     - bash: |
-        upgrade nginx-ingress ingress-nginx/ingress-nginx \
+        helm upgrade nginx-ingress ingress-nginx/ingress-nginx \
             --force \
             --version ${{parameters.chart_version}} \
             --namespace ingress-basic \
@@ -51,5 +51,6 @@ jobs:
             --set defaultBackend.image.digest="" \
             --timeout 5m00s \
             -f ${{parameters.ingress_config}}
+      displayName: "Upgrade Ingress Controller"
 
 
