@@ -7,8 +7,6 @@ parameters:
   - name: image
   - name: tag
 
-jobs:
-  - job:
-    steps:
-    - bash: az acr import --name {{parameters.registry_name}} -g {{parameters.resource_group}} --source {{parameters.source_registry}}/{{parameters.source_image}}:{{parameters.source_tag}} --image {{parameters.image}}:{{parameters.tag}} --force
-      displayName: "Import image to Azure Container Registry"
+steps:
+- bash: az acr import --name {{parameters.registry_name}} -g {{parameters.resource_group}} --source {{parameters.source_registry}}/{{parameters.source_image}}:{{parameters.source_tag}} --image {{parameters.image}}:{{parameters.tag}} --force
+  displayName: "Import image to Azure Container Registry"

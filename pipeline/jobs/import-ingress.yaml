@@ -13,7 +13,8 @@ jobs:
   - template: ../steps/acr-login.yaml
     parameters:
       registry_name: ${{parameters.registry_name}}
-  - template: ../steps/acr-import.yaml
+  - job: foo
+    template: ../steps/acr-import.yaml
     parameters:
       registry_name: ${{parameters.registry_name}}
       resource_group: ${{parameters.resource_group}}
@@ -22,7 +23,8 @@ jobs:
       source_tag: ${{parameters.controller_tag}}
       image: ${{parameters.controller_image}}
       tag: ${{parameters.controller_tag}}
-  - template: ../steps/acr-import.yaml
+  - job: bar
+    template: ../steps/acr-import.yaml
     parameters:
       registry_name: ${{parameters.registry_name}}
       resource_group: ${{parameters.resource_group}}
@@ -31,7 +33,8 @@ jobs:
       source_tag: ${{parameters.patch_tag}}
       image: ${{parameters.patch_image}}
       tag: ${{parameters.patch_tag}}
-  - template: ../steps/acr-import.yaml
+  - job: baz
+    template: ../steps/acr-import.yaml
     parameters:
       registry_name: ${{parameters.registry_name}}
       resource_group: ${{parameters.resource_group}}
