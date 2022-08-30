@@ -11,7 +11,7 @@ stages:
       - template: jobs/import-ingress.yaml
         parameters:
           registry_name: ${{variables.registry_name}}
-          resource_group: ${{variables.resource_group}}
+          resource_group: ${{variables.registry_rg}}
           source_registry: ${{variables.source_registry}}
           controller_image: ${{variables.controller_image}}
           controller_tag: ${{variables.controller_tag}}
