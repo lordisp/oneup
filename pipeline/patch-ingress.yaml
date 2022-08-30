@@ -17,7 +17,7 @@ stages:
           controller_tag: ${{variables.controller_tag}}
           patch_image: ${{variables.patch_image}}
           patch_tag: ${{variables.patch_tag}}
-          defaultbackend_image: ${{variables.defaultbackend_image
+          defaultbackend_image: ${{variables.defaultbackend_image}}
           defaultbackend_tag: ${{variables.defaultbackend_tag}}
 
 #stages:
