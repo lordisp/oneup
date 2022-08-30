@@ -11,7 +11,7 @@ stages:
       - job: Import
       - template: steps/acr-login.yaml
         parameters:
-          registry_name: ${{parameters.registry_name}}
+          registry_name: ${{variables.registry_name}}
 
 
 #stages:
