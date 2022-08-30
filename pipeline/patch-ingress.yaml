@@ -19,7 +19,12 @@ stages:
           patch_tag: ${{variables.patch_tag}}
           defaultbackend_image: ${{variables.defaultbackend_image}}
           defaultbackend_tag: ${{variables.defaultbackend_tag}}
-
+  - stage: Patch
+    jobs:
+      - template: jobs/patch-ingress.yaml
+        parameters:
+          cluster_name: ${{variables.cluster}}
+          resource_group: ${{variables.resource_group}}
 #- stage: Patch
 #  dependsOn: Import
 #  condition: and(succeeded(), eq(variables.isMain, 'true'))
