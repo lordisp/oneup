@@ -3,13 +3,13 @@ REGISTRY_NAME=acrlhggixiservicesp.azurecr.io
 RESOUCRE_GROUP=RG_LHG_ACR_01_P
 SOURCE_REGISTRY=k8s.gcr.io
 CONTROLLER_IMAGE=ingress-nginx/controller
-VERSION=4.1.3
-CONTROLLER_TAG=v1.2.1
+VERSION=4.2.3
+CONTROLLER_TAG=v1.3.0
 PATCH_IMAGE=ingress-nginx/kube-webhook-certgen
-PATCH_TAG=v1.1.1
+PATCH_TAG=v1.3.0
 DEFAULTBACKEND_IMAGE=defaultbackend-amd64
 DEFAULTBACKEND_TAG=1.5
-
+CONFIG=/definitions/helm/ingress-config.yaml
 
 az acr import --name $REGISTRY_NAME -g $RESOUCRE_GROUP --source $SOURCE_REGISTRY/$CONTROLLER_IMAGE:$CONTROLLER_TAG --image $CONTROLLER_IMAGE:$CONTROLLER_TAG --force
 az acr import --name $REGISTRY_NAME -g $RESOUCRE_GROUP --source $SOURCE_REGISTRY/$PATCH_IMAGE:$PATCH_TAG --image $PATCH_IMAGE:$PATCH_TAG --force
@@ -43,4 +43,4 @@ helm upgrade nginx-ingress ingress-nginx/ingress-nginx \
     --set defaultBackend.image.tag=$DEFAULTBACKEND_TAG \
     --set defaultBackend.image.digest="" \
     --timeout 5m00s \
-    -f ingress-config.yaml
+    -f $CONFIG

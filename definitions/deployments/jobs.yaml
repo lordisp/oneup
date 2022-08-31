@@ -15,6 +15,7 @@ spec:
           name: job
           namespace: oneup
         spec:
+          activeDeadlineSeconds: 600
           containers:
             - name: job
               image: acrlhggixiservicesp.azurecr.io/oneup:latest

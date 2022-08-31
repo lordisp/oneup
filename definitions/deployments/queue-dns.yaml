@@ -4,7 +4,7 @@ metadata:
   name: queue
   namespace: oneup
 spec:
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels:
       app: queue
@@ -12,7 +12,7 @@ spec:
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxSurge: 1
+      maxSurge: 2
       maxUnavailable: 1
   template:
     metadata:
@@ -28,14 +28,15 @@ spec:
             - "-c"
             - >
               php artisan config:clear;
+              php artisan migrate --force;
               php artisan queue:work --queue=dns --timeout=1800;
           resources:
             requests:
-              cpu: "250m"
-              memory:  "512Mi"
+              cpu: "124m"
+              memory:  "405Mi"
             limits:
-              cpu: "842m"
-              memory:  "2560Mi"
+              cpu: "254m"
+              memory:  "884Mi"
           volumeMounts:
             - name: apache-config
               mountPath: /etc/apache2/sites-available/

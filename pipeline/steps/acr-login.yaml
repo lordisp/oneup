@@ -1,0 +1,9 @@
+parameters:
+  - name: registry_name
+    type: string
+
+steps:
+  - bash: |
+      az login --identity --output none
+      az acr login --name ${{ parameters.registry_name }} --output none
+    displayName: Login ACR

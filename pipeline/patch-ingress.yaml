@@ -1,0 +1,38 @@
+trigger: none
+pool:
+  name: LHG-WEUR-GIXI-DEVAGENT-VMSS-01-P
+variables:
+  - template: vars/global.yaml
+  - template: vars/production.yaml
+
+stages:
+  - stage: Import
+    jobs:
+      - template: jobs/import-ingress.yaml
+        parameters:
+          registry_name: ${{variables.registry_name}}
+          resource_group: ${{variables.registry_rg}}
+          source_registry: ${{variables.source_registry}}
+          controller_image: ${{variables.controller_image}}
+          controller_tag: ${{variables.controller_tag}}
+          patch_image: ${{variables.patch_image}}
+          patch_tag: ${{variables.patch_tag}}
+          defaultbackend_image: ${{variables.defaultbackend_image}}
+          defaultbackend_tag: ${{variables.defaultbackend_tag}}
+  - stage: Patch
+    #dependsOn: Import
+    #condition: and(succeeded(), eq(variables.isMain, 'true'))
+    jobs:
+      - template: jobs/patch-ingress.yaml
+        parameters:
+          cluster_name: ${{variables.cluster}}
+          resource_group: ${{variables.resource_group}}
+          registry_name: ${{ variables.registry_name}}
+          chart_version: ${{ variables.chart_version}}
+          controller_image: ${{ variables.controller_image}}
+          controller_tag: ${{ variables.controller_tag}}
+          patch_image: ${{ variables.patch_image}}
+          patch_tag: ${{ variables.patch_tag}}
+          defaultbackend_image: ${{ variables.defaultbackend_image}}
+          defaultbackend_tag: ${{ variables.defaultbackend_tag}}
+          ingress_config: $(System.DefaultWorkingDirectory)/${{ variables.ingress_config}}

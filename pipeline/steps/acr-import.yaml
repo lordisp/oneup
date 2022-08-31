@@ -1,0 +1,12 @@
+parameters:
+  - name: registry_name
+  - name: resource_group
+  - name: source_registry
+  - name: source_image
+  - name: source_tag
+  - name: image
+  - name: tag
+
+steps:
+- bash: az acr import --name ${{parameters.registry_name}} -g ${{parameters.resource_group}} --source ${{parameters.source_registry}}/${{parameters.source_image}}:${{parameters.source_tag}} --image ${{parameters.image}}:${{parameters.tag}} --force
+  displayName: "Import image to Azure Container Registry"
