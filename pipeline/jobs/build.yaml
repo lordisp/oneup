@@ -1,5 +1,5 @@
 parameters:
-  - name: registry
+  - name: registry_name
   - name: repository
   - name: tag
     default: latest
