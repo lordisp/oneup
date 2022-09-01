@@ -18,12 +18,9 @@ class DnsSyncTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-
         $this->seed(TokenCacheProviderSeeder::class);
-
         $this->seed(DnsSyncZoneSeeder::class);
     }
-
 
     /** @test */
     public function can_load_zones_into_an_array()
@@ -35,11 +32,9 @@ class DnsSyncTest extends TestCase
         $this->assertCount(1, $zones);
     }
 
-
     /** @test */
     public function mock_dns_sync_facade_with_public_methods()
     {
-
         DnsSync::shouldReceive('withRecordType')
             ->once()
             ->with(['A', 'AAAA'])
@@ -65,7 +60,6 @@ class DnsSyncTest extends TestCase
             ->start();
 
         $this->assertEquals(0, $status);
-
     }
 
     /** @test */
@@ -74,9 +68,9 @@ class DnsSyncTest extends TestCase
         $sub = config('dnssync.subscription_id');
         $rg = config('dnssync.resource_group');
 
-        $status = DnsSync::withRecordType(['A', 'AAAA'])
-            ->withHub('azure', $sub, $rg)
-            ->withSpoke('azure')
+        $status = DnsSync::withRecordType(['A', 'AAAA', 'MX', 'PTR', 'SRV', 'TXT'])
+            ->withHub('lhg_arm', $sub, $rg)
+            ->withSpoke('lhg_arm')
             ->start();
         $this->assertEquals(204, $status);
     }
@@ -87,9 +81,10 @@ class DnsSyncTest extends TestCase
         $sub = config('dnssync.subscription_id');
         $rg = config('dnssync.resource_group');
 
-        $status = DnsSync::withRecordType(['A', 'AAAA'])
-            ->withHub('azure', $sub, $rg)
-            ->withSpoke('lhtest')
+        $status = DnsSync::withRecordType(['A'])
+            ->withHub('lhg_arm', $sub, $rg)
+            ->withSpoke('lhtest_arm')
+            //->withSpoke('aviatar_arm')
             ->start();
         $this->assertEquals(204, $status);
     }
@@ -102,6 +97,4 @@ class DnsSyncTest extends TestCase
     {
         return array_map('trim', file(__DIR__ . '/stups/dns_zones.stup'));
     }
-
-
 }
