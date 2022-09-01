@@ -38,21 +38,13 @@ class DnsSync
     public function start(): int
     {
         Log::info('Initiate synchronization from ' . $this->spoke . ' to ' . $this->hub . ' with SubscriptionId:' . $this->subscriptionId);
-
         $this->state = Response::json('Accepted', 202);
-
         $zones = $this->queryZones($this->scope, $this->subscriptionId);
-
         $records = $this->queryRecords($zones);
-
-        $this->cacheRecords($records);
-
-        $this->sync($this->scope, $zones);
-
-        $this->flushCache();
-
+        $this->cacheRecords($records)
+            ->sync($this->scope, $zones)
+            ->flushCache();
         $this->state = Response::json(['No Content'], 204);
-
         return $this->state->status();
     }
 
@@ -70,7 +62,6 @@ class DnsSync
         return $this;
     }
 
-
     public function withRecordType(string|array $type): static
     {
         $this->recordType = is_array($type) ? $type : [$type];
@@ -82,14 +73,53 @@ class DnsSync
         return in_array(data_get($record, 'name'), $this->recordType);
     }
 
+    protected function skipIfEqual($hubRecord, $spokeRecord): array
+    {
+        Arr::forget($hubRecord['properties'], ['metadata', 'ttl', 'isAutoRegistered']);
+        Arr::forget($spokeRecord['properties'], ['metadata', 'ttl', 'isAutoRegistered']);
+        if (json_encode($hubRecord['properties']) == json_encode($spokeRecord['properties'])) {
+            Log::debug('Hub and spoke are equal. Skip updating ' . $spokeRecord['properties']['fqdn'], ['spoke' => $spokeRecord, 'hub' => $hubRecord]);
+            return ['Skip' => 'true'];
+        } else {
+            Log::debug('Spoke differs from hub. Continuing updating ' . $spokeRecord['properties']['fqdn'], ['spoke' => $spokeRecord, 'hub' => $hubRecord]);
+            return ['If-Match' => $hubRecord['etag']];
+        }
+    }
+
+    /**
+     * Call Microsoft ResourceGraph Explorer and retrieve private-dns zones. Depending on the $isHub property, either spokes or the hub will be queried.
+     * This is required to run dns deletion queries in a later version.
+     * Result will be cached to Redis with a tag of a random Uuid and `zones`
+     *
+     * @param string $scope
+     * @param string $subscriptionId
+     * @return array
+     */
+    protected function queryZones(string $scope, string $subscriptionId = ''): array
+    {
+        $zones = DnsSyncZone::all()->pluck('name')->toArray();
+        $operator = $this->isHub && Str::isUuid($subscriptionId) ? '==' : '!=';
+        $url = 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01';
+        $query = 'resources | project  zones = pack_array(' . $this->toString($zones) . ') | mv-expand zones to typeof(string) | join kind = innerunique ( resources | where type == "microsoft.network/privatednszones" and subscriptionId ' . $operator . ' "' . $subscriptionId . '" | project name, id, subscriptionId) on $left.zones == $right.name | project id';
+
+        return Cache::tags([$scope, 'zones'])->rememberForever('zones', fn(): array => Arr::flatten(
+            Http::withToken($this->token($this->tokenProvider()))
+                ->acceptJson()
+                ->retry(20, 200, function ($exception, $request): bool {
+                    $request->withToken($this->token($this->tokenProvider()));
+                    return true;
+                })
+                ->post($url, ["query" => $query])
+                ->json('data')));
+    }
 
     /**
      * Authenticate with Hub
      * @param $scope
      * @param $zones
-     * @return void
+     * @return static
      */
-    protected function sync($scope, $zones): void
+    protected function sync($scope, $zones): static
     {
         $responses = Http::pool(function (Pool $pool) use ($scope, $zones) {
 
@@ -135,8 +165,8 @@ class DnsSync
         if (config('logging.channels.stderr.level') == 'debug') {
             $this->debugLogging($responses);
         }
+        return $this;
     }
-
 
     protected function debugLogging($responses): void
     {
@@ -185,46 +215,6 @@ class DnsSync
             : ['properties' => $spokeRecord['properties'], 'headers' => $this->skipIfEqual($hubRecord, $spokeRecord), 'etag' => $hubRecord['etag'],];
     }
 
-    protected function skipIfEqual($hubRecord, $spokeRecord): array
-    {
-        Arr::forget($hubRecord['properties'], ['metadata', 'ttl', 'isAutoRegistered']);
-        Arr::forget($spokeRecord['properties'], ['metadata', 'ttl', 'isAutoRegistered']);
-        if (json_encode($hubRecord['properties']) == json_encode($spokeRecord['properties'])) {
-            Log::debug('Hub and spoke are equal. Skip updating ' . $spokeRecord['properties']['fqdn'], ['spoke' => $spokeRecord, 'hub' => $hubRecord]);
-            return ['Skip' => 'true'];
-        } else {
-            Log::debug('Spoke differs from hub. Continuing updating ' . $spokeRecord['properties']['fqdn'], ['spoke' => $spokeRecord, 'hub' => $hubRecord]);
-            return ['If-Match' => $hubRecord['etag']];
-        }
-    }
-
-    /**
-     * Call Microsoft ResourceGraph Explorer and retrieve private-dns zones. Depending on the $isHub property, either spokes or the hub will be queried.
-     * This is required to run dns deletion queries in a later version.
-     * Result will be cached to Redis with a tag of a random Uuid and `zones`
-     *
-     * @param string $scope
-     * @param string $subscriptionId
-     * @return array
-     */
-    protected function queryZones(string $scope, string $subscriptionId = ''): array
-    {
-        $zones = DnsSyncZone::all()->pluck('name')->toArray();
-        $operator = $this->isHub && Str::isUuid($subscriptionId) ? '==' : '!=';
-        $url = 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01';
-        $query = 'resources | project  zones = pack_array(' . $this->toString($zones) . ') | mv-expand zones to typeof(string) | join kind = innerunique ( resources | where type == "microsoft.network/privatednszones" and subscriptionId ' . $operator . ' "' . $subscriptionId . '" | project name, id, subscriptionId) on $left.zones == $right.name | project id';
-
-        return Cache::tags([$scope, 'zones'])->rememberForever('zones', fn(): array => Arr::flatten(
-            Http::withToken($this->token($this->tokenProvider()))
-                ->acceptJson()
-                ->retry(20, 200, function ($exception, $request): bool {
-                    $request->withToken($this->token($this->tokenProvider()));
-                    return true;
-                })
-                ->post($url, ["query" => $query])
-                ->json('data')));
-    }
-
     protected function queryRecords($zones): array
     {
         return Http::pool(function (Pool $pool) use ($zones) {
@@ -242,11 +232,12 @@ class DnsSync
         });
     }
 
-    protected function cacheRecords($records): void
+    protected function cacheRecords($records): static
     {
         foreach ($records as $key => $value) {
             if ($value instanceof \Illuminate\Http\Client\Response) Cache::tags([$this->scope, 'records'])->put($key, $value->json('value'));
         }
+        return $this;
     }
 
     protected function flushCache(): void
@@ -294,5 +285,4 @@ class DnsSync
             ->pluck('id')
             ->first();
     }
-
 }

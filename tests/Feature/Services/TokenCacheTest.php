@@ -21,8 +21,7 @@ class TokenCacheTest extends TestCase
     /** @test */
     public function can_acquire_an_access_token()
     {
-        echo "AZURE_TENANT: ". env('AZURE_TENANT');
-        $token = TokenCache::provider('azure')->get();
+        $token = TokenCache::provider('lhg_arm')->get();
         $this->assertIsString($token);
         // the $token is encrypted and must be decrypted to decode it
         $this->assertIsObject($this->decode(decrypt($token)));
@@ -31,24 +30,24 @@ class TokenCacheTest extends TestCase
     /** @test */
     public function can_disable_token_encryption()
     {
-        $token1= TokenCache::provider('azure')->get();
-        $token2= TokenCache::provider('azure')->withoutEncryption()->get();
+        $token1= TokenCache::provider('lhg_arm')->get();
+        $token2= TokenCache::provider('lhg_arm')->withoutEncryption()->get();
         $this->assertEquals(decrypt($token1),$token2);
     }
 
     /** @test */
     public function can_reuse_a_token()
     {
-        $first = TokenCache::provider('azure')->get();
-        $second = TokenCache::provider('azure')->get();
+        $first = TokenCache::provider('lhg_arm')->get();
+        $second = TokenCache::provider('lhg_arm')->get();
         $this->assertEquals($first, $second);
     }
 
     /** @test */
     public function can_acquire_an_azure_arm_token()
     {
-        $instance = TokenCache::provider('azure');
-        $this->assertEquals('azure', $this->accessProtected($instance, 'provider'));
+        $instance = TokenCache::provider('lhg_arm');
+        $this->assertEquals('lhg_arm', $this->accessProtected($instance, 'provider'));
         $this->assertIsString($instance->get());
     }
 

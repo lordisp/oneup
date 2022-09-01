@@ -174,8 +174,8 @@ class ProviderTest extends TestCase implements FrontendTest
         $this->actingAs($this->user);
 
         Livewire::test(Provider::class)
-            ->set('search', 'azure_ad')
-            ->assertSee('azure_ad')
+            ->set('search', 'lhg_arm')
+            ->assertSee('lhg_arm')
             ->assertDontSee('lhtest')
             ->set('search', 'lhtest')
             ->assertSee('lhtest')

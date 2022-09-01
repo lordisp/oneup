@@ -15,7 +15,7 @@ class TokenCacheProviderSeeder extends Seeder
     public function run(): void
     {
         TokenCacheProvider::factory()->state([
-            'name' => 'azure_ad',
+            'name' => 'lhg_graph',
             'auth_url' => '/oauth2/v2.0/authorize',
             'token_url' => '/oauth2/v2.0/token',
             'auth_endpoint' => 'https://login.microsoftonline.com/',
@@ -28,20 +28,20 @@ class TokenCacheProviderSeeder extends Seeder
         ])->create();
 
         TokenCacheProvider::factory()->state([
-            'name' => 'azure',
+            'name' => 'lhg_arm',
             'auth_url' => '/oauth2/authorize',
             'token_url' => '/oauth2/token',
             'auth_endpoint' => 'https://login.microsoftonline.com/',
             'client' => json_encode([
-                'tenant' => config('tokencache.azure_ad.client.tenant'),
-                'client_id' => config('tokencache.azure_ad.client.client_id'),
-                'client_secret' => encrypt(config('tokencache.azure_ad.client.client_secret')),
+                'tenant' => config('tokencache.azure.client.tenant'),
+                'client_id' => config('tokencache.azure.client.client_id'),
+                'client_secret' => encrypt(config('tokencache.azure.client.client_secret')),
                 'resource' => 'https://management.azure.com',
             ])
         ])->create();
 
         TokenCacheProvider::factory()->state([
-            'name' => 'lhtest',
+            'name' => 'lhtest_arm',
             'auth_url' => '/oauth2/authorize',
             'token_url' => '/oauth2/token',
             'auth_endpoint' => 'https://login.microsoftonline.com/',
