@@ -20,8 +20,8 @@ stages:
           defaultbackend_image: ${{variables.defaultbackend_image}}
           defaultbackend_tag: ${{variables.defaultbackend_tag}}
   - stage: Patch
-    #dependsOn: Import
-    #condition: and(succeeded(), eq(variables.isMain, 'true'))
+    dependsOn: Import
+    condition: and(succeeded(), eq(variables.isMain, 'true'))
     jobs:
       - template: jobs/patch-ingress.yaml
         parameters:

@@ -4,7 +4,7 @@ metadata:
   name: oneup
   namespace: oneup
 spec:
-  replicas: 1
+  replicas: 2
   selector:
     matchLabels:
       app: oneup
@@ -19,8 +19,13 @@ spec:
       labels:
         app: oneup
     spec:
+      securityContext:
+        runAsUser: 1000
       containers:
         - name: oneup-app
+          securityContext:
+            runAsUser: 1000
+            #readOnlyRootFilesystem: true
           image: acrlhggixiservicesp.azurecr.io/oneup:latest
           imagePullPolicy: Always
           lifecycle:
@@ -30,8 +35,7 @@ spec:
                   - "/bin/sh"
                   - "-c"
                   - >
-                    php artisan optimize:clear;
-                    php artisan config:clear;
+                    php artisan config:cache;
                     php artisan migrate --force;
                   #php artisan down --secret="maintenance" --render="maintenance.index";
           resources:
@@ -47,6 +51,8 @@ spec:
               readOnly: true
             - name: oneup-storage
               mountPath: /var/www/html/storage/app/
+            - mountPath: /tmp
+              name: tmp
           envFrom:
             - secretRef:
                 name: oneup-env
@@ -65,6 +71,8 @@ spec:
         - name: oneup-storage
           persistentVolumeClaim:
             claimName: oneup-storage
+        - emptyDir: { }
+          name: tmp
       affinity:
         nodeAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:

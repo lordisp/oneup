@@ -8,7 +8,7 @@ variables:
   source_registry: "k8s.gcr.io"
   chart_version: "4.2.3"
   controller_image: "ingress-nginx/controller"
-  controller_tag: "v1.3.0"
+  controller_tag: "v1.3.1"
   patch_image: "ingress-nginx/kube-webhook-certgen"
   patch_tag: "v1.3.0"
   defaultbackend_image: "defaultbackend-amd64"
