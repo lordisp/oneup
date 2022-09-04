@@ -1,5 +1,5 @@
 # PHP Dependencies
-FROM composer:2.3.7 as vendor
+FROM composer:latest as vendor
 RUN apk add --no-cache freetype libpng libjpeg-turbo freetype-dev libpng-dev libjpeg-turbo-dev && \
   docker-php-ext-configure gd \
     --with-freetype \
@@ -13,13 +13,13 @@ RUN composer install \
 RUN composer dump-autoload
 
 # Frontend
-FROM node:18.4.0  as frontend
+FROM node:latest  as frontend
 COPY . /app
 WORKDIR /app
 RUN npm install && npm run build && npm install shiki
 
 # Application
-FROM php:8.1.7-apache
+FROM php:8.1.9-apache
 ENV port 8000
 ENV uid 1000
 ENV user oneup
@@ -64,7 +64,9 @@ COPY --chown=www-data:www-data --from=vendor /app/vendor/ /var/www/html/vendor/
 COPY --chown=www-data:www-data --from=frontend /app/public/build/ /var/www/html/public/build/
 COPY --chown=www-data:www-data --from=frontend /app/public/mix-manifest.json /var/www/html/public/mix-manifest.json
 
+RUN chown www-data:www-data -R /var/www/html/ssl
 RUN chmod 770 -R /var/www/html/ssl
-RUN chmod 777 -R /var/www/html/storage
-RUN chmod 777 -R /var/www/html/bootstrap
+RUN chmod 770 -R /var/www/html/storage
+RUN chmod 770 -R /var/www/html/bootstrap
+RUN apt update && apt upgrade -y
 USER $user
