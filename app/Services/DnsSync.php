@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Facades\TokenCache;
 use App\Models\DnsSyncZone;
+use App\Traits\Token;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\JsonResponse;
@@ -21,6 +21,8 @@ use Response;
  */
 class DnsSync
 {
+    use Token;
+
     protected string $scope, $spoke, $hub, $subscriptionId, $resourceGroup;
     protected array $recordType;
     protected bool $isHub = false;
@@ -254,16 +256,6 @@ class DnsSync
     protected function toString(array $array): string
     {
         return '"' . implode('","', $array) . '"';
-    }
-
-    /**
-     * Acquire an access-token for azure api calls
-     * @param $provider
-     * @return string
-     */
-    protected function token($provider): string
-    {
-        return decrypt(TokenCache::provider($provider)->get());
     }
 
     protected function tokenProvider(): string

@@ -72,5 +72,8 @@ class AppServiceProvider extends ServiceProvider
         Http::macro('azure', function () {
             return Http::baseUrl('https://management.azure.com');
         });
+        Http::macro('graph', function () {
+            return Http::baseUrl('https://graph.microsoft.com');
+        });
     }
 }

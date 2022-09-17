@@ -32,7 +32,6 @@ data:
   SESSION_COOKIE: "oneup_session"
   APACHE_RUN_USER: "www-data"
   APACHE_RUN_GROUP: "www-data"
-  APP_STORAGE: "/tmp/cache/config.php"
   apache : |
     <VirtualHost *:8000>
       DocumentRoot /var/www/html/public
