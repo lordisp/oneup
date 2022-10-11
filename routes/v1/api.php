@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\TokenCacheProviderController;
 use App\Http\Controllers\V1\Rbac\UserController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +16,6 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-#Todo protect API
 Route::middleware(['client'])->group(function () {
     Route::apiResources([
         '/users' => UserController::class,
@@ -29,4 +29,4 @@ Route::middleware(['client'])->group(function () {
         return $request->user();
     });
 });
-
+Route::post('webhook', [WebhookController::class, 'handle'])->middleware('webhook');

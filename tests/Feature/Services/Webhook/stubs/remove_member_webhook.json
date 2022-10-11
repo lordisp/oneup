@@ -1,0 +1,54 @@
+{
+  "schemaId": "azureMonitorCommonAlertSchema",
+  "data": {
+    "essentials": {
+      "alertId": "/subscriptions/881a97ff-f77b-4f60-a853-c10be1183568/providers/Microsoft.AlertsManagement/alerts/1d313461-3883-9cf5-544a-26201e91f483",
+      "alertRule": "oneup_remove_member_from_group",
+      "severity": "Sev3",
+      "signalType": "Log",
+      "monitorCondition": "Fired",
+      "monitoringService": "Log Alerts V2",
+      "alertTargetIDs": [
+        "/subscriptions/881a97ff-f77b-4f60-a853-c10be1183568/resourcegroups/rg_fnds_governance_monitoring/providers/microsoft.operationalinsights/workspaces/log-lhg-ams-governance-default"
+      ],
+      "configurationItems": [
+        "/subscriptions/881a97ff-f77b-4f60-a853-c10be1183568/resourceGroups/rg_fnds_governance_monitoring/providers/Microsoft.OperationalInsights/workspaces/LOG-LHG-AMS-GOVERNANCE-DEFAULT"
+      ],
+      "originAlertId": "5b5c4bef-4a91-4f50-aee3-cba842d87d0c",
+      "firedDateTime": "2022-10-10T11:31:31.0170873Z",
+      "description": "Triggers a webhook to disable a user if it has been removed from the OneUp Teams channel",
+      "essentialsVersion": "1.0",
+      "alertContextVersion": "1.0"
+    },
+    "alertContext": {
+      "properties": {},
+      "conditionType": "LogQueryCriteria",
+      "condition": {
+        "windowSize": "PT5M",
+        "allOf": [
+          {
+            "searchQuery": "AuditLogs \n| where TimeGenerated > ago(5m)\n| where OperationName == \"Remove member from group\"\n| where TargetResources has \"64a289f8-7430-40b4-830f-f64ffd6452fc\"\n",
+            "metricMeasureColumn": null,
+            "targetResourceTypes": "['Microsoft.OperationalInsights/workspaces']",
+            "operator": "GreaterThan",
+            "threshold": "0",
+            "timeAggregation": "Count",
+            "dimensions": [],
+            "metricValue": 3.0,
+            "failingPeriods": {
+              "numberOfEvaluationPeriods": 1,
+              "minFailingPeriodsToAlert": 1
+            },
+            "linkToSearchResultsUI": "https://portal.azure.com#@72e15514-5be9-46a8-8b0b-af9b1b77b3b8/blade/Microsoft_Azure_Monitoring_Logs/LogsBlade/source/Alerts.EmailLinks/scope/%7B%22resources%22%3A%5B%7B%22resourceId%22%3A%22%2Fsubscriptions%2F881a97ff-f77b-4f60-a853-c10be1183568%2FresourceGroups%2Frg_fnds_governance_monitoring%2Fproviders%2FMicrosoft.OperationalInsights%2Fworkspaces%2FLOG-LHG-AMS-GOVERNANCE-DEFAULT%22%7D%5D%7D/q/eJxFjbEOgjAURXe%2F4qUTDDWlFKwkmDi5GE0Ik1uxr8BQStqiix8vxkRv7nBzhnOPix7j2fUBNi94DugR2tHiCSf0KqKGAyR6HXGFCWec04ytbbOsyllVyC375pYChcKmP8t1%2FghGN12URahrIA1a90CwaDv0YLyz0Hu3zOT%2FrHyPscHgFn%2FHAIMKQEqhuNwbSXciZ1SwTlCZM0NNKYzRpSi4uZM3/prettify/1/timespan/2022-10-08T11%3a30%3a58.0000000Z%2f2022-10-10T11%3a30%3a58.0000000Z",
+            "linkToFilteredSearchResultsUI": "https://portal.azure.com#@72e15514-5be9-46a8-8b0b-af9b1b77b3b8/blade/Microsoft_Azure_Monitoring_Logs/LogsBlade/source/Alerts.EmailLinks/scope/%7B%22resources%22%3A%5B%7B%22resourceId%22%3A%22%2Fsubscriptions%2F881a97ff-f77b-4f60-a853-c10be1183568%2FresourceGroups%2Frg_fnds_governance_monitoring%2Fproviders%2FMicrosoft.OperationalInsights%2Fworkspaces%2FLOG-LHG-AMS-GOVERNANCE-DEFAULT%22%7D%5D%7D/q/eJxFjbEOgjAURXe%2F4qUTDDWlFKwkmDi5GE0Ik1uxr8BQStqiix8vxkRv7nBzhnOPix7j2fUBNi94DugR2tHiCSf0KqKGAyR6HXGFCWec04ytbbOsyllVyC375pYChcKmP8t1%2FghGN12URahrIA1a90CwaDv0YLyz0Hu3zOT%2FrHyPscHgFn%2FHAIMKQEqhuNwbSXciZ1SwTlCZM0NNKYzRpSi4uZM3/prettify/1/timespan/2022-10-08T11%3a30%3a58.0000000Z%2f2022-10-10T11%3a30%3a58.0000000Z",
+            "linkToSearchResultsAPI": "https://api.loganalytics.io/v1/workspaces/4e733294-7d59-46ab-8911-dd3743fbf01f/query?query=AuditLogs%20%0A%7C%20where%20TimeGenerated%20%3E%20%28datetime%282022-10-10T11%3A30%3A58.0000000Z%29%20-%205m%29%0A%7C%20where%20OperationName%20%3D%3D%20%22Remove%20member%20from%20group%22%0A%7C%20where%20TargetResources%20has%20%2264a289f8-7430-40b4-830f-f64ffd6452fc%22&timespan=2022-10-08T11%3a30%3a58.0000000Z%2f2022-10-10T11%3a30%3a58.0000000Z",
+            "linkToFilteredSearchResultsAPI": "https://api.loganalytics.io/v1/workspaces/4e733294-7d59-46ab-8911-dd3743fbf01f/query?query=AuditLogs%20%0A%7C%20where%20TimeGenerated%20%3E%20%28datetime%282022-10-10T11%3A30%3A58.0000000Z%29%20-%205m%29%0A%7C%20where%20OperationName%20%3D%3D%20%22Remove%20member%20from%20group%22%0A%7C%20where%20TargetResources%20has%20%2264a289f8-7430-40b4-830f-f64ffd6452fc%22&timespan=2022-10-08T11%3a30%3a58.0000000Z%2f2022-10-10T11%3a30%3a58.0000000Z"
+          }
+        ],
+        "windowStartTime": "2022-10-08T11:30:58Z",
+        "windowEndTime": "2022-10-10T11:30:58Z"
+      }
+    },
+    "customProperties": null
+  }
+}

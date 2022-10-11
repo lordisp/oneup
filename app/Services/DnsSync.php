@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Facades\TokenCache;
 use App\Models\DnsSyncZone;
+use App\Traits\Token;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Pool;
 use Illuminate\Http\JsonResponse;
@@ -21,6 +21,8 @@ use Response;
  */
 class DnsSync
 {
+    use Token;
+
     protected string $scope, $spoke, $hub, $subscriptionId, $resourceGroup;
     protected array $recordType;
     protected bool $isHub = false;
@@ -103,7 +105,7 @@ class DnsSync
         $query = 'resources | project  zones = pack_array(' . $this->toString($zones) . ') | mv-expand zones to typeof(string) | join kind = innerunique ( resources | where type == "microsoft.network/privatednszones" and subscriptionId ' . $operator . ' "' . $subscriptionId . '" | project name, id, subscriptionId) on $left.zones == $right.name | project id';
 
         return Cache::tags([$scope, 'zones'])->rememberForever('zones', fn(): array => Arr::flatten(
-            Http::withToken($this->token($this->tokenProvider()))
+            Http::withToken(decrypt($this->token($this->tokenProvider())))
                 ->acceptJson()
                 ->retry(20, 200, function ($exception, $request): bool {
                     $request->withToken($this->token($this->tokenProvider()));
@@ -254,16 +256,6 @@ class DnsSync
     protected function toString(array $array): string
     {
         return '"' . implode('","', $array) . '"';
-    }
-
-    /**
-     * Acquire an access-token for azure api calls
-     * @param $provider
-     * @return string
-     */
-    protected function token($provider): string
-    {
-        return decrypt(TokenCache::provider($provider)->get());
     }
 
     protected function tokenProvider(): string

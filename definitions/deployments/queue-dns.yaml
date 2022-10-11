@@ -27,9 +27,9 @@ spec:
             - "/bin/sh"
             - "-c"
             - >
-              php artisan config:clear;
+              php artisan config:cache;
               php artisan migrate --force;
-              php artisan queue:work --queue=dns --timeout=1800;
+              php artisan queue:work --queue=dns,admin --timeout=1800;
           resources:
             requests:
               cpu: "124m"
