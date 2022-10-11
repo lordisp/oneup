@@ -10,7 +10,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class ImportUser implements ShouldQueue
+class UpdateUserJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -33,17 +33,15 @@ class ImportUser implements ShouldQueue
      *
      * @return void
      */
-    public function handle(): void
+    public function handle()
     {
-        $user = User::updateOrCreate(['provider_id' => $this->member['id']],
-            [
-                'provider' => $this->provider,
-                'displayName' => $this->member['displayName'],
-                'firstName' => $this->member['givenName'],
-                'lastName' => $this->member['surname'],
-                'email' => $this->validEmailAddress($this->member),
-            ])->save();
-        if ($user === false) Log::error('Failed to import user ' . $this->member['id'], $this->member); else {
+        $email = $this->validEmailAddress($this->member);
+
+        $user = User::where('email', $email)->first();
+
+        if (!isset($user) || $user === false) Log::error('Failed to update user ' . $this->member['id'], $this->member); else {
+            $user->status = false;
+            $user->save();
             Log::debug('Update or create user ' . $this->member['id']);
         }
     }
@@ -55,7 +53,7 @@ class ImportUser implements ShouldQueue
                 $value = $item;
             }
         }
-        if (empty($value)) Log::error('Scim: Email validation failed for user-import'); else {
+        if (empty($value)) Log::error('Scim: Email validation failed for user-import', $member); else {
             return $value;
         }
     }

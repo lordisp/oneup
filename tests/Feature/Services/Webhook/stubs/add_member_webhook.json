@@ -1,0 +1,54 @@
+{
+  "schemaId": "azureMonitorCommonAlertSchema",
+  "data": {
+    "essentials": {
+      "alertId": "/subscriptions/881a97ff-f77b-4f60-a853-c10be1183568/providers/Microsoft.AlertsManagement/alerts/557566fe-e388-9d17-da6a-19c40c590950",
+      "alertRule": "oneup_add_member_webhook",
+      "severity": "Sev3",
+      "signalType": "Log",
+      "monitorCondition": "Fired",
+      "monitoringService": "Log Alerts V2",
+      "alertTargetIDs": [
+        "/subscriptions/881a97ff-f77b-4f60-a853-c10be1183568/resourcegroups/rg_fnds_governance_monitoring/providers/microsoft.operationalinsights/workspaces/log-lhg-ams-governance-default"
+      ],
+      "configurationItems": [
+        "/subscriptions/881a97ff-f77b-4f60-a853-c10be1183568/resourcegroups/rg_fnds_governance_monitoring/providers/microsoft.operationalinsights/workspaces/log-lhg-ams-governance-default"
+      ],
+      "originAlertId": "0ab5b784-4192-40fe-8212-366614cbe9a4",
+      "firedDateTime": "2022-10-10T11:25:20.1399424Z",
+      "description": "",
+      "essentialsVersion": "1.0",
+      "alertContextVersion": "1.0"
+    },
+    "alertContext": {
+      "properties": {},
+      "conditionType": "LogQueryCriteria",
+      "condition": {
+        "windowSize": "PT5M",
+        "allOf": [
+          {
+            "searchQuery": "AuditLogs \n| where TimeGenerated > ago(5m)\n| where OperationName == \"Add member to group\"\n| where TargetResources has \"64a289f8-7430-40b4-830f-f64ffd6452fc\"",
+            "metricMeasureColumn": null,
+            "targetResourceTypes": "['microsoft.operationalinsights/workspaces']",
+            "operator": "GreaterThan",
+            "threshold": "0",
+            "timeAggregation": "Count",
+            "dimensions": [],
+            "metricValue": 3.0,
+            "failingPeriods": {
+              "numberOfEvaluationPeriods": 1,
+              "minFailingPeriodsToAlert": 1
+            },
+            "linkToSearchResultsUI": "https://portal.azure.com#@72e15514-5be9-46a8-8b0b-af9b1b77b3b8/blade/Microsoft_Azure_Monitoring_Logs/LogsBlade/source/Alerts.EmailLinks/scope/%7B%22resources%22%3A%5B%7B%22resourceId%22%3A%22%2Fsubscriptions%2F881a97ff-f77b-4f60-a853-c10be1183568%2Fresourcegroups%2Frg_fnds_governance_monitoring%2Fproviders%2Fmicrosoft.operationalinsights%2Fworkspaces%2Flog-lhg-ams-governance-default%22%7D%5D%7D/q/eJxFjbEOgjAURXe%2F4oUJhppSnoAkmDC5GE0Mk1uhr8BQStoSFz9ejIne3OHmDOc2q5rCxQ4edi94juQI2snQmWZyMpCCE8RqG2GDseBCsJRvbdO0ElhhseffPBJgcDDJz3JbPoLJzldpCOoaokYpMGQ6chAsDM6uS%2FQ%2FlW6gcCdvV9eTh1F6iHKUojzqkhWYcYa8Q1ZmXDOdo9Yqx4PQffQG/prettify/1/timespan/2022-10-08T11%3a24%3a47.0000000Z%2f2022-10-10T11%3a24%3a47.0000000Z",
+            "linkToFilteredSearchResultsUI": "https://portal.azure.com#@72e15514-5be9-46a8-8b0b-af9b1b77b3b8/blade/Microsoft_Azure_Monitoring_Logs/LogsBlade/source/Alerts.EmailLinks/scope/%7B%22resources%22%3A%5B%7B%22resourceId%22%3A%22%2Fsubscriptions%2F881a97ff-f77b-4f60-a853-c10be1183568%2Fresourcegroups%2Frg_fnds_governance_monitoring%2Fproviders%2Fmicrosoft.operationalinsights%2Fworkspaces%2Flog-lhg-ams-governance-default%22%7D%5D%7D/q/eJxFjbEOgjAURXe%2F4oUJhppSnoAkmDC5GE0Mk1uhr8BQStoSFz9ejIne3OHmDOc2q5rCxQ4edi94juQI2snQmWZyMpCCE8RqG2GDseBCsJRvbdO0ElhhseffPBJgcDDJz3JbPoLJzldpCOoaokYpMGQ6chAsDM6uS%2FQ%2FlW6gcCdvV9eTh1F6iHKUojzqkhWYcYa8Q1ZmXDOdo9Yqx4PQffQG/prettify/1/timespan/2022-10-08T11%3a24%3a47.0000000Z%2f2022-10-10T11%3a24%3a47.0000000Z",
+            "linkToSearchResultsAPI": "https://api.loganalytics.io/v1/workspaces/4e733294-7d59-46ab-8911-dd3743fbf01f/query?query=AuditLogs%20%0A%7C%20where%20TimeGenerated%20%3E%20%28datetime%282022-10-10T11%3A24%3A47.0000000Z%29%20-%205m%29%0A%7C%20where%20OperationName%20%3D%3D%20%22Add%20member%20to%20group%22%0A%7C%20where%20TargetResources%20has%20%2264a289f8-7430-40b4-830f-f64ffd6452fc%22&timespan=2022-10-08T11%3a24%3a47.0000000Z%2f2022-10-10T11%3a24%3a47.0000000Z",
+            "linkToFilteredSearchResultsAPI": "https://api.loganalytics.io/v1/workspaces/4e733294-7d59-46ab-8911-dd3743fbf01f/query?query=AuditLogs%20%0A%7C%20where%20TimeGenerated%20%3E%20%28datetime%282022-10-10T11%3A24%3A47.0000000Z%29%20-%205m%29%0A%7C%20where%20OperationName%20%3D%3D%20%22Add%20member%20to%20group%22%0A%7C%20where%20TargetResources%20has%20%2264a289f8-7430-40b4-830f-f64ffd6452fc%22&timespan=2022-10-08T11%3a24%3a47.0000000Z%2f2022-10-10T11%3a24%3a47.0000000Z"
+          }
+        ],
+        "windowStartTime": "2022-10-08T11:24:47Z",
+        "windowEndTime": "2022-10-10T11:24:47Z"
+      }
+    },
+    "customProperties": null
+  }
+}

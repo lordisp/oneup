@@ -105,7 +105,7 @@ class DnsSync
         $query = 'resources | project  zones = pack_array(' . $this->toString($zones) . ') | mv-expand zones to typeof(string) | join kind = innerunique ( resources | where type == "microsoft.network/privatednszones" and subscriptionId ' . $operator . ' "' . $subscriptionId . '" | project name, id, subscriptionId) on $left.zones == $right.name | project id';
 
         return Cache::tags([$scope, 'zones'])->rememberForever('zones', fn(): array => Arr::flatten(
-            Http::withToken($this->token($this->tokenProvider()))
+            Http::withToken(decrypt($this->token($this->tokenProvider())))
                 ->acceptJson()
                 ->retry(20, 200, function ($exception, $request): bool {
                     $request->withToken($this->token($this->tokenProvider()));

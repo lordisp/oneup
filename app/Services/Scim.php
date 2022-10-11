@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-use App\Jobs\Scim\ImportUser;
+use App\Jobs\Scim\ImportUserJob;
 use App\Models\TokenCacheProvider;
 use App\Traits\Token;
 use Illuminate\Http\Client\RequestException;
@@ -55,7 +55,7 @@ class Scim
     protected function importUserAccounts($members): void
     {
         foreach ($members as $member) {
-            ImportUser::dispatch($member, $this->provider)->onQueue('admin');
+            ImportUserJob::dispatch($member, $this->provider)->onQueue('admin');
         }
     }
 

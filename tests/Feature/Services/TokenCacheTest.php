@@ -24,15 +24,15 @@ class TokenCacheTest extends TestCase
         $token = TokenCache::provider('lhg_arm')->get();
         $this->assertIsString($token);
         // the $token is encrypted and must be decrypted to decode it
-        $this->assertIsObject($this->decode(decrypt($token)));
+        $this->assertIsArray($this->decode(decrypt($token)));
     }
 
     /** @test */
     public function can_disable_token_encryption()
     {
-        $token1= TokenCache::provider('lhg_arm')->get();
-        $token2= TokenCache::provider('lhg_arm')->withoutEncryption()->get();
-        $this->assertEquals(decrypt($token1),$token2);
+        $token1 = TokenCache::provider('lhg_arm')->get();
+        $token2 = TokenCache::provider('lhg_arm')->withoutEncryption()->get();
+        $this->assertEquals(decrypt($token1), $token2);
     }
 
     /** @test */
@@ -49,6 +49,16 @@ class TokenCacheTest extends TestCase
         $instance = TokenCache::provider('lhg_arm');
         $this->assertEquals('lhg_arm', $this->accessProtected($instance, 'provider'));
         $this->assertIsString($instance->get());
+    }
+
+    /** @test */
+    public function can_acquire_token_from_different_providers()
+    {
+        $first = TokenCache::provider('lhtest_arm')->get();
+        $second = TokenCache::provider('lhg_graph')->get();
+        $jwt1 = TokenCache::jwt(decrypt($first));
+        $jwt2 = TokenCache::jwt(decrypt($second));
+        $this->assertNotEquals(data_get($jwt1, 'tid'), data_get($jwt2, 'tid'));
     }
 
     protected function decode($token)

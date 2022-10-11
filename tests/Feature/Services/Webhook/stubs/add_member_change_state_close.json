@@ -1,0 +1,71 @@
+{
+  "properties": {
+    "essentials": {
+      "severity": "Sev3",
+      "signalType": "Log",
+      "alertState": "Closed",
+      "monitorCondition": "Fired",
+      "monitorService": "Log Alerts V2",
+      "targetResource": "\/subscriptions\/881a97ff-f77b-4f60-a853-c10be1183568\/resourcegroups\/rg_fnds_governance_monitoring\/providers\/microsoft.operationalinsights\/workspaces\/log-lhg-ams-governance-default",
+      "targetResourceName": "log-lhg-ams-governance-default",
+      "targetResourceGroup": "rg_fnds_governance_monitoring",
+      "targetResourceType": "microsoft.operationalinsights\/workspaces",
+      "sourceCreatedId": "fb0e596c-52ee-4213-8c91-6e194c9e7edc",
+      "alertRule": "\/subscriptions\/881a97ff-f77b-4f60-a853-c10be1183568\/resourceGroups\/RG_FNDS_GOVERNANCE_MONITORING\/providers\/microsoft.insights\/scheduledqueryrules\/oneup_add_member_webhook",
+      "startDateTime": "2022-09-30T09:45:19.6479712Z",
+      "lastModifiedDateTime": "2022-09-30T12:31:45.3227393Z",
+      "lastModifiedUserName": "User",
+      "actionStatus": {
+        "isSuppressed": false
+      },
+      "description": ""
+    },
+    "context": {
+      "version": "2021-08-01",
+      "properties": [],
+      "status": "Activated",
+      "context": {
+        "timestamp": "2022-09-30T09:45:19.64799Z",
+        "id": "\/subscriptions\/881a97ff-f77b-4f60-a853-c10be1183568\/resourceGroups\/RG_FNDS_GOVERNANCE_MONITORING\/providers\/microsoft.insights\/scheduledqueryrules\/oneup_add_member_webhook",
+        "name": "oneup_add_member_webhook",
+        "description": "",
+        "conditionType": "LogQueryCriteria",
+        "severity": "3",
+        "condition": {
+          "windowSize": "PT5M",
+          "allOf": [
+            {
+              "searchQuery": "AuditLogs \n| where TimeGenerated > ago(15m)\n| where OperationName == \"Add member to group\"\n| where TargetResources has \"64a289f8-7430-40b4-830f-f64ffd6452fc\"",
+              "metricMeasureColumn": null,
+              "targetResourceTypes": "['microsoft.operationalinsights\/workspaces']",
+              "operator": "GreaterThan",
+              "threshold": "0",
+              "timeAggregation": "Count",
+              "dimensions": [],
+              "metricValue": 1,
+              "failingPeriods": {
+                "numberOfEvaluationPeriods": 1,
+                "minFailingPeriodsToAlert": 1
+              },
+              "linkToSearchResultsUI": "https:\/\/portal.azure.com#@72e15514-5be9-46a8-8b0b-af9b1b77b3b8\/blade\/Microsoft_Azure_Monitoring_Logs\/LogsBlade\/source\/Alerts.EmailLinks\/scope\/%7B%22resources%22%3A%5B%7B%22resourceId%22%3A%22%2Fsubscriptions%2F881a97ff-f77b-4f60-a853-c10be1183568%2Fresourcegroups%2Frg_fnds_governance_monitoring%2Fproviders%2Fmicrosoft.operationalinsights%2Fworkspaces%2Flog-lhg-ams-governance-default%22%7D%5D%7D\/q\/eJxFjb0OgjAURnef4oYJhpparvwlmDC5GE0Mk1uht8BQStoSFx9ejIl%2B08kZztesagoXO3jYveA5kiNoJ0NnmsnJQApOEKsNwiZjwYVgvGQpb3lZIVaY7%2Fl3jwQYHI4m%2BWVuy6cw2fkqDUFdQ9QoBYZMRw6ChcHZdYn%2Br9INFO7k7ep68jBKD1GGUhSlLliOKWfIO2RFyjXTGWqtMjwK3Udv\/prettify\/1\/timespan\/2022-09-28T09%3a44%3a47.0000000Z%2f2022-09-30T09%3a44%3a47.0000000Z",
+              "linkToFilteredSearchResultsUI": "https:\/\/portal.azure.com#@72e15514-5be9-46a8-8b0b-af9b1b77b3b8\/blade\/Microsoft_Azure_Monitoring_Logs\/LogsBlade\/source\/Alerts.EmailLinks\/scope\/%7B%22resources%22%3A%5B%7B%22resourceId%22%3A%22%2Fsubscriptions%2F881a97ff-f77b-4f60-a853-c10be1183568%2Fresourcegroups%2Frg_fnds_governance_monitoring%2Fproviders%2Fmicrosoft.operationalinsights%2Fworkspaces%2Flog-lhg-ams-governance-default%22%7D%5D%7D\/q\/eJxFjb0OgjAURnef4oYJhpparvwlmDC5GE0Mk1uht8BQStoSFx9ejIl%2B08kZztesagoXO3jYveA5kiNoJ0NnmsnJQApOEKsNwiZjwYVgvGQpb3lZIVaY7%2Fl3jwQYHI4m%2BWVuy6cw2fkqDUFdQ9QoBYZMRw6ChcHZdYn%2Br9INFO7k7ep68jBKD1GGUhSlLliOKWfIO2RFyjXTGWqtMjwK3Udv\/prettify\/1\/timespan\/2022-09-28T09%3a44%3a47.0000000Z%2f2022-09-30T09%3a44%3a47.0000000Z",
+              "linkToSearchResultsAPI": "https:\/\/api.loganalytics.io\/v1\/workspaces\/4e733294-7d59-46ab-8911-dd3743fbf01f\/query?query=AuditLogs%20%0A%7C%20where%20TimeGenerated%20%3E%20%28datetime%282022-09-30T09%3A44%3A47.0000000Z%29%20-%2015m%29%0A%7C%20where%20OperationName%20%3D%3D%20%22Add%20member%20to%20group%22%0A%7C%20where%20TargetResources%20has%20%2264a289f8-7430-40b4-830f-f64ffd6452fc%22&timespan=2022-09-28T09%3a44%3a47.0000000Z%2f2022-09-30T09%3a44%3a47.0000000Z",
+              "linkToFilteredSearchResultsAPI": "https:\/\/api.loganalytics.io\/v1\/workspaces\/4e733294-7d59-46ab-8911-dd3743fbf01f\/query?query=AuditLogs%20%0A%7C%20where%20TimeGenerated%20%3E%20%28datetime%282022-09-30T09%3A44%3A47.0000000Z%29%20-%2015m%29%0A%7C%20where%20OperationName%20%3D%3D%20%22Add%20member%20to%20group%22%0A%7C%20where%20TargetResources%20has%20%2264a289f8-7430-40b4-830f-f64ffd6452fc%22&timespan=2022-09-28T09%3a44%3a47.0000000Z%2f2022-09-30T09%3a44%3a47.0000000Z"
+            }
+          ],
+          "windowStartTime": "2022-09-28T09:44:47Z",
+          "windowEndTime": "2022-09-30T09:44:47Z"
+        },
+        "subscriptionId": "881a97ff-f77b-4f60-a853-c10be1183568",
+        "resourceGroupName": "rg_fnds_governance_monitoring",
+        "resourceName": "log-lhg-ams-governance-default",
+        "resourceType": "microsoft.operationalinsights\/workspaces",
+        "resourceId": "\/subscriptions\/881a97ff-f77b-4f60-a853-c10be1183568\/resourcegroups\/rg_fnds_governance_monitoring\/providers\/microsoft.operationalinsights\/workspaces\/log-lhg-ams-governance-default",
+        "portalLink": "https:\/\/portal.azure.com\/#resource\/\/subscriptions\/881a97ff-f77b-4f60-a853-c10be1183568\/resourcegroups\/rg_fnds_governance_monitoring\/providers\/microsoft.operationalinsights\/workspaces\/log-lhg-ams-governance-default"
+      }
+    }
+  },
+  "id": "\/subscriptions\/881a97ff-f77b-4f60-a853-c10be1183568\/resourcegroups\/rg_fnds_governance_monitoring\/providers\/microsoft.operationalinsights\/workspaces\/log-lhg-ams-governance-default\/providers\/Microsoft.AlertsManagement\/alerts\/e57a22cb-20e7-b72b-1e8c-01fd661b0e8a",
+  "type": "Microsoft.AlertsManagement\/alerts",
+  "name": "oneup_add_member_webhook"
+}

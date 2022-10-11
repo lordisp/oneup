@@ -1,0 +1,227 @@
+{
+  "tables": [
+    {
+      "name": "PrimaryResult",
+      "columns": [
+        {
+          "name": "TenantId",
+          "type": "string"
+        },
+        {
+          "name": "SourceSystem",
+          "type": "string"
+        },
+        {
+          "name": "TimeGenerated",
+          "type": "datetime"
+        },
+        {
+          "name": "ResourceId",
+          "type": "string"
+        },
+        {
+          "name": "OperationName",
+          "type": "string"
+        },
+        {
+          "name": "OperationVersion",
+          "type": "string"
+        },
+        {
+          "name": "Category",
+          "type": "string"
+        },
+        {
+          "name": "ResultType",
+          "type": "string"
+        },
+        {
+          "name": "ResultSignature",
+          "type": "string"
+        },
+        {
+          "name": "ResultDescription",
+          "type": "string"
+        },
+        {
+          "name": "DurationMs",
+          "type": "long"
+        },
+        {
+          "name": "CorrelationId",
+          "type": "string"
+        },
+        {
+          "name": "Resource",
+          "type": "string"
+        },
+        {
+          "name": "ResourceGroup",
+          "type": "string"
+        },
+        {
+          "name": "ResourceProvider",
+          "type": "string"
+        },
+        {
+          "name": "Identity",
+          "type": "string"
+        },
+        {
+          "name": "Level",
+          "type": "string"
+        },
+        {
+          "name": "Location",
+          "type": "string"
+        },
+        {
+          "name": "AdditionalDetails",
+          "type": "dynamic"
+        },
+        {
+          "name": "Id",
+          "type": "string"
+        },
+        {
+          "name": "InitiatedBy",
+          "type": "dynamic"
+        },
+        {
+          "name": "LoggedByService",
+          "type": "string"
+        },
+        {
+          "name": "Result",
+          "type": "string"
+        },
+        {
+          "name": "ResultReason",
+          "type": "string"
+        },
+        {
+          "name": "TargetResources",
+          "type": "dynamic"
+        },
+        {
+          "name": "AADTenantId",
+          "type": "string"
+        },
+        {
+          "name": "ActivityDisplayName",
+          "type": "string"
+        },
+        {
+          "name": "ActivityDateTime",
+          "type": "datetime"
+        },
+        {
+          "name": "AADOperationType",
+          "type": "string"
+        },
+        {
+          "name": "Type",
+          "type": "string"
+        }
+      ],
+      "rows": [
+        [
+          "4e733294-7d59-46ab-8911-dd3743fbf01f",
+          "Azure AD",
+          "2022-10-10T11:26:24.825Z",
+          "\/tenants\/72e15514-5be9-46a8-8b0b-af9b1b77b3b8\/providers\/Microsoft.aadiam",
+          "Remove member from group",
+          "1.0",
+          "GroupManagement",
+          "",
+          "None",
+          "",
+          0,
+          "2c53506b-3e7f-4484-8eed-25c4fc6737b5",
+          "Microsoft.aadiam",
+          "Microsoft.aadiam",
+          "",
+          "Microsoft Teams Services",
+          "4",
+          "",
+          "[{\"key\":\"User-Agent\",\"value\":\"SkypeSpaces\/1.0a$*+\"}]",
+          "Directory_2c53506b-3e7f-4484-8eed-25c4fc6737b5_GJKMB_104743649",
+          "{\"user\":{\"displayName\":\"Microsoft Teams Services\",\"id\":\"1f4db4e4-93c9-4f58-b060-6757b2e621a3\",\"userPrincipalName\":\"Rafael.Camison@austrian.com\",\"ipAddress\":\"40.126.49.24\",\"roles\":[]}}",
+          "Core Directory",
+          "success",
+          "",
+          "[{\"id\":\"516bc28a-2fa9-4288-94e8-70004953b96c\",\"displayName\":null,\"type\":\"User\",\"modifiedProperties\":[{\"displayName\":\"Group.ObjectID\",\"oldValue\":\"\\\"64a289f8-7430-40b4-830f-f64ffd6452fc\\\"\",\"newValue\":null},{\"displayName\":\"Group.DisplayName\",\"oldValue\":\"\\\"OneUp\\\"\",\"newValue\":null},{\"displayName\":\"Group.WellKnownObjectName\",\"oldValue\":null,\"newValue\":null}],\"administrativeUnits\":[],\"userPrincipalName\":\"adm_rafael.camison@lufthansagroup.onmicrosoft.com\"},{\"id\":\"64a289f8-7430-40b4-830f-f64ffd6452fc\",\"displayName\":null,\"type\":\"Group\",\"modifiedProperties\":[],\"administrativeUnits\":[],\"groupType\":\"unknownFutureValue\"}]",
+          "72e15514-5be9-46a8-8b0b-af9b1b77b3b8",
+          "Remove member from group",
+          "2022-10-10T11:26:24.825Z",
+          "Unassign",
+          "AuditLogs"
+        ],
+        [
+          "4e733294-7d59-46ab-8911-dd3743fbf01f",
+          "Azure AD",
+          "2022-10-10T11:26:26.274Z",
+          "\/tenants\/72e15514-5be9-46a8-8b0b-af9b1b77b3b8\/providers\/Microsoft.aadiam",
+          "Remove member from group",
+          "1.0",
+          "GroupManagement",
+          "",
+          "None",
+          "",
+          0,
+          "503a3de5-6c7f-4e92-be60-c0a178ff33e7",
+          "Microsoft.aadiam",
+          "Microsoft.aadiam",
+          "",
+          "Microsoft Teams Services",
+          "4",
+          "",
+          "[{\"key\":\"User-Agent\",\"value\":\"SkypeSpaces\/1.0a$*+\"}]",
+          "Directory_503a3de5-6c7f-4e92-be60-c0a178ff33e7_V951S_107993374",
+          "{\"user\":{\"displayName\":\"Microsoft Teams Services\",\"id\":\"1f4db4e4-93c9-4f58-b060-6757b2e621a3\",\"userPrincipalName\":\"Rafael.Camison@austrian.com\",\"ipAddress\":\"40.126.32.161\",\"roles\":[]}}",
+          "Core Directory",
+          "success",
+          "",
+          "[{\"id\":\"7dc98c09-d66f-4bdb-aa42-6b01b105af04\",\"displayName\":null,\"type\":\"User\",\"modifiedProperties\":[{\"displayName\":\"Group.ObjectID\",\"oldValue\":\"\\\"64a289f8-7430-40b4-830f-f64ffd6452fc\\\"\",\"newValue\":null},{\"displayName\":\"Group.DisplayName\",\"oldValue\":\"\\\"OneUp\\\"\",\"newValue\":null},{\"displayName\":\"Group.WellKnownObjectName\",\"oldValue\":null,\"newValue\":null}],\"administrativeUnits\":[],\"userPrincipalName\":\"bernd.zeinar@dlh.de\"},{\"id\":\"64a289f8-7430-40b4-830f-f64ffd6452fc\",\"displayName\":null,\"type\":\"Group\",\"modifiedProperties\":[],\"administrativeUnits\":[],\"groupType\":\"unknownFutureValue\"}]",
+          "72e15514-5be9-46a8-8b0b-af9b1b77b3b8",
+          "Remove member from group",
+          "2022-10-10T11:26:26.274Z",
+          "Unassign",
+          "AuditLogs"
+        ],
+        [
+          "4e733294-7d59-46ab-8911-dd3743fbf01f",
+          "Azure AD",
+          "2022-10-10T11:26:27.093Z",
+          "\/tenants\/72e15514-5be9-46a8-8b0b-af9b1b77b3b8\/providers\/Microsoft.aadiam",
+          "Remove member from group",
+          "1.0",
+          "GroupManagement",
+          "",
+          "None",
+          "",
+          0,
+          "4a143b91-fd89-4175-ac15-e0d3467da541",
+          "Microsoft.aadiam",
+          "Microsoft.aadiam",
+          "",
+          "Microsoft Teams Services",
+          "4",
+          "",
+          "[{\"key\":\"User-Agent\",\"value\":\"SkypeSpaces\/1.0a$*+\"}]",
+          "Directory_4a143b91-fd89-4175-ac15-e0d3467da541_3BRP7_293587",
+          "{\"user\":{\"displayName\":\"Microsoft Teams Services\",\"id\":\"1f4db4e4-93c9-4f58-b060-6757b2e621a3\",\"userPrincipalName\":\"Rafael.Camison@austrian.com\",\"ipAddress\":\"40.126.32.101\",\"roles\":[]}}",
+          "Core Directory",
+          "success",
+          "",
+          "[{\"id\":\"5d5a1b47-ecae-4b73-9eb5-39a1d9e9ab6b\",\"displayName\":null,\"type\":\"User\",\"modifiedProperties\":[{\"displayName\":\"Group.ObjectID\",\"oldValue\":\"\\\"64a289f8-7430-40b4-830f-f64ffd6452fc\\\"\",\"newValue\":null},{\"displayName\":\"Group.DisplayName\",\"oldValue\":\"\\\"OneUp\\\"\",\"newValue\":null},{\"displayName\":\"Group.WellKnownObjectName\",\"oldValue\":null,\"newValue\":null}],\"administrativeUnits\":[],\"userPrincipalName\":\"stephan.abel@dlh.de\"},{\"id\":\"64a289f8-7430-40b4-830f-f64ffd6452fc\",\"displayName\":null,\"type\":\"Group\",\"modifiedProperties\":[],\"administrativeUnits\":[],\"groupType\":\"unknownFutureValue\"}]",
+          "72e15514-5be9-46a8-8b0b-af9b1b77b3b8",
+          "Remove member from group",
+          "2022-10-10T11:26:27.093Z",
+          "Unassign",
+          "AuditLogs"
+        ]
+      ]
+    }
+  ]
+}

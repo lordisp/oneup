@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\TokenCacheProvider;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 
 class TokenCache
@@ -37,7 +38,7 @@ class TokenCache
 
     public static function jwt($token)
     {
-        return json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', $token)[1]))));
+        return json_decode(base64_decode(str_replace('_', '/', str_replace('-', '+', explode('.', $token)[1]))), true);
     }
 
     protected function loadConfig()
@@ -105,7 +106,7 @@ class TokenCache
     protected function getToken(): static
     {
         $key = $this->getKey();
-        $token = cache()->get($key) ?: $this->setToken($key);
+        $token = Cache::tags([$this->provider])->get($key) ?: $this->setToken($key);
         $this->token = $this->config['encrypt'] ? $token : decrypt($token);
         return $this;
     }
@@ -114,7 +115,7 @@ class TokenCache
     {
         $keys = $this->makeRequest();
         $token = encrypt($keys['access_token']);
-        cache()->put($key, $token, $keys['expires_in']);
+        Cache::tags([$this->provider])->put($key, $token, $keys['expires_in']);
         return $token;
     }
 

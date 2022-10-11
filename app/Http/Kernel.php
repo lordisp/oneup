@@ -2,6 +2,7 @@
 
 namespace App\Http;
 
+use App\Http\Middleware\WebhookMiddleware;
 use Illuminate\Foundation\Http\Kernel as HttpKernel;
 use Laravel\Passport\Http\Middleware\CheckClientCredentials;
 
@@ -69,5 +70,6 @@ class Kernel extends HttpKernel
         'scopes' => \Laravel\Passport\Http\Middleware\CheckScopes::class,
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
         'client' => CheckClientCredentials::class,
+        'webhook' => WebhookMiddleware::class
     ];#
 }

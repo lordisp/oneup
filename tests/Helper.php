@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Models\TokenCacheProvider;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
@@ -62,5 +63,21 @@ trait Helper
         $property = (new ReflectionClass($obj))->getProperty($prop);
         $property->setAccessible(true);
         return $property->getValue($obj);
+    }
+
+    protected function makeAlaProvider()
+    {
+        return TokenCacheProvider::factory()->state([
+            'name' => 'webhook_log_analytics',
+            'auth_url' => '/oauth2/authorize',
+            'token_url' => '/oauth2/token',
+            'auth_endpoint' => 'https://login.microsoftonline.com/',
+            'client' => json_encode([
+                'tenant' => config('tokencache.azure.client.tenant'),
+                'client_id' => config('tokencache.azure.client.client_id'),
+                'client_secret' => encrypt(config('tokencache.azure.client.client_secret')),
+                'resource' => 'https://api.loganalytics.io',
+            ]),
+        ])->create()->name;
     }
 }

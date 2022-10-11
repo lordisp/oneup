@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Services\Scim;
 
-use App\Jobs\Scim\ImportUser;
+use App\Jobs\Scim\ImportUserJob;
 use App\Models\User;
 use App\Services\Scim;
 use Database\Seeders\TokenCacheProviderSeeder;
@@ -96,7 +96,7 @@ class ImportUsesTest extends TestCase
         Queue::fake();
         $this->scim->provider('lhg_graph')
             ->groups(['64a289f8-7430-40b4-830f-f64ffd6452fc']);
-        Queue::assertPushed(ImportUser::class);
+        Queue::assertPushed(ImportUserJob::class);
     }
 
     /** @test */

@@ -2,7 +2,7 @@
 
 namespace App\Traits;
 
-use App\Facades\TokenCache;
+use App\Services\TokenCache;
 
 trait Token
 {
@@ -13,6 +13,6 @@ trait Token
      */
     protected function token($provider): string
     {
-        return decrypt(TokenCache::provider($provider)->get());
+        return (new TokenCache())->provider($provider)->get();
     }
 }

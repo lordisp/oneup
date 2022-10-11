@@ -5,6 +5,7 @@ namespace Tests\Feature\Database;
 use Database\Seeders\GroupSeeder;
 use Database\Seeders\OperationSeeder;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\UserAzureSeeder;
 use Database\Seeders\UserSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -19,6 +20,14 @@ class MigrationTest extends TestCase
         $this->seed(UserSeeder::class);
 
         $this->assertDatabaseCount('users', 50);
+    }
+
+    /** @test */
+    public function can_seed_azure_test_users()
+    {
+        $this->seed(UserAzureSeeder::class);
+
+        $this->assertDatabaseCount('users', 3);
     }
 
     /** @test */
