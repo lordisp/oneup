@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Models\DnsSyncZone;
 use App\Traits\Token;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Pool;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -108,7 +108,7 @@ class DnsSync
             Http::withToken(decrypt($this->token($this->tokenProvider())))
                 ->acceptJson()
                 ->retry(20, 200, function ($exception, $request): bool {
-                    $request->withToken($this->token($this->tokenProvider()));
+                    $request->withToken(decrypt($this->token($this->tokenProvider())));
                     return true;
                 })
                 ->post($url, ["query" => $query])
@@ -141,12 +141,12 @@ class DnsSync
                         if (!Arr::exists($request['headers'], 'Skip')) {
 
                             $responses[] = $pool->withHeaders($request['headers'])
-                                ->withToken($this->token($this->hub))
+                                ->withToken(decrypt($this->token($this->hub)))
                                 ->retry(20, 200, function ($exception, $request): bool {
 
-                                    Log::warning('Sync-Pool warning: ' . $exception->getMessage());
+                                    Log::error('Sync-Pool error: ' . $exception->getMessage());
 
-                                    $request->withToken($this->token($this->hub));
+                                    $request->withToken(decrypt($this->token($this->hub)));
 
                                     return true;
 
@@ -178,7 +178,7 @@ class DnsSync
                 $code = $response->status();
 
                 if ($code >= 400) {
-                    Log::warning('Spoke ' . $this->spoke . ' to ' . $this->hub . ': ' . $response->json('message'));
+                    Log::error('Spoke ' . $this->spoke . ' to ' . $this->hub . ': ' . json_encode($response->json()));
                 } elseif ($code >= 200 && $code < 300) {
                     $properties = $response->json('properties');
                     $fqdn = $properties['fqdn'];
@@ -198,13 +198,13 @@ class DnsSync
     protected function getEtagFromHubOrCreateNewRequest($uri, $spokeRecord): array
     {
         $hubRecord = Http::azure()
-            ->withToken($this->token($this->hub))
+            ->withToken(decrypt($this->token($this->hub)))
             ->retry(20, 200, function ($exception, $request): bool {
-                if ($exception instanceof ConnectionException && $exception->getCode() === 404) {
+                if ($exception instanceof RequestException && $exception->getCode() === 404) {
                     return false;
                 } else {
-                    Log::warning('Etag warning: ' . $exception->getMessage());
-                    $request->withToken($this->token($this->hub));
+                    Log::error('Etag error: ' . $exception->getMessage());
+                    $request->withToken(decrypt($this->token($this->hub)));
                     return true;
                 }
 
@@ -222,10 +222,10 @@ class DnsSync
         return Http::pool(function (Pool $pool) use ($zones) {
             foreach ($zones as $zone) {
                 $responses[] = $pool->as($zone)
-                    ->withToken($this->token($this->spoke))
+                    ->withToken(decrypt($this->token($this->spoke)))
                     ->retry(20, 200, function ($exception, $request): bool {
-                        Log::warning('queryRecords-pool warning: ' . $exception->getMessage());
-                        $request->withToken($this->token($this->spoke));
+                        Log::error('queryRecords-pool error: ' . $exception->getMessage());
+                        $request->withToken(decrypt($this->token($this->spoke)));
                         return true;
                     }, throw: false)
                     ->get('https://management.azure.com' . $zone . '/ALL?api-version=2018-09-01&$top=1000');
@@ -267,9 +267,9 @@ class DnsSync
     {
         $url = '/subscriptions/' . $this->subscriptionId . '/resourceGroups/' . $this->resourceGroup . '/providers/Microsoft.Authorization/locks?api-version=2016-09-01';
         return Http::azure()
-            ->withToken($this->token($this->hub))
+            ->withToken(decrypt($this->token($this->hub)))
             ->retry(20, 200, function ($exception, $request): bool {
-                $request->withToken($this->token($this->hub));
+                $request->withToken(decrypt($this->token($this->hub)));
                 return true;
             })
             ->get($url)
