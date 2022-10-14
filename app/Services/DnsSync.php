@@ -4,8 +4,8 @@ namespace App\Services;
 
 use App\Models\DnsSyncZone;
 use App\Traits\Token;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Pool;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cache;
@@ -178,7 +178,7 @@ class DnsSync
                 $code = $response->status();
 
                 if ($code >= 400) {
-                    Log::error('Spoke ' . $this->spoke . ' to ' . $this->hub . ': ' . $response->json('message'));
+                    Log::error('Spoke ' . $this->spoke . ' to ' . $this->hub . ': ' . json_encode($response->json()));
                 } elseif ($code >= 200 && $code < 300) {
                     $properties = $response->json('properties');
                     $fqdn = $properties['fqdn'];
@@ -200,7 +200,7 @@ class DnsSync
         $hubRecord = Http::azure()
             ->withToken(decrypt($this->token($this->hub)))
             ->retry(20, 200, function ($exception, $request): bool {
-                if ($exception instanceof ConnectionException && $exception->getCode() === 404) {
+                if ($exception instanceof RequestException && $exception->getCode() === 404) {
                     return false;
                 } else {
                     Log::error('Etag error: ' . $exception->getMessage());
