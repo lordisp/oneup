@@ -19,13 +19,13 @@ WORKDIR /app
 RUN npm install && npm run build && npm install shiki
 
 # Application
-FROM php:8.1.9-apache
+FROM php:8.1-apache
 ENV port 8000
 ENV uid 1000
 ENV user oneup
 ENV APACHE_DOCUMENT_ROOT /var/www/html/public
 # Install system dependencies
-RUN apt-get update -yqq && apt-get install  \
+RUN apt-get update && apt-get upgrade -y && apt-get install  \
     git \
     curl \
     libpng-dev \
@@ -34,6 +34,7 @@ RUN apt-get update -yqq && apt-get install  \
     unzip  \
     gnupg \
     libnode72 \
+    sudo \
     wget -yyq
 
 # download helper script
@@ -68,5 +69,12 @@ RUN chown www-data:www-data -R /var/www/html/ssl
 RUN chmod 770 -R /var/www/html/ssl
 RUN chmod 770 -R /var/www/html/storage
 RUN chmod 770 -R /var/www/html/bootstrap
+
+RUN echo "Cmnd_Alias UPDATER_ONLY = /usr/local/bin/updater.sh" > /etc/sudoers.d/update
+RUN echo "%www-data ALL=(ALL) NOPASSWD:UPDATER_ONLY"  >> /etc/sudoers.d/update
+RUN echo '#!/bin/bash' >> /usr/local/bin/updater.sh
+RUN echo 'sudo apt-get update && sudo apt-get upgrade -y' >> /usr/local/bin/updater.sh
+RUN chmod 0755 /usr/local/bin/updater.sh
+
 RUN apt update && apt upgrade -y
 USER $user
