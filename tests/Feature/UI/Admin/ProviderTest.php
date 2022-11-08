@@ -119,7 +119,7 @@ class ProviderTest extends TestCase implements FrontendTest
     {
         $this->seed(TokenCacheProviderSeeder::class);
 
-        $this->assertDatabaseCount(TokenCacheProvider::class, 3);
+        $this->assertDatabaseCount(TokenCacheProvider::class, 4);
 
         $providerId = TokenCacheProvider::first()->id;
 
@@ -138,7 +138,7 @@ class ProviderTest extends TestCase implements FrontendTest
             ->assertPayloadSet('selected', [])
             ->assertPayloadSet('selectedPage', false)
             ->assertPayloadSet('selectAll', false);
-        $this->assertDatabaseCount(TokenCacheProvider::class, 2);
+        $this->assertDatabaseCount(TokenCacheProvider::class, 3);
     }
 
     /** @test */
@@ -184,7 +184,7 @@ class ProviderTest extends TestCase implements FrontendTest
             ->assertSee('azure')
             ->assertSee(config('tokencache.azure_ad.client.tenant'))
             ->call('clearSearch')
-            ->assertCount('queryRows', 3);
+            ->assertCount('queryRows', 4);
     }
 
     /** @test */
