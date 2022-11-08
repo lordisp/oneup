@@ -23,7 +23,7 @@ class TokenCacheProviderSeeder extends Seeder
                 'tenant' => config('tokencache.azure.client.tenant'),
                 'client_id' => config('tokencache.azure.client.client_id'),
                 'client_secret' => encrypt(config('tokencache.azure.client.client_secret')),
-                'scope' => 'https://graph.microsoft.com/.default',
+                'scope' => 'openid offline_access https://graph.microsoft.com/.default',
             ])
         ])->create();
 
@@ -37,6 +37,19 @@ class TokenCacheProviderSeeder extends Seeder
                 'client_id' => config('tokencache.azure.client.client_id'),
                 'client_secret' => encrypt(config('tokencache.azure.client.client_secret')),
                 'resource' => 'https://management.azure.com',
+            ])
+        ])->create();
+
+        TokenCacheProvider::factory()->state([
+            'name' => 'webhook_log_analytics',
+            'auth_url' => '/oauth2/authorize',
+            'token_url' => '/oauth2/token',
+            'auth_endpoint' => 'https://login.microsoftonline.com/',
+            'client' => json_encode([
+                'tenant' => config('tokencache.azure.client.tenant'),
+                'client_id' => config('tokencache.azure.client.client_id'),
+                'client_secret' => encrypt(config('tokencache.azure.client.client_secret')),
+                'resource' => 'https://api.loganalytics.io',
             ])
         ])->create();
 
