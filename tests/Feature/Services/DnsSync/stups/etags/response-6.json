@@ -1,0 +1,16 @@
+{
+  "id": "\/subscriptions\/18d6c26e-6e4c-4d49-9849-e8d15fb21b08\/resourceGroups\/rg_lhg_ams_pldnszones_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/bar",
+  "name": "bar",
+  "type": "Microsoft.Network\/privateDnsZones\/A",
+  "etag": "48ab5042-e315-4d37-ac02-d43e0e19616f",
+  "properties": {
+    "fqdn": "bar.privatelink.redis.cache.windows.net.",
+    "ttl": 3600,
+    "aRecords": [
+      {
+        "ipv4Address": "10.0.0.55"
+      }
+    ],
+    "isAutoRegistered": false
+  }
+}

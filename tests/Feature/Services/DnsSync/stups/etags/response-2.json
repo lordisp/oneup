@@ -1,0 +1,19 @@
+{
+  "id": "\/subscriptions\/18d6c26e-6e4c-4d49-9849-e8d15fb21b08\/resourceGroups\/rg_lhg_ams_pldnszones_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lhg-ams-lpp-s",
+  "name": "acfr-lhg-ams-lpp-s",
+  "type": "Microsoft.Network\/privateDnsZones\/A",
+  "etag": "4fee6a4b-c4f6-4abd-9e85-ed5708fbae26",
+  "properties": {
+    "metadata": {
+      "creator": "created by private endpoint pe-acfr-lhg-ams-lpp-s-redisCache with resource guid dfddb696-58b1-42fe-afb9-cd35676a74da"
+    },
+    "fqdn": "acfr-lhg-ams-lpp-s.privatelink.redis.cache.windows.net.",
+    "ttl": 10,
+    "aRecords": [
+      {
+        "ipv4Address": "10.253.118.69"
+      }
+    ],
+    "isAutoRegistered": false
+  }
+}

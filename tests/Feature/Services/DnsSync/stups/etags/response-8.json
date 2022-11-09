@@ -1,0 +1,19 @@
+{
+  "id": "\/subscriptions\/18d6c26e-6e4c-4d49-9849-e8d15fb21b08\/resourceGroups\/rg_lhg_ams_pldnszones_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lha-ams-fvoucher-p",
+  "name": "acfr-lha-ams-fvoucher-p",
+  "type": "Microsoft.Network\/privateDnsZones\/A",
+  "etag": "ce3a1fb6-3f9c-4c5f-905b-d759eaad27b3",
+  "properties": {
+    "metadata": {
+      "creator": "created by private endpoint pe-acfr-lha-ams-fvoucher-p-redisCache with resource guid 2f73ac8d-047c-4ad3-8bd2-d969e292aad7"
+    },
+    "fqdn": "acfr-lha-ams-fvoucher-p.privatelink.redis.cache.windows.net.",
+    "ttl": 10,
+    "aRecords": [
+      {
+        "ipv4Address": "10.253.104.92"
+      }
+    ],
+    "isAutoRegistered": false
+  }
+}
