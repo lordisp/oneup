@@ -1,0 +1,120 @@
+{
+  "value": [
+    {
+      "id": "\/subscriptions\/7fbaceb6-410b-4400-86ab-8ef7866dd853\/resourceGroups\/rg_lsy_admin_01_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/SOA\/@",
+      "name": "@",
+      "type": "Microsoft.Network\/privateDnsZones\/SOA",
+      "etag": "37a508f2-c687-44dd-9435-0e4aa106fad2",
+      "properties": {
+        "metadata": [],
+        "fqdn": "privatelink.redis.cache.windows.net.",
+        "ttl": 3600,
+        "soaRecord": {
+          "email": "azureprivatedns-host.microsoft.com",
+          "expireTime": 2419200,
+          "host": "azureprivatedns.net",
+          "minimumTtl": 10,
+          "refreshTime": 3600,
+          "retryTime": 300,
+          "serialNumber": 1
+        },
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/7fbaceb6-410b-4400-86ab-8ef7866dd853\/resourceGroups\/rg_lsy_admin_01_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lha-ams-fvoucher-p",
+      "name": "acfr-lha-ams-fvoucher-p",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "80762b1e-8534-46a3-8312-cbcbd63e2cc7",
+      "properties": {
+        "metadata": {
+          "creator": "created by private endpoint pe-acfr-lha-ams-fvoucher-p-redisCache with resource guid 2f73ac8d-047c-4ad3-8bd2-d969e292aad7"
+        },
+        "fqdn": "acfr-lha-ams-fvoucher-p.privatelink.redis.cache.windows.net.",
+        "ttl": 10,
+        "aRecords": [
+          {
+            "ipv4Address": "10.253.104.92"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/7fbaceb6-410b-4400-86ab-8ef7866dd853\/resourceGroups\/rg_lsy_admin_01_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lhg-ams-lpp-p",
+      "name": "acfr-lhg-ams-lpp-p",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "d633287c-388d-4fa0-85f0-8f7910e2808f",
+      "properties": {
+        "metadata": {
+          "creator": "created by private endpoint pe-acfr-lhg-ams-lpp-p-redisCache with resource guid a0ab2a95-047c-45f0-82ec-9665c2038648"
+        },
+        "fqdn": "acfr-lhg-ams-lpp-p.privatelink.redis.cache.windows.net.",
+        "ttl": 10,
+        "aRecords": [
+          {
+            "ipv4Address": "10.253.104.86"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/7fbaceb6-410b-4400-86ab-8ef7866dd853\/resourceGroups\/rg_lsy_admin_01_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lsy-ams-cicd-redis-p",
+      "name": "acfr-lsy-ams-cicd-redis-p",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "9a9846d5-0f86-4cfe-a4f9-803c4cbb8131",
+      "properties": {
+        "metadata": {
+          "creator": "created by private endpoint pe-acfr-lsy-ams-cicd-redis-p-redisCache with resource guid 1d685872-8ed5-4966-a553-d588d7d1ccc1"
+        },
+        "fqdn": "acfr-lsy-ams-cicd-redis-p.privatelink.redis.cache.windows.net.",
+        "ttl": 10,
+        "aRecords": [
+          {
+            "ipv4Address": "10.253.104.8"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/7fbaceb6-410b-4400-86ab-8ef7866dd853\/resourceGroups\/rg_lsy_admin_01_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lsy-ams-oauth2-d",
+      "name": "acfr-lsy-ams-oauth2-d",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "07e9ba99-5729-4c69-a845-25cf1cbab709",
+      "properties": {
+        "metadata": {
+          "creator": "created by private endpoint pe-acfr-lsy-ams-oauth2-d-redisCache with resource guid 9f41cf66-5794-4bf0-b367-296b41e64dbd"
+        },
+        "fqdn": "acfr-lsy-ams-oauth2-d.privatelink.redis.cache.windows.net.",
+        "ttl": 10,
+        "aRecords": [
+          {
+            "ipv4Address": "10.253.244.75"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/7fbaceb6-410b-4400-86ab-8ef7866dd853\/resourceGroups\/rg_lsy_admin_01_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lsy-ams-oauth2-p",
+      "name": "acfr-lsy-ams-oauth2-p",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "4054f5e6-2524-474d-bbd3-65e80bd22a13",
+      "properties": {
+        "metadata": {
+          "creator": "created by private endpoint pe-acfr-lsy-ams-oauth2-p-redisCache with resource guid 628a1103-4242-4c9f-8fd6-53a4c0e290b3"
+        },
+        "fqdn": "acfr-lsy-ams-oauth2-p.privatelink.redis.cache.windows.net.",
+        "ttl": 10,
+        "aRecords": [
+          {
+            "ipv4Address": "10.253.244.76"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    }
+  ]
+}

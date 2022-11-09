@@ -1,0 +1,43 @@
+{
+  "value": [
+    {
+      "id": "\/subscriptions\/3536aeaf-509a-408a-924d-47689420d116\/resourceGroups\/rg_lsy_ams_airem_admin_n\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/SOA\/@",
+      "name": "@",
+      "type": "Microsoft.Network\/privateDnsZones\/SOA",
+      "etag": "4b362800-e862-4d9b-8858-2d1ae3f29821",
+      "properties": {
+        "fqdn": "privatelink.redis.cache.windows.net.",
+        "ttl": 3600,
+        "soaRecord": {
+          "email": "azureprivatedns-host.microsoft.com",
+          "expireTime": 2419200,
+          "host": "azureprivatedns.net",
+          "minimumTtl": 10,
+          "refreshTime": 3600,
+          "retryTime": 300,
+          "serialNumber": 1
+        },
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/3536aeaf-509a-408a-924d-47689420d116\/resourceGroups\/rg_lsy_ams_airem_admin_n\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lhg-ams-airem-n",
+      "name": "acfr-lhg-ams-airem-n",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "6aa40f4d-d830-4c9d-83cd-2de6a8c17ff6",
+      "properties": {
+        "metadata": {
+          "creator": "created by private endpoint pe-acfr-lhg-ams-airem-n-redisCache with resource guid ec46d2cd-c98f-4444-ac61-f8251003a791"
+        },
+        "fqdn": "acfr-lhg-ams-airem-n.privatelink.redis.cache.windows.net.",
+        "ttl": 10,
+        "aRecords": [
+          {
+            "ipv4Address": "10.254.11.212"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    }
+  ]
+}

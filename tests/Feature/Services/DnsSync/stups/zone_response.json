@@ -1,0 +1,29 @@
+{
+  "totalRecords": 7,
+  "count": 7,
+  "data": [
+    {
+      "id": "\/subscriptions\/0a8cdfe5-f92b-40b5-9e42-75c5283b541f\/resourceGroups\/RG_LSY_ADMIN_01_N\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net"
+    },
+    {
+      "id": "\/subscriptions\/1fe8b880-7e9f-4b34-8811-be7a0ce8abc9\/resourceGroups\/RG_LSY_ADMIN_01_P\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net"
+    },
+    {
+      "id": "\/subscriptions\/319dd02a-9dcf-4a9e-8cd2-9439c747495a\/resourceGroups\/RG_LHG_AMS_OIP_ADMIN_N\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net"
+    },
+    {
+      "id": "\/subscriptions\/3536aeaf-509a-408a-924d-47689420d116\/resourceGroups\/RG_LSY_AMS_AIREM_ADMIN_N\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net"
+    },
+    {
+      "id": "\/subscriptions\/636529f0-5874-4a7f-9641-054746c3e250\/resourceGroups\/rg_lhg_private_links_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net"
+    },
+    {
+      "id": "\/subscriptions\/7fbaceb6-410b-4400-86ab-8ef7866dd853\/resourceGroups\/RG_LSY_ADMIN_01_P\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net"
+    },
+    {
+      "id": "\/subscriptions\/adf2ee7f-a3e8-4dbf-af13-a3cfc6e6f8cb\/resourceGroups\/RG_LHG_AMS_OIP_ADMIN_P\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net"
+    }
+  ],
+  "facets": [],
+  "resultTruncated": "false"
+}

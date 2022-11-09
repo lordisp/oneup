@@ -1,0 +1,63 @@
+{
+  "value": [
+    {
+      "id": "\/subscriptions\/0a8cdfe5-f92b-40b5-9e42-75c5283b541f\/resourceGroups\/rg_lsy_admin_01_n\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/SOA\/@",
+      "name": "@",
+      "type": "Microsoft.Network\/privateDnsZones\/SOA",
+      "etag": "a990c389-3921-46e9-885f-bcc1db2ce07d",
+      "properties": {
+        "metadata": [],
+        "fqdn": "privatelink.redis.cache.windows.net.",
+        "ttl": 3600,
+        "soaRecord": {
+          "email": "azureprivatedns-host.microsoft.com",
+          "expireTime": 2419200,
+          "host": "azureprivatedns.net",
+          "minimumTtl": 10,
+          "refreshTime": 3600,
+          "retryTime": 300,
+          "serialNumber": 1
+        },
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/0a8cdfe5-f92b-40b5-9e42-75c5283b541f\/resourceGroups\/rg_lsy_admin_01_n\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lha-ams-fvoucher-d",
+      "name": "acfr-lha-ams-fvoucher-d",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "40d6a5a8-1238-430d-809b-34bc31d7cb1a",
+      "properties": {
+        "metadata": {
+          "creator": "created by private endpoint pe-acfr-lha-ams-fvoucher-d-redisCache with resource guid 6d3df2fe-75fb-49b4-b705-eee2a8ffd65e"
+        },
+        "fqdn": "acfr-lha-ams-fvoucher-d.privatelink.redis.cache.windows.net.",
+        "ttl": 10,
+        "aRecords": [
+          {
+            "ipv4Address": "10.253.118.77"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/0a8cdfe5-f92b-40b5-9e42-75c5283b541f\/resourceGroups\/rg_lsy_admin_01_n\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lhg-ams-lpp-s",
+      "name": "acfr-lhg-ams-lpp-s",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "4bd41c84-a237-4ad8-a311-47e426cf1ec9",
+      "properties": {
+        "metadata": {
+          "creator": "created by private endpoint pe-acfr-lhg-ams-lpp-s-redisCache with resource guid dfddb696-58b1-42fe-afb9-cd35676a74da"
+        },
+        "fqdn": "acfr-lhg-ams-lpp-s.privatelink.redis.cache.windows.net.",
+        "ttl": 10,
+        "aRecords": [
+          {
+            "ipv4Address": "10.253.118.69"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    }
+  ]
+}

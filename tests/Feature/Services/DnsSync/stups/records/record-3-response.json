@@ -1,0 +1,25 @@
+{
+  "value": [
+    {
+      "id": "\/subscriptions\/319dd02a-9dcf-4a9e-8cd2-9439c747495a\/resourceGroups\/rg_lhg_ams_oip_admin_n\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/SOA\/@",
+      "name": "@",
+      "type": "Microsoft.Network\/privateDnsZones\/SOA",
+      "etag": "65569840-1ed4-4d13-a7b7-ecb8e22c71c5",
+      "properties": {
+        "metadata": [],
+        "fqdn": "privatelink.redis.cache.windows.net.",
+        "ttl": 3600,
+        "soaRecord": {
+          "email": "azureprivatedns-host.microsoft.com",
+          "expireTime": 2419200,
+          "host": "azureprivatedns.net",
+          "minimumTtl": 10,
+          "refreshTime": 3600,
+          "retryTime": 300,
+          "serialNumber": 1
+        },
+        "isAutoRegistered": false
+      }
+    }
+  ]
+}

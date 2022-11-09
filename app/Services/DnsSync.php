@@ -72,7 +72,7 @@ class DnsSync
 
     protected function isRecordType($record): bool
     {
-        return in_array(data_get($record, 'name'), $this->recordType);
+        return in_array(basename(data_get($record, 'type')), $this->recordType);
     }
 
     protected function skipIfEqual($hubRecord, $spokeRecord): array
@@ -132,7 +132,7 @@ class DnsSync
                 foreach ($records as $record) {
 
                     /* Validate record-types based on the withRecordType() method */
-                    if (in_array(basename(data_get($record, 'type')), $this->recordType)) {
+                    if ($this->isRecordType($record)) {
 
                         $uri = 'https://management.azure.com/subscriptions/' . $this->subscriptionId . '/resourceGroups/' . $this->resourceGroup . '/providers/Microsoft.Network/privateDnsZones/' . basename($zone) . '/' . basename($record['type']) . '/' . $record['name'] . '?api-version=2018-09-01';
 
@@ -197,13 +197,11 @@ class DnsSync
      */
     protected function getEtagFromHubOrCreateNewRequest($uri, $spokeRecord): array
     {
-        $hubRecord = Http::azure()
-            ->withToken(decrypt($this->token($this->hub)))
+        $hubRecord = Http::withToken(decrypt($this->token($this->hub)))
             ->retry(20, 200, function ($exception, $request): bool {
                 if ($exception instanceof RequestException && $exception->getCode() === 404) {
                     return false;
                 } else {
-                    Log::error('Etag error: ' . $exception->getMessage());
                     $request->withToken(decrypt($this->token($this->hub)));
                     return true;
                 }
@@ -224,7 +222,6 @@ class DnsSync
                 $responses[] = $pool->as($zone)
                     ->withToken(decrypt($this->token($this->spoke)))
                     ->retry(20, 200, function ($exception, $request): bool {
-                        Log::error('queryRecords-pool error: ' . $exception->getMessage());
                         $request->withToken(decrypt($this->token($this->spoke)));
                         return true;
                     }, throw: false)
