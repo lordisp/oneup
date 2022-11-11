@@ -3,9 +3,12 @@
 namespace App\Services;
 
 use App\Models\TokenCacheProvider;
+use Arr;
 use Exception;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class TokenCache
 {
@@ -34,6 +37,95 @@ class TokenCache
     {
         $this->config['encrypt'] = false;
         return $this;
+    }
+
+    public function authCode(): RedirectResponse
+    {
+        $url = sprintf(
+            "https://login.microsoftonline.com/%s%s?",
+            data_get($this->config[$this->provider], 'client.tenant'),
+            data_get($this->config[$this->provider], 'auth_url')
+        );
+
+        $state = hash('sha256', now());
+
+        $params = [
+            'client_id' => data_get($this->config[$this->provider], 'client.client_id'),
+            'response_type' => 'code',
+            'redirect_uri' => config('app.url') . '/callback',
+            'response_mode' => 'query',
+            'prompt' => 'select_account',
+            'scope' => 'offline_access email openid profile https://graph.microsoft.com/.default',
+            'state' => $state,
+            'code_challenge' => $state,
+        ];
+
+        $url .= Arr::query($params);
+
+        session(['authState' => $state]);
+
+        return redirect()->away($url);
+    }
+
+    public function accessToken(array $params = []): string|RedirectResponse
+    {
+        $now = time() + 300;
+        $tenant = data_get($this->config[$this->provider], 'client.tenant');
+        $clientId = data_get($this->config[$this->provider], 'client.client_id');
+        $secret = decrypt(data_get($this->config[$this->provider], 'client.client_secret'));
+
+        if (auth()->check()) {
+            $oid = auth()->user()->provider_id;
+            $token = Cache::tags($oid)->get('access_token');
+            $accessToken = isset($token)?decrypt($token):null;
+
+            if (!empty($accessToken) && $accessToken['expire'] >= $now) return encrypt($accessToken['access_token']);
+        }
+
+        if (isset($accessToken) && ($accessToken['expire'] <= $now)) $data = [
+            'tenant' => $tenant,
+            'client_id' => $clientId,
+            'client_secret' => $secret,
+            'grant_type' => 'refresh_token',
+            'refresh_token' => $accessToken['refresh_token'],
+        ]; elseif (Arr::has($params, ['code', 'code_challenge'])) $data = [
+            'client_id' => $clientId,
+            'client_secret' => $secret,
+            'code' => $params['code'],
+            'redirect_uri' => config('app.url') . '/callback',
+            'grant_type' => 'authorization_code',
+            'code_verifier' => $params['code_challenge'],
+        ];
+        else {
+            return redirect(route('login'));
+        }
+
+
+        $url = Str::finish(data_get($this->config[$this->provider], 'auth_endpoint'), '/');
+        $url .= $tenant;
+        $url .= data_get($this->config[$this->provider], 'token_url');
+
+        $response = Http::asForm()->post($url, $data);
+
+        if ($response->successful()) return $this->cacheAccessToken($response->json());
+
+        return redirect(route('login'))->withErrors([
+            'error_description' => $response->json('error_description'),
+        ]);
+    }
+
+    protected function cacheAccessToken($response): string|RedirectResponse
+    {
+        $expire = time() + $response['expires_in'];
+        $token = Arr::only($response, ['access_token', 'refresh_token']);
+
+        $cached = Cache::tags(self::jwt($response['access_token'])['oid'])
+            ->put('access_token', encrypt(Arr::add($token, 'expire', $expire)), $expire);
+
+        return $cached
+            ? encrypt($response['access_token'])
+            : redirect(route('login'))
+                ->withErrors(['error_description' => 'Failed to store Access-Token']);
     }
 
     public static function jwt($token)

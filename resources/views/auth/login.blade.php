@@ -11,9 +11,19 @@
                 <div class="mb-6">
                     <div class="mb-6 ">
                         <div>
-                            <x-btn.primary class="w-full  justify-center">SSO Sign in</x-btn.primary>
+                            <form action="{{route('signin')}}" method="post">
+                                @csrf
+                                <x-btn.primary type="submit" class="w-full  justify-center">SSO Sign in</x-btn.primary>
+                            </form>
                         </div>
                     </div>
+
+                    @if($errors->has('error_description'))
+                        <div class="mb-6 border border-red-500 rounded px-4 py-2 bg-red-100 text-red-900 text-sm">
+                            <div>{{$errors->get('error_description')[0]}}</div>
+                        </div>
+                    @endif
+
                     <div class="relative">
                         <div class="absolute inset-0 flex items-center">
                             <div class="w-full border-t border-gray-300"></div>
@@ -34,7 +44,8 @@
                             </x-input.group>
 
                             <x-input.group for="password" inline label="Password" :error="$errors->first('password')">
-                                <x-input.text id="password" name="password" type="password" autocomplete="current-password"
+                                <x-input.text id="password" name="password" type="password"
+                                              autocomplete="current-password"
                                               required class="w-full"></x-input.text>
                             </x-input.group>
 
@@ -43,7 +54,8 @@
 
                                     <input id="remember-me" name="remember-me" type="checkbox"
                                            class="h-4 w-4 border-gray-300 focus:ring-lhg-yellow h-4 rounded text-lhg-yellow w-4 transition duration-150 ease-in-out">
-                                    <label for="remember-me" class="ml-2 block text-sm text-gray-900"> Remember me </label>
+                                    <label for="remember-me" class="ml-2 block text-sm text-gray-900"> Remember
+                                        me </label>
                                 </div>
 
                                 <div class="text-sm">

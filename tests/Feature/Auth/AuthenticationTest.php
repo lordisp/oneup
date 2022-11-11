@@ -5,6 +5,8 @@ namespace Tests\Feature\Auth;
 use App\Http\Controllers\AuthController;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
+use Database\Seeders\TokenCacheProviderSeeder;
+use Database\Seeders\UserAzureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -70,7 +72,9 @@ class AuthenticationTest extends TestCase
     /** @test */
     public function user_can_log_out_over_api()
     {
-        $user = User::factory()->create();
+        $this->seed([TokenCacheProviderSeeder::class,UserAzureSeeder::class]);
+
+        $user = User::first();
 
         $this->actingAs($user)->post(route('logout'))->assertRedirect('/');
     }
