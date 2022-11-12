@@ -28,18 +28,18 @@ class Scim
         foreach ($objectIds as $objectId) {
             $groupMembersUrl = 'https://graph.microsoft.com/v1.0/groups/' . $objectId . '/members/microsoft.graph.user?$count=true&$select=id,displayName,givenName,surname,mail,userPrincipalName';
             $response = Http::withHeaders(['ConsistencyLevel' => 'eventual'])
-                ->withToken($this->token($this->provider))
+                ->withToken(decrypt($this->token($this->provider)))
                 ->retry(10, 200, function ($exception, $request): bool {
                     if ($exception instanceof RequestException && $exception->getCode() === 401) {
                         Log::warning('Scim: Group-Members: ' . $exception->getMessage());
-                        $request->withToken($this->token($this->provider));
+                        $request->withToken(decrypt($this->token($this->provider)));
                         return true;
                     } elseif ($exception instanceof RequestException && $exception->getCode() === 404) {
                         Log::warning('Scim: Group-Members: ' . $exception->getMessage());
                         return false;
                     } else {
                         Log::error('Scim: Group-Members: ' . $exception->getMessage());
-                        $request->withToken($this->token($this->provider));
+                        $request->withToken(decrypt($this->token($this->provider)));
                         return true;
                     }
                 }, throw: false)
