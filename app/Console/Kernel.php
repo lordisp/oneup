@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Jobs\DnsSyncAviatarJob;
 use App\Jobs\DnsSyncJob;
+use App\Jobs\Scim\ScheduledUserImportJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Laravel\Passport\Http\Middleware\CheckClientCredentials;
@@ -34,6 +35,10 @@ class Kernel extends ConsoleKernel
          ;
          $schedule->exec('sudo /usr/local/bin/updater.sh')
              ->daily()
+         ;
+         $schedule->job(new ScheduledUserImportJob(),'admin')
+             ->everyFifteenMinutes()
+             ->onOneServer()
          ;
     }
 
