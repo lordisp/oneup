@@ -18,8 +18,7 @@
             >{{ __('button.provider_bulk_delete') }}</x-btn.secondary>
         @endcan
 
-        <x-btn.secondary x-data="{modal: 'create'}"
-                         x-on:click="$dispatch('open-modal',{modal})"
+        <x-btn.secondary wire:click.debounce="openCreateModal"
         >{{ __('button.provider_create') }}</x-btn.secondary>
     </div>
 
@@ -55,7 +54,7 @@
                                 <span class="whitespace-normal">
                                     {{ __('messages.selected_providers', ['attribute' => count($selected)]) }}
                                 <x-btn.link type="button"
-                                            wire:click="selectAll">{{ __('messages.select_all', ['attribute' => count($selected)]) }}</x-btn.link>
+                                            wire:click="selectAll">{{ __('messages.select_all', ['attribute' => $rows->total()]) }}</x-btn.link>
                                 </span>
                             </div>
                         </x-table.cell>
@@ -101,12 +100,12 @@
                             <x-table.cell class="md:hidden">
                             <span class="w-full flex items-center justify-center space-x-2 py-4"><x-icon.emoji-sad
                                         size="6"/><span
-                                        class="text-lg">{{__('empty-table.admin_provider')}}</span></span>
+                                        class="text-lg">{{__('empty-table.admin_provider',['attribute' => 'providers'])}}</span></span>
                             </x-table.cell>
                             <x-table.cell class="hidden md:table-cell" colspan="5">
                             <span class="w-full flex items-center justify-center space-x-2 py-4"><x-icon.emoji-sad
                                         size="6"/><span
-                                        class="text-lg">{{__('empty-table.admin_provider')}}</span></span>
+                                        class="text-lg">{{__('empty-table.admin_provider',['attribute' => 'providers'])}}</span></span>
                             </x-table.cell>
                         </x-table.row>
                     @endforelse
@@ -291,28 +290,21 @@
     </x-modal>
 
     <!-- Section delete provider-->
-
-    <div x-data="{modal: 'delete'}" class="flex justify-end">
-        <x-btn.secondary @click="$dispatch('open-modal',{delete})">Delete</x-btn.secondary>
-    </div>
-
     <x-modal modal="delete">
         <form wire:submit.prevent="deleteProvider">
             <x-modal.panel class="md:max-w-lg space-y-4" type="warning" title="Are you sure?">
                 <x-slot name="content">
                     <div class="text-xs md:text-base space-y-2">
-                        @choice('modal.delete',count($objects), ['count' => count($objects)])
+                        @choice('modal.delete',count($objects), ['count' => count($objects),'attribute' => count($objects) <2 ?'provider':'providers'])
                         @if(count($objects) == 1 )
                             <dl class=" mt-2">
-                                <dt class="font-bold">Name:</dt>
-                                <dd class="mt-1 truncate">{{  $objects ? $objects->first()->name : null }}</dd>
+                                <dt class="font-bold">{{  $objects ? $objects->first()->name : null }}</dt>
+                                <dd class="mt-1 truncate">{{$objects ? $objects->first()->redirect : null}}</dd>
                             </dl>
                             <dl>
-                                <dt class="font-bold">Client Id:</dt>
                                 <dd class="mt-1 truncate">{{$objects ? $objects->first()->id : null}}</dd>
                             </dl>
                             <dl>
-                                <dt class="font-bold">Redirect URL:</dt>
                                 <dd class="mt-1 truncate">{{$objects ? $objects->first()->redirect : null}}</dd>
                             </dl>
                         @endif

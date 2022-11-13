@@ -14,6 +14,6 @@ return [
     */
 
     'oauth_clients' => 'No clients found!',
-    'admin_provider' => 'No provider found!',
+    'admin_provider' => 'No :attribute found!',
 
 ];

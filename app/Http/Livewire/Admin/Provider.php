@@ -45,6 +45,13 @@ class Provider extends Component
         $this->provider=TokenCacheProvider::make();
     }
 
+    public function openCreateModal()
+    {
+        $this->provider = TokenCacheProvider::make();
+        $this->reset('client','type');
+        $this->dispatchBrowserEvent('open-modal', ['modal' => 'create']);
+    }
+
     public function editModal(TokenCacheProvider $provider)
     {
         $this->provider = $provider;

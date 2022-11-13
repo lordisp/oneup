@@ -1,6 +1,7 @@
 <?php
 
 
+use App\Http\Livewire\Admin\Operations;
 use App\Http\Livewire\Admin\Provider;
 use App\Http\Livewire\Profile\Clients;
 use App\Http\Livewire\Rbac\Users;
@@ -34,6 +35,7 @@ Route::middleware(['auth'])->group(function () {
     /* Admin Routes*/
     Route::get('/admin/users', Users::class)->name('admin.users');
     Route::get('/admin/provider', Provider::class)->name('admin.provider');
+    Route::get('/admin/operations', Operations::class)->name('admin.operations');
 
 });
 

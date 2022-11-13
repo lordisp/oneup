@@ -30,7 +30,9 @@ trait WithBulkActions
     public function updatedSelectPage($value): void
     {
         $this->selected = $value ? $this->queryRows->pluck('id')->toArray() : [];
-        $this->selectPagePopup = $value;
+        $this->selectPagePopup = count($this->selected) >= $this->queryRows->total()
+            ? false
+            : $this->selectPage;
     }
 
     public function selectAll(): void

@@ -10,6 +10,7 @@
         <x-icon.view-grid class="icon-menu" size="6"/>
     </x-slot>
     <x-menu.dropdown-link request="admin/users" href="{{route('admin.users')}}">Users</x-menu.dropdown-link>
+    <x-menu.dropdown-link request="admin/operations" href="{{route('admin.operations')}}">Operations</x-menu.dropdown-link>
     <x-menu.dropdown-link request="admin/provider" href="{{route('admin.provider')}}">Provider</x-menu.dropdown-link>
 </x-menu.dropdown>
 

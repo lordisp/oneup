@@ -30,7 +30,7 @@
 
     /* #todo design dark-mode */
     .btn-waring-secondary {
-        @apply inline-flex items-center px-4 py-2 border border-lhg-ui-red dark:hover:shadow dark:text-gray-200 dark:hover:text-gray-800 dark:bg-gray-600 dark:hover:bg-gray-300 dark:border-gray-900 focus:outline-none ease-in-out duration-300 hover:bg-lhg-ui-red text-sm font-bold rounded-md hover:text-lhg-gray-6 text-lhg-ui-red shadow-sm
+        @apply inline-flex items-center px-4 py-2 border border-lhg-ui-red dark:hover:shadow dark:text-red-200 dark:hover:text-red-800 dark:bg-red-600 dark:hover:bg-red-300 dark:border-red-900 focus:outline-none ease-in-out duration-300 hover:bg-lhg-ui-red text-sm font-bold rounded-md hover:text-lhg-gray-6 text-lhg-ui-red shadow-sm
     }
 
 }

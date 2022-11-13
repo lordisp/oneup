@@ -20,6 +20,7 @@ return [
 
     'delete_error' => ':attribute could not be deleted. Try again a little later.',
     'selected_providers' => 'You are currently selecting :attribute provider.',
+    'selected_operations' => 'You are currently selecting :attribute operation.',
     'select_all' => 'Do you want to select all :attribute?',
 
 ];

@@ -11,7 +11,7 @@
 
 @if($inline)
     <div>
-        <label for="{{ $for }}" class="flex space-x-1 text-sm font-medium leading-5 text-gray-700">
+        <label for="{{ $for }}" class="flex space-x-1 text-sm font-medium leading-5 text-gray-700 dark:text-gray-400">
             <span>{{ $label }}</span>
             @if($helptextinline)
                 <span>{{ $helpText }}</span>

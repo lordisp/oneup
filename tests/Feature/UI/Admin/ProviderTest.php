@@ -47,13 +47,11 @@ class ProviderTest extends TestCase implements FrontendTest
     /** @test */
     public function can_view_component()
     {
-        $this->withoutExceptionHandling();
-
-        $component = $this->actingAs($this->user)->get('/admin/provider');
-        $component->assertSeeLivewire('admin.provider');
-        $component->assertSee(__('button.provider_create'));
-        $component->assertSee(__('empty-table.admin_provider'));
-        $component->assertSee(__('form.search'));
+        $this->actingAs($this->user)->get('/admin/provider')
+        ->assertSeeLivewire('admin.provider')
+        ->assertSee(__('button.provider_create'))
+        ->assertSee(__('empty-table.admin_provider',['attribute' => 'providers']))
+        ->assertSee(__('form.search'));
     }
 
     /** @test */
