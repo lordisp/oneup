@@ -103,7 +103,7 @@ class User extends Authenticatable
         $this->roles()->detach($role);
     }
 
-    public function operations()
+    public function operations(): \Illuminate\Support\Collection
     {
         $operations = $this->roles->map->operations->flatten()->pluck('operation')->unique()->toArray();
         $groupsOperations = $this->groups->map->operations()->flatten()->unique()->toArray();

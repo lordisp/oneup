@@ -3,17 +3,12 @@
 namespace App\Models;
 
 use App\Traits\Uuid;
-use Closure;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
-/**
- * @method static first()
- * @method static where(Closure $param)
- */
 class Operation extends Model
 {
     use HasFactory, HasSlug, Uuid;

@@ -1,10 +1,11 @@
 <?php
 
-namespace Tests\Feature\UI\Admin;
+namespace Tests\Feature\Ui\Admin;
 
 use App\Http\Livewire\Admin\Provider;
 use App\Models\TokenCacheProvider;
 use App\Models\User;
+use Database\Seeders\GlobalAdminSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
@@ -20,7 +21,11 @@ class ProviderBulkTest extends TestCase implements BulkTest
     {
         parent::setUp();
 
+        $this->seed(GlobalAdminSeeder::class);
+
         $this->user = User::factory()->create();
+
+        $this->user->assignRole('Global Administrator');
 
         TokenCacheProvider::factory()->count(16)->create();
 

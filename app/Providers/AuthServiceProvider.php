@@ -6,9 +6,11 @@ use App\Models\Passport\AuthCode;
 use App\Models\Passport\Client;
 use App\Models\Passport\PersonalAccessClient;
 use App\Models\Passport\Token;
+use App\Models\Role;
+use App\Policies\Admin\OperationPolicy;
+use App\Policies\Admin\RolesPolicy;
 use App\Policies\Admin\TokenCacheProviderPolicy;
 use App\Policies\Profile\ClientPolicy;
-use App\Policies\ProviderPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
@@ -21,7 +23,8 @@ class AuthServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
-        Client::class => ClientPolicy::class
+        Client::class => ClientPolicy::class,
+        Role::class => RolesPolicy::class
     ];
 
     /**
@@ -36,7 +39,10 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerPassportScopes();
 
         $this->registerClientGates();
-        $this->registerProviderGates();
+        $this->registerProviderPolicy();
+        $this->registerRbacGates();
+        $this->registerRolePolicy();
+        $this->registerOperationPolicy();
     }
 
     protected function registerPassportScopes()
@@ -72,8 +78,39 @@ class AuthServiceProvider extends ServiceProvider
     {
         Gate::define('delete-client', [ClientPolicy::class, 'delete']);
     }
-    protected function registerProviderGates()
+
+    protected function registerProviderPolicy()
     {
-        Gate::define('delete-provider', [TokenCacheProviderPolicy::class, 'delete']);
+        Gate::define('provider-readAll', [TokenCacheProviderPolicy::class, 'viewAny']);
+        Gate::define('provider-read', [TokenCacheProviderPolicy::class, 'view']);
+        Gate::define('provider-delete', [TokenCacheProviderPolicy::class, 'delete']);
+        Gate::define('provider-update', [TokenCacheProviderPolicy::class, 'update']);
+        Gate::define('provider-create', [TokenCacheProviderPolicy::class, 'create']);
+    }
+
+    protected function registerRolePolicy()
+    {
+        Gate::define('roles-readAll', [RolesPolicy::class, 'viewAny']);
+        Gate::define('roles-read', [RolesPolicy::class, 'view']);
+        Gate::define('roles-delete', [RolesPolicy::class, 'delete']);
+        Gate::define('roles-update', [RolesPolicy::class, 'update']);
+        Gate::define('roles-create', [RolesPolicy::class, 'create']);
+    }
+
+    protected function registerOperationPolicy()
+    {
+        Gate::define('operation-readAll', [OperationPolicy::class, 'viewAny']);
+        Gate::define('operation-read', [OperationPolicy::class, 'view']);
+        Gate::define('operation-delete', [OperationPolicy::class, 'delete']);
+        Gate::define('operation-update', [OperationPolicy::class, 'update']);
+        Gate::define('operation-create', [OperationPolicy::class, 'create']);
+    }
+
+    protected
+    function registerRbacGates()
+    {
+        Gate::after(function ($user, $operation) {
+            return $user->operations()->contains($operation);
+        });
     }
 }

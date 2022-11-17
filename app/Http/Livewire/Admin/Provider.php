@@ -91,7 +91,7 @@ class Provider extends Component
 
     public function deleteProvider(Request $request)
     {
-        if (Gate::inspect('delete-provider', [$request->user()])->allowed()) {
+        if (Gate::inspect('provider-delete', [$request->user()])->allowed()) {
             if (TokenCacheProvider::destroy($this->objects->pluck('id'))) {
                 $this->event(__('messages.deleted'), 'success');
                 Log::info('Destroy Token-Cache Provider', [

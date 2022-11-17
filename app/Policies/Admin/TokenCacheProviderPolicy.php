@@ -19,7 +19,7 @@ class TokenCacheProviderPolicy
      */
     public function viewAny(User $user)
     {
-        //
+        return $user->operations()->contains('admin/tokenCacheProvider/readAll');
     }
 
     /**
@@ -29,9 +29,9 @@ class TokenCacheProviderPolicy
      * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, TokenCacheProvider $tokenCacheProvider)
+    public function view(User $user, TokenCacheProvider | null $tokenCacheProvider)
     {
-        //
+        return $user->operations()->contains('admin/tokenCacheProvider/read');
     }
 
     /**
@@ -42,7 +42,7 @@ class TokenCacheProviderPolicy
      */
     public function create(User $user)
     {
-        //
+        return $user->operations()->contains('admin/tokenCacheProvider/create');
     }
 
     /**
@@ -54,7 +54,7 @@ class TokenCacheProviderPolicy
      */
     public function update(User $user)
     {
-        //
+        return $user->operations()->contains('admin/tokenCacheProvider/update');
     }
 
     /**
@@ -65,7 +65,7 @@ class TokenCacheProviderPolicy
      */
     public function delete(User $user)
     {
-        return true;
+        return $user->operations()->contains('admin/tokenCacheProvider/delete');
     }
 
     /**
@@ -75,9 +75,9 @@ class TokenCacheProviderPolicy
      * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, TokenCacheProvider $tokenCacheProvider)
+    public function restore(User $user, TokenCacheProvider | null $tokenCacheProvider)
     {
-        //
+        return $user->operations()->contains('admin/tokenCacheProvider/restore');
     }
 
     /**
@@ -87,8 +87,8 @@ class TokenCacheProviderPolicy
      * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, TokenCacheProvider $tokenCacheProvider)
+    public function forceDelete(User $user, TokenCacheProvider | null $tokenCacheProvider)
     {
-        //
+        return $user->operations()->contains('admin/tokenCacheProvider/forceDelete');
     }
 }

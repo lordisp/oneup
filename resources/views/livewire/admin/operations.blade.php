@@ -12,8 +12,8 @@
     </x-title>
 
     <div class="flex justify-end space-x-1">
-        <x-btn.secondary wire:click="deleteModal"
-                         class="{{empty($selected) ? 'hidden' : ''}}">{{ __('button.operations_bulk_delete') }}</x-btn.secondary>
+        <x-btn.danger wire:click="deleteModal"
+                         class="{{empty($selected) ? 'hidden' : ''}}">{{ __('button.delete', ['attribute' => '']) }}</x-btn.danger>
         <x-btn.secondary wire:click.debounce="openCreateModal">{{ __('button.operation_create') }}</x-btn.secondary>
     </div>
 

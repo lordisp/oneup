@@ -41,16 +41,15 @@ class MigrationTest extends TestCase
     public function can_seed_roles()
     {
         $this->seed(RoleSeeder::class);
-        $this->assertDatabaseCount('roles', 10);
+        $this->assertDatabaseCount('roles', 9);
 
     }
 
     /** @test */
     public function can_seed_operations()
     {
-
         $this->seed(OperationSeeder::class);
-        $this->assertDatabaseCount('operations', 10);
+        $this->assertDatabaseCount('operations', 13);
     }
 
 }

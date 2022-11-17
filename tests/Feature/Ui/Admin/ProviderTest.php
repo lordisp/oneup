@@ -1,10 +1,11 @@
 <?php
 
-namespace Tests\Feature\UI\Admin;
+namespace Tests\Feature\Ui\Admin;
 
 use App\Http\Livewire\Admin\Provider;
 use App\Models\TokenCacheProvider;
 use App\Models\User;
+use Database\Seeders\GlobalAdminSeeder;
 use Database\Seeders\TokenCacheProviderSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
@@ -48,10 +49,10 @@ class ProviderTest extends TestCase implements FrontendTest
     public function can_view_component()
     {
         $this->actingAs($this->user)->get('/admin/provider')
-        ->assertSeeLivewire('admin.provider')
-        ->assertSee(__('button.provider_create'))
-        ->assertSee(__('empty-table.admin_provider',['attribute' => 'providers']))
-        ->assertSee(__('form.search'));
+            ->assertSeeLivewire('admin.provider')
+            ->assertSee(__('button.provider_create'))
+            ->assertSee(__('empty-table.admin_provider', ['attribute' => 'providers']))
+            ->assertSee(__('form.search'));
     }
 
     /** @test */
@@ -121,13 +122,16 @@ class ProviderTest extends TestCase implements FrontendTest
 
         $providerId = TokenCacheProvider::first()->id;
 
-        $this->actingAs($this->user);
+        $this->seed(GlobalAdminSeeder::class);
+
+        $this->user->assignRole('Global Administrator');
 
         Log::shouldReceive('info')->once()->withArgs(function ($message) {
             return str_contains($message, 'Destroy Token-Cache Provider') == true;
         });
 
-        Livewire::test(Provider::class)
+        Livewire::actingAs($this->user)
+            ->test(Provider::class)
             ->call('deleteModal', $providerId)
             ->assertCount('objects', 1)
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'delete'])
@@ -157,9 +161,8 @@ class ProviderTest extends TestCase implements FrontendTest
             ->assertSee(json_decode($provider->client)->client_id)
             ->call('save')
             ->assertHasNoErrors()
-            ->assertDispatchedBrowserEvent('notify', ['message'=>'Saved','type'=>'success'])
-            ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'edit'])
-        ;
+            ->assertDispatchedBrowserEvent('notify', ['message' => 'Saved', 'type' => 'success'])
+            ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'edit']);
 
 
     }

@@ -6,6 +6,7 @@ use App\Http\Livewire\Admin\Operations;
 use App\Models\Operation;
 use App\Models\User;
 use Database\Seeders\OperationSeeder;
+use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserAzureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
@@ -22,7 +23,7 @@ class OperationsTest extends TestCase implements FrontendTest
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed([OperationSeeder::class, UserAzureSeeder::class]);
+        $this->seed([UserAzureSeeder::class, OperationSeeder::class, RoleSeeder::class]);
     }
 
     /** @test */
@@ -34,6 +35,7 @@ class OperationsTest extends TestCase implements FrontendTest
     /** @test */
     public function can_access_route_as_user()
     {
+        User::first()->assignRole('Operations reader');
         $this->actingAs(User::first())
             ->get('/admin/operations')
             ->assertOk();
@@ -42,24 +44,26 @@ class OperationsTest extends TestCase implements FrontendTest
     /** @test */
     public function can_render_the_component()
     {
+        User::first()->assignRole('Operations reader');
         Livewire::actingAs(User::first())->test(Operations::class)->assertOk();
     }
 
     /** @test */
     public function can_view_component()
     {
-        Operation::truncate();
+        User::first()->assignRole('Operations reader');
         $this->actingAs(User::first())
             ->get('/admin/operations')
             ->assertSeeLivewire('admin.operations')
             ->assertSee(__('button.operation_create'))
-            ->assertSee(__('empty-table.admin_provider', ['attribute' => 'operations']));
+            ->assertDontSee(__('empty-table.admin_provider', ['attribute' => 'operations']));
     }
 
     /** @test */
     public function can_create_new_operation()
     {
-        $this->assertDatabaseCount(Operation::class, 10);
+        User::first()->assignRole('Operations operator');
+        $this->assertDatabaseCount(Operation::class, 13);
         $operation = Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->set('operation.operation', 'some/test/operation')
@@ -69,12 +73,13 @@ class OperationsTest extends TestCase implements FrontendTest
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'create'])
             ->get('operation');
         $this->assertInstanceOf(Operation::class, $operation);
-        $this->assertDatabaseCount(Operation::class, 11);
+        $this->assertDatabaseCount(Operation::class, 14);
     }
 
     /** @test */
     public function create_new_operation_has_errors()
     {
+        User::first()->assignRole('Operations operator');
         Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->set('operation.operation', Str::random(4))
@@ -87,70 +92,89 @@ class OperationsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
+    public function reader_cannot_edit_or_create_operations()
+    {
+        User::first()->assignRole('Operations reader');
+        Livewire::actingAs(User::first())
+            ->test(Operations::class)
+            ->set('operation.operation', Str::random(4))
+            ->set('operation.description', Str::random(4))
+            ->call('save')
+            ->assertStatus(403);
+    }
+
+    /** @test */
     public function can_delete_a_operation()
     {
-        $this->assertDatabaseCount(Operation::class, 10);
-        $operationId = Operation::first()->id;
+        $this->assertDatabaseCount(Operation::class, 13);
+        $operationId = Operation::whereOperation('admin/tokenCacheProvider/read')->first()->id;
 
         Log::shouldReceive('info')->once()->withArgs(function ($message) {
             return str_contains($message, 'Destroy Operation') == true;
         });
 
+        User::first()->assignRole('Operations administrator');
         Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->call('deleteModal', $operationId)
             ->assertCount('objects', 1)
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'delete'])
             ->call('deleteOperation')
+            ->assertHasNoErrors()
             ->assertDispatchedBrowserEvent('notify', ['message' => __('messages.deleted'), 'type' => 'success'])
             ->assertPayloadSet('selected', [])
             ->assertPayloadSet('selectedPage', false)
             ->assertPayloadSet('selectAll', false);
-        $this->assertDatabaseCount(Operation::class, 9);
+        $this->assertDatabaseCount(Operation::class, 12);
     }
 
     /** @test */
     public function can_edit_a_operation()
     {
-        $operation = Operation::first();
+        $operation = Operation::where('operation', 'like','%token%')->first();
+        User::first()->assignRole('Operations operator');
         Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->call('editModal', $operation)
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'edit'])
             ->assertSee($operation->operation)
             ->assertSee($operation->description)
-            ->assertHasNoErrors()
+            ->set('operation.operation',Str::random(10))
+            ->set('operation.description',Str::random(10))
             ->call('save')
-            ->assertDispatchedBrowserEvent('notify', ['message' => 'Saved', 'type' => 'success'])
-            ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'edit']);
+            ->assertHasNoErrors()
+            ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'edit'])
+            ->assertDispatchedBrowserEvent('notify', ['message' => 'Saved', 'type' => 'success']);
     }
 
     /** @test */
     public function test_search_bar()
     {
+        User::first()->assignRole('Operations reader');
         Livewire::actingAs(User::first())
             ->test(Operations::class)
-            ->set('search', 'OneUp')
-            ->assertSee('OneUp')
-            ->assertDontSee('Azure.Resource')
-            ->set('search', 'Azure.Resource')
-            ->assertSee('Azure.Resource')
-            ->assertDontSee('OneUp')
+            ->set('search', 'operations')
+            ->assertSee('operations')
+            ->assertDontSee('tokenCacheProvider')
+            ->set('search', 'tokenCacheProvider')
+            ->assertSee('tokenCacheProvider')
+            ->assertDontSee('operations')
             ->call('clearSearch')
-            ->assertCount('queryRows', 10);
+            ->assertCount('queryRows', 13);
     }
 
     /** @test */
     public function test_pagination()
     {
+        User::first()->assignRole('Operations reader');
         Livewire::actingAs(User::first())
             ->test(Operations::class)
-            ->set('perPage', 6)
-            ->assertSee('Showing 6 of 10')
+            ->set('perPage', 10)
+            ->assertSee('Showing 10 of 13')
             ->assertSee('Next')
             ->assertDontSee(__('pagination.previous'))
             ->call('gotoPage', 2)
             ->assertSee(__('pagination.previous'))
-            ->assertSee('Showing 4 of 10');
+            ->assertSee('Showing 3 of 13');
     }
 }

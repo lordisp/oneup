@@ -3,6 +3,8 @@
 
 use App\Http\Livewire\Admin\Operations;
 use App\Http\Livewire\Admin\Provider;
+use App\Http\Livewire\Admin\Roles;
+use App\Http\Livewire\Admin\RolesEdit;
 use App\Http\Livewire\Profile\Clients;
 use App\Http\Livewire\Rbac\Users;
 use Illuminate\Support\Facades\Route;
@@ -36,6 +38,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/users', Users::class)->name('admin.users');
     Route::get('/admin/provider', Provider::class)->name('admin.provider');
     Route::get('/admin/operations', Operations::class)->name('admin.operations');
+    Route::get('/admin/roles', Roles::class)->name('admin.roles');
+    Route::get('/admin/roles/create', RolesEdit::class)->name('admin.roles.create');
+    Route::get('/admin/roles/{id}/edit', RolesEdit::class)->name('admin.roles.edit');
 
 });
 

@@ -5,8 +5,10 @@ namespace App\Http\Livewire\Admin;
 use App\Http\Livewire\DataTable\WithBulkActions;
 use App\Http\Livewire\DataTable\WithFilteredColumns;
 use App\Http\Livewire\DataTable\WithPerPagePagination;
+use App\Http\Livewire\DataTable\WithSearch;
 use App\Http\Livewire\DataTable\WithSorting;
 use App\Models\Operation;
+use App\Policies\Policy;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -21,9 +23,9 @@ use Livewire\Component;
  */
 class Operations extends Component
 {
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions;
+    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch;
 
-    public string $search = '';
+
     public Operation $operation;
 
     protected function rules(): array
@@ -36,12 +38,8 @@ class Operations extends Component
 
     public function mount()
     {
+        Policy::gateDenies('operation-readAll');
         $this->operation = Operation::make();
-    }
-
-    public function clearSearch()
-    {
-        $this->search = '';
     }
 
     public function openCreateModal()
@@ -64,8 +62,10 @@ class Operations extends Component
         $this->operation = $operation;
         $this->dispatchBrowserEvent('open-modal', ['modal' => 'edit']);
     }
+
     public function save()
     {
+        Policy::gateDenies('operation-create');
         $this->validate();
         $this->operation->save();
         $this->closeModal();
@@ -85,19 +85,19 @@ class Operations extends Component
 
     public function deleteOperation(Request $request)
     {
-        if (Gate::inspect('delete-provider', [$request->user()])->allowed()) {
-            if (Operation::destroy($this->objects->pluck('id'))) {
-                $this->event(__('messages.deleted'), 'success');
-                Log::info('Destroy Operation', [
-                    'Trigger' => $request->user()->getAuthIdentifier(),
-                    'Resource' => $this->objects->toArray(),
-                ]);
-            } else {
-                $this->event(__('messages.delete_error', ['attribute' => 'Operation']), 'error');
-            }
-        } else {
+        if (Gate::denies('operation-delete', $this->objects)) {
             $this->event(__('auth.unauthorized', ['value' => 'to delete operation!']), 'error');
+            $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
+            return redirect()->back();
         }
+        if (Operation::destroy($this->objects->pluck('id'))) {
+            $this->event(__('messages.deleted'), 'success');
+            Log::info('Destroy Operation', [
+                'Trigger' => $request->user()->getAuthIdentifier(),
+                'Resource' => $this->objects->toArray(),
+            ]);
+        } else $this->event(__('messages.delete_error', ['attribute' => 'Operation']), 'error');
+
         $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
         $this->resetBulk();
         $this->resetPage();
