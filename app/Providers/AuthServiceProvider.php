@@ -11,6 +11,7 @@ use App\Policies\Admin\GroupPolicy;
 use App\Policies\Admin\OperationPolicy;
 use App\Policies\Admin\RolesPolicy;
 use App\Policies\Admin\TokenCacheProviderPolicy;
+use App\Policies\Admin\UserPolicy;
 use App\Policies\Profile\ClientPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -41,6 +42,7 @@ class AuthServiceProvider extends ServiceProvider
 
         $this->registerClientGates();
         $this->registerProviderPolicy();
+        $this->registerUserPolicy();
         $this->registerRbacGates();
         $this->registerRolePolicy();
         $this->registerOperationPolicy();
@@ -97,6 +99,11 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('roles-delete', [RolesPolicy::class, 'delete']);
         Gate::define('roles-update', [RolesPolicy::class, 'update']);
         Gate::define('roles-create', [RolesPolicy::class, 'create']);
+    }
+
+    protected function registerUserPolicy()
+    {
+        Gate::define('user-readAll', [UserPolicy::class, 'viewAny']);
     }
 
     protected function registerOperationPolicy()
