@@ -2,8 +2,6 @@
 
 namespace App\Policies;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 
 class Policy
@@ -18,7 +16,7 @@ class Policy
 
     ];
 
-    static function gateDenies(string $ability): void
+    static function gateDenies(string $ability, $arguments = []): void
     {
         if (Gate::denies($ability, auth()->user())) abort(403);
     }

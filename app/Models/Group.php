@@ -6,6 +6,7 @@ use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Support\Str;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -17,6 +18,7 @@ class Group extends Model
 {
     use HasFactory, HasSlug, Uuid;
 
+    protected $fillable=['*'];
     /**
      * Get the options for generating the slug.
      */
@@ -88,5 +90,44 @@ class Group extends Model
         return $this->roles->map->operations->flatten()->pluck('operation')->unique();
     }
 
-    #Todo: consider to implement search methods for `owners`, `users` and `roles`
+    public function searchUsers($search)
+    {
+        $mail = Str::snake($search, '.');
+        $search = str_replace([' ', '*'], '%', $search);
+
+        return (! empty($search))
+            ? $this->users()
+                ->where(function ($query) use ($search, $mail) {
+                    return $query->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('email', 'like', '%'.$mail.'%');
+                })
+            : $this->users();
+    }
+
+    public function searchOwners($search)
+    {
+        $mail = Str::snake($search, '.');
+        $search = str_replace([' ', '*'], '%', $search);
+
+        return (! empty($search))
+            ? $this->owners()
+                ->where(function ($query) use ($search, $mail) {
+                    return $query->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('email', 'like', '%'.$mail.'%');
+                })
+            : $this->owners();
+    }
+
+    public function searchRoles($search)
+    {
+        $search = str_replace([' ', '*'], '%', $search);
+
+        return (! empty($search))
+            ? $this->roles()
+                ->where(function ($query) use ($search) {
+                    return $query->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('description', 'like', '%'.$search.'%');
+                })
+            : $this->roles();
+    }
 }

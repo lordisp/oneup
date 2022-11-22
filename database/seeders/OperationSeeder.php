@@ -21,7 +21,11 @@ class OperationSeeder extends Seeder
         'admin/tokenCacheProvider/read' => 'Can read Provider',
         'admin/tokenCacheProvider/create' => 'Can create Provider',
         'admin/tokenCacheProvider/delete' => 'Can delete Provider',
-        'admin/tokenCacheProvider/readAll' => 'Can read all Providers'
+        'admin/tokenCacheProvider/readAll' => 'Can read all Providers',
+        'admin/rbac/group/readAll' => 'Can read all groups',
+        'admin/rbac/group/create' => 'Can create groups',
+        'admin/rbac/group/delete' => 'Can read groups',
+        'admin/rbac/group/update' => 'Can update groups',
     ];
 
     /**

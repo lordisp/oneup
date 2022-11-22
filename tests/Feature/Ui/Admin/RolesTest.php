@@ -69,7 +69,7 @@ class RolesTest extends TestCase implements FrontendTest
         $user = User::first();
         $user->assignRole('Roles administrator');
         $role = Role::where('name','like','Provider reader')->first();
-        $this->assertDatabaseCount(Role::class, 9);
+        $this->assertDatabaseCount(Role::class, 12);
 
         Log::shouldReceive('info')->once()->withArgs(function ($message, $context) use ($role) {
             return str_contains($message, 'Destroy Role') == true
@@ -84,6 +84,6 @@ class RolesTest extends TestCase implements FrontendTest
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'delete'])
             ->call('delete')
             ->assertDispatchedBrowserEvent('notify', ['message' => __('messages.deleted'), 'type' => 'success']);
-        $this->assertDatabaseCount(Role::class, 8);
+        $this->assertDatabaseCount(Role::class, 11);
     }
 }

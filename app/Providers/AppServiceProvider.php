@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Services\Accessor;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
@@ -65,6 +66,10 @@ class AppServiceProvider extends ServiceProvider
          */
         Component::macro('flash', function ($message, $type = 'info') {
             session()->flash('notify', ['message' => $message, 'type' => $type]);
+        });
+
+        Builder::macro('search', function ($field, $string) {
+            return $string ? $this->orWhere($field, 'like', '%'.$string.'%') : $this;
         });
     }
     protected function registerAzureMacros()

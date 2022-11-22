@@ -8,6 +8,7 @@ return [
     'operation_create' => 'Create a operation',
     'operations_bulk_delete' => 'Bulk delete operations',
     'role_create' => 'Create new role',
+    'create_new' => 'Create :attribute',
     'roles_bulk_delete' => 'Bulk delete roles',
     'delete'=> 'Delete :attribute'
 ];

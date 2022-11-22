@@ -18,6 +18,7 @@ class RoleSeeder extends Seeder
         $this->seedRbacRoles();
         $this->seedRbacOperations();
         $this->seedProvider();
+        $this->seedGroup();
     }
 
     protected function seedRbacRoles()
@@ -93,6 +94,31 @@ class RoleSeeder extends Seeder
             'name' => 'Provider administrator',
             'description' => 'Can manage all aspects of operations',
         ])->hasAttached(Operation::where('operation','like','admin/tokenCacheProvider%')
+            ->get())
+            ->create();
+    }
+
+    protected function seedGroup(){
+        Role::factory()->state([
+            'name' => 'Group reader',
+            'description' => 'Can read all groups',
+        ])->hasAttached(Operation::where('operation','like','admin/rbac/group/read%')
+            ->get())
+            ->create();
+
+        Role::factory()->state([
+            'name' => 'Group operator',
+            'description' => 'Can create and update groups but cannot delete them.',
+        ])->hasAttached(Operation::where('operation','like','admin/rbac/group/read%')
+            ->orWhere('operation','like','admin/rbac/group/create')
+            ->orWhere('operation','like','admin/rbac/group/update')
+            ->get())
+            ->create();
+
+        Role::factory()->state([
+            'name' => 'Group administrator',
+            'description' => 'Can manage all aspects of groups',
+        ])->hasAttached(Operation::where('operation','like','admin/rbac/group%')
             ->get())
             ->create();
     }

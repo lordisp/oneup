@@ -1,6 +1,9 @@
 <?php
 
 
+use App\Http\Livewire\Admin\Groups;
+use App\Http\Livewire\Admin\GroupsCreate;
+use App\Http\Livewire\Admin\GroupsEdit;
 use App\Http\Livewire\Admin\Operations;
 use App\Http\Livewire\Admin\Provider;
 use App\Http\Livewire\Admin\Roles;
@@ -41,6 +44,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/roles', Roles::class)->name('admin.roles');
     Route::get('/admin/roles/create', RolesEdit::class)->name('admin.roles.create');
     Route::get('/admin/roles/{id}/edit', RolesEdit::class)->name('admin.roles.edit');
+    Route::get('/admin/group', Groups::class)->name('admin.group');
+    Route::get('/admin/group/create', GroupsCreate::class)->name('admin.group.create');
+    Route::get('/admin/group/{id}/{tab}', GroupsEdit::class)->name('admin.group.edit');
 
 });
 

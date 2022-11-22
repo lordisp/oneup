@@ -7,7 +7,7 @@ use App\Http\Livewire\DataTable\WithFilteredColumns;
 use App\Http\Livewire\DataTable\WithPerPagePagination;
 use App\Http\Livewire\DataTable\WithSearch;
 use App\Http\Livewire\DataTable\WithSorting;
-use App\Models\Role;
+use App\Models\Group;
 use App\Policies\Policy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -21,55 +21,50 @@ use Livewire\Component;
  * @property mixed $rows
  * @property mixed $queryRows
  */
-class Roles extends Component
+class Groups extends Component
 {
     use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch;
 
-    public Role $role;
+    public Group $group;
 
     public function mount()
     {
-        Policy::gateDenies('roles-readAll');
-        $this->role = Role::make();
+        if (!Gate::any(['group-readAll', 'group-read'])) abort(403);
+        $this->group = Group::make();
     }
 
-    public function clearSearch()
+    public function edit($id): Redirector
     {
-        $this->search = '';
+        return redirect(route('admin.group.edit', $id));
     }
 
     public function deleteModal($id = null)
     {
         $id = isset($id) ? (is_array($id) ? $id : [$id]) : $this->selected;
-        $this->objects = Role::whereIn('id', $id)->get();
+        $this->objects = Group::whereIn('id', $id)->get();
         if (count($this->objects) >= 1) $this->dispatchBrowserEvent('open-modal', ['modal' => 'delete']); else {
-            $this->event(__('messages.delete_error', ['attribute' => 'Role']), 'error');
+            $this->event(__('messages.delete_error', ['attribute' => 'Group']), 'error');
         }
     }
 
     public function delete(Request $request)
     {
-        if (Gate::denies('roles-delete', $this->objects)) {
-            $this->event(__('auth.unauthorized', ['value' => 'to delete roles!']), 'error');
+        if (Gate::denies('group-delete', $this->objects)) {
+            $this->event(__('auth.unauthorized', ['value' => 'to delete groups!']), 'error');
             $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
             return redirect()->back();
         }
-        if (Role::destroy($this->objects->pluck('id'))) {
+        if (Group::destroy($this->objects->pluck('id'))) {
             $this->event(__('messages.deleted'), 'success');
-            Log::info('Destroy Role', [
+            Log::info('Destroy Group', [
                 'Trigger' => $request->user()->getAuthIdentifier(),
                 'Resource' => $this->objects->toArray(),
             ]);
-        } else $this->event(__('messages.delete_error', ['attribute' => 'Role']), 'error');
+        } else $this->event(__('messages.delete_error', ['attribute' => 'Group']), 'error');
 
         $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
         $this->resetBulk();
         $this->resetPage();
-    }
-
-    public function edit($id): Redirector
-    {
-        return redirect(route('admin.roles.edit', $id));
     }
 
     public function withQuery($query)
@@ -89,15 +84,19 @@ class Roles extends Component
         return $this->applyPagination($query);
     }
 
-    public function getRowsProperty(Role $role): Builder
+    public function getRowsProperty(Group $group): Builder
     {
-        return $role->newQuery();
+        if (Gate::denies('group-readAll')) {
+            return auth()->user()->groups('owner')->getQuery();
+        }else {
+            return $group->newQuery();
+        }
     }
 
     public function render()
     {
-        return view('livewire.admin.roles', [
-            'rows' => $this->queryRows,
+        return view('livewire.admin.groups', [
+            'rows' => $this->queryRows
         ]);
     }
 }

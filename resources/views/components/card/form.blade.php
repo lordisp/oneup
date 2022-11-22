@@ -33,7 +33,6 @@
         @endif
         <div class="{{$search ? 'flex' : ''}} {{$paddingless ? 'py-1 md:py-4' : 'px-4 py-4'}} ">
             {{$slot}}
-
         </div>
         @if($buttons)
             <div class="{{$contrast ? 'bg-gray-200' : 'bg-gray-50'}} border-gray-100 items-center border-t flex {{$justify ? "justify-".$justify : "justify-end"}} mt-6 px-4 py-4 space-x-2">

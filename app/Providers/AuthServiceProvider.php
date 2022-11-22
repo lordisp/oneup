@@ -7,6 +7,7 @@ use App\Models\Passport\Client;
 use App\Models\Passport\PersonalAccessClient;
 use App\Models\Passport\Token;
 use App\Models\Role;
+use App\Policies\Admin\GroupPolicy;
 use App\Policies\Admin\OperationPolicy;
 use App\Policies\Admin\RolesPolicy;
 use App\Policies\Admin\TokenCacheProviderPolicy;
@@ -43,6 +44,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerRbacGates();
         $this->registerRolePolicy();
         $this->registerOperationPolicy();
+        $this->registerGroupPolicy();
     }
 
     protected function registerPassportScopes()
@@ -104,6 +106,21 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('operation-delete', [OperationPolicy::class, 'delete']);
         Gate::define('operation-update', [OperationPolicy::class, 'update']);
         Gate::define('operation-create', [OperationPolicy::class, 'create']);
+    }
+
+    protected function registerGroupPolicy()
+    {
+        Gate::define('group-readAll', [GroupPolicy::class, 'viewAny']);
+        Gate::define('group-read', [GroupPolicy::class, 'view']);
+        Gate::define('group-delete', [GroupPolicy::class, 'delete']);
+        Gate::define('group-detach-members', [GroupPolicy::class, 'detachMembers']);
+        Gate::define('group-attach-members', [GroupPolicy::class, 'attachMembers']);
+        Gate::define('group-detach-roles', [GroupPolicy::class, 'detachRoles']);
+        Gate::define('group-attach-roles', [GroupPolicy::class, 'attachRoles']);
+        Gate::define('group-detach-owners', [GroupPolicy::class, 'detachOwners']);
+        Gate::define('group-attach-owners', [GroupPolicy::class, 'attachOwners']);
+        Gate::define('group-update', [GroupPolicy::class, 'update']);
+        Gate::define('group-create', [GroupPolicy::class, 'create']);
     }
 
     protected

@@ -5,7 +5,7 @@
 <div x-data="{ open: false }"
      x-on:open-modal.window="if ($event.detail.modal == '{{ $modal }}') open = true"
      x-on:close-modal.window="if ($event.detail.modal == '{{ $modal }}') open = false"
-     class="flex justify-center"
+     {{$attributes->merge(['class'=>'flex justify-center'])}}
 >
 
     <!-- Modal -->

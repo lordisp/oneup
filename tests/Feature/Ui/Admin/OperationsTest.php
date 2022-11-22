@@ -63,7 +63,7 @@ class OperationsTest extends TestCase implements FrontendTest
     public function can_create_new_operation()
     {
         User::first()->assignRole('Operations operator');
-        $this->assertDatabaseCount(Operation::class, 13);
+        $this->assertDatabaseCount(Operation::class, 17);
         $operation = Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->set('operation.operation', 'some/test/operation')
@@ -73,7 +73,7 @@ class OperationsTest extends TestCase implements FrontendTest
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'create'])
             ->get('operation');
         $this->assertInstanceOf(Operation::class, $operation);
-        $this->assertDatabaseCount(Operation::class, 14);
+        $this->assertDatabaseCount(Operation::class, 18);
     }
 
     /** @test */
@@ -106,7 +106,7 @@ class OperationsTest extends TestCase implements FrontendTest
     /** @test */
     public function can_delete_a_operation()
     {
-        $this->assertDatabaseCount(Operation::class, 13);
+        $this->assertDatabaseCount(Operation::class, 17);
         $operationId = Operation::whereOperation('admin/tokenCacheProvider/read')->first()->id;
 
         Log::shouldReceive('info')->once()->withArgs(function ($message) {
@@ -125,7 +125,7 @@ class OperationsTest extends TestCase implements FrontendTest
             ->assertPayloadSet('selected', [])
             ->assertPayloadSet('selectedPage', false)
             ->assertPayloadSet('selectAll', false);
-        $this->assertDatabaseCount(Operation::class, 12);
+        $this->assertDatabaseCount(Operation::class, 16);
     }
 
     /** @test */
@@ -160,7 +160,7 @@ class OperationsTest extends TestCase implements FrontendTest
             ->assertSee('tokenCacheProvider')
             ->assertDontSee('operations')
             ->call('clearSearch')
-            ->assertCount('queryRows', 13);
+            ->assertCount('queryRows', 15);
     }
 
     /** @test */
@@ -170,11 +170,11 @@ class OperationsTest extends TestCase implements FrontendTest
         Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->set('perPage', 10)
-            ->assertSee('Showing 10 of 13')
+            ->assertSee('Showing 10 of 17')
             ->assertSee('Next')
             ->assertDontSee(__('pagination.previous'))
             ->call('gotoPage', 2)
             ->assertSee(__('pagination.previous'))
-            ->assertSee('Showing 3 of 13');
+            ->assertSee('Showing 7 of 17');
     }
 }
