@@ -38,7 +38,9 @@
                             </dl>
                         </x-table.cell>
                         <x-table.cell class="hidden md:table-cell text-right">
-                            <a href="#">Edit</a>
+                            @if($user->id!=auth()->id())
+                                <x-btn.link disabled="{{$user->id===auth()->id()}}" wire:click="loginAs('{{$user->id}}')">Login as</x-btn.link>
+                            @endif
                         </x-table.cell>
                     </x-table.row>
                 @empty
