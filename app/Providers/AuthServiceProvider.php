@@ -92,6 +92,14 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('provider-create', [TokenCacheProviderPolicy::class, 'create']);
     }
 
+    protected function registerUserPolicy()
+    {
+        Gate::define('user-readAll', [UserPolicy::class, 'viewAny']);
+        Gate::define('user-loginAs', [UserPolicy::class, 'loginAs']);
+        Gate::define('user-update', [UserPolicy::class, 'update']);
+        Gate::define('user-delete', [UserPolicy::class, 'delete']);
+    }
+
     protected function registerRolePolicy()
     {
         Gate::define('roles-readAll', [RolesPolicy::class, 'viewAny']);
