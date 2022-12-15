@@ -1,6 +1,6 @@
 <div class="content">
     <x-title>
-        {{ request()->is('admin/roles/create') ? __('Create Role') : __('Create Edit') }}
+        {{ request()->is('admin/roles/create') ? __('Create Role') : __('Edit Role') }}
     </x-title>
 
     <x-card.gray class="rounded-lg">

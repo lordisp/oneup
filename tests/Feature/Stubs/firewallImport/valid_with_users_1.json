@@ -1,0 +1,201 @@
+[
+  {
+    "Template": "Firewall",
+    "request_description": "Disable FW connection to Service B",
+    "rules": [
+      {
+        "action": "delete",
+        "type_destination": "ip_address_dest",
+        "destination": "10.0.0.10/24",
+        "type_source": "ip_address_source",
+        "source": "10.0.1.10",
+        "service": "tcp",
+        "destination_port": "22",
+        "description": "A connection between service A and service B rule 1",
+        "no_expiry": "Yes",
+        "end_date": "2100-01-01",
+        "pci_dss": "Yes",
+        "nat_required": "No",
+        "application_id": "",
+        "contact": "",
+        "business_purpose": "disable FW connection between service A and service B"
+      }
+    ],
+    "RequestorMail": "rafael.camison@austrian.com",
+    "RequestorFirstName": "RAFAEL",
+    "RequestorLastName": "CAMISON",
+    "RequestorUID": "U616109",
+    "RITMNumber": "RITM0012345",
+    "opened_by": "RAFAEL CAMISON",
+    "Subject": "Request_Firewall_REQ0012345",
+    "tag": {
+      "department": "GITI",
+      "cost_center": "123456",
+      "business_service": "LHG_CAG_P",
+      "application": "LHG_ONEUP_P",
+      "business_unit": "LHG"
+    }
+  },
+  {
+    "Template": "Firewall",
+    "request_description": "FW Connection between C and D",
+    "rules": [
+      {
+        "action": "add",
+        "type_destination": "ip_address_dest",
+        "destination": "10.0.0.10/32",
+        "type_source": "ip_address_source",
+        "source": "10.0.3.0/22,10.0.4.0/22,10.20.5.0/22",
+        "service": "tcp",
+        "destination_port": "443",
+        "description": "Access to D rule 1",
+        "no_expiry": "Yes",
+        "end_date": "",
+        "pci_dss": "Yes",
+        "nat_required": "No",
+        "application_id": "",
+        "contact": "",
+        "business_purpose": ""
+      },
+      {
+        "action": "add",
+        "type_destination": "ip_address_dest",
+        "destination": "10.0.0.11/32",
+        "type_source": "ip_address_source",
+        "source": "10.0.3.0/22,10.0.4.0/22,10.20.5.0/22",
+        "service": "tcp",
+        "destination_port": "80,443,636,640,641",
+        "description": "Access to D rule 2",
+        "no_expiry": "Yes",
+        "end_date": "unlimited",
+        "pci_dss": "Yes",
+        "nat_required": "No",
+        "application_id": "",
+        "contact": "",
+        "business_purpose": ""
+      },
+      {
+        "action": "add",
+        "type_destination": "ip_address_dest",
+        "destination": "10.0.0.12/32",
+        "type_source": "ip_address_source",
+        "source": "10.0.3.0/22,10.0.4.0/22,10.20.5.0/22",
+        "service": "tcp",
+        "destination_port": "829",
+        "description": "Access to D rule 3",
+        "no_expiry": "Yes",
+        "end_date": "2100-01-01",
+        "pci_dss": "No",
+        "nat_required": "No",
+        "application_id": "",
+        "contact": "",
+        "business_purpose": ""
+      }
+    ],
+    "RequestorMail": "rafael.camison@austrian.com",
+    "RequestorFirstName": "RAFAEL",
+    "RequestorLastName": "CAMISON",
+    "RequestorUID": "U616109",
+    "RITMNumber": "RITM0045678",
+    "opened_by": "RAFAEL CAMISON",
+    "Subject": "Request_Firewall_REQ0045678",
+    "tag": {
+      "department": "GITI",
+      "cost_center": "123456",
+      "business_service": "LHG_CAG_P",
+      "application": "LHG_ONEUP_P",
+      "business_unit": "LHG"
+    }
+  },
+  {
+    "Template": "Firewall",
+    "request_description": "FW Connection between E and F",
+    "rules": [
+      {
+        "action": "add",
+        "type_destination": "ip_address_dest",
+        "destination": "10.3.40.45/26",
+        "type_source": "ip_address_source",
+        "source": "10.3.40.45/23,10.3.40.45/23,10.3.40.45/23,10.3.40.45/23,10.3.40.45/23,10.3.40.45/23,10.3.40.45/23",
+        "service": "tcp_and_udp",
+        "destination_port": "45",
+        "description": "to service F rule 1",
+        "no_expiry": "No",
+        "end_date": "2022-12-01",
+        "pci_dss": "No",
+        "nat_required": "No",
+        "application_id": "123456",
+        "contact": "contact",
+        "business_purpose": "business purpose"
+      }
+    ],
+    "RequestorMail": "bernd.zeinar@dlh.de",
+    "RequestorFirstName": "Bernd",
+    "RequestorLastName": "Zeinar",
+    "RequestorUID": "U616109",
+    "RITMNumber": "RITM0091011",
+    "opened_by": "Bernd Zeinar",
+    "Subject": "Request_Firewall_REQ0091011",
+    "tag": {
+      "department": "GITI",
+      "cost_center": "123456",
+      "business_service": "LHG_CAG_P",
+      "application": "LHG_ONEUP_P",
+      "business_unit": "LHG"
+    }
+  },
+  {
+    "Template": "Firewall",
+    "request_description": "Updated service A to B",
+    "rules": [
+      {
+        "action": "delete",
+        "type_destination": "ip_address_dest",
+        "destination": "10.0.0.1/32",
+        "type_source": "ip_address_source",
+        "source": "10.0.10.133/32,10.0.10.132/32",
+        "service": "tcp",
+        "destination_port": "1443",
+        "description": "Old address for service C rule 1",
+        "no_expiry": "Yes",
+        "end_date": "2100-01-01",
+        "pci_dss": "Yes",
+        "nat_required": "No",
+        "application_id": "",
+        "contact": "",
+        "business_purpose": ""
+      },
+      {
+        "action": "add",
+        "type_destination": "ip_address_dest",
+        "destination": "10.0.0.2/32",
+        "type_source": "ip_address_source",
+        "source": "10.0.11.133/32,10.0.11.132/32",
+        "service": "tcp",
+        "destination_port": "1443",
+        "description": "Changed address for Services rule 2",
+        "no_expiry": "Yes",
+        "end_date": "2100-01-01",
+        "pci_dss": "Yes",
+        "nat_required": "No",
+        "application_id": "",
+        "contact": "",
+        "business_purpose": ""
+      }
+    ],
+    "RequestorMail": "joerg.peise@dlh.de",
+    "RequestorFirstName": "Jörg",
+    "RequestorLastName": "Peise",
+    "RequestorUID": "U616109",
+    "RITMNumber": "RITM00121314",
+    "opened_by": "Jörg Peise",
+    "Subject": "Request_Firewall_REQ00121314",
+    "tag": {
+      "department": "GITI",
+      "cost_center": "123456",
+      "business_service": "LHG_CAG_P",
+      "application": "LHG_ONEUP_P",
+      "business_unit": "LHG"
+    }
+  }
+]

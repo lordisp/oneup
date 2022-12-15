@@ -63,7 +63,7 @@ class OperationsTest extends TestCase implements FrontendTest
     public function can_create_new_operation()
     {
         User::first()->assignRole('Operations operator');
-        $this->assertDatabaseCount(Operation::class, 17);
+        $this->assertDatabaseCount(Operation::class, 23);
         $operation = Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->set('operation.operation', 'some/test/operation')
@@ -73,7 +73,7 @@ class OperationsTest extends TestCase implements FrontendTest
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'create'])
             ->get('operation');
         $this->assertInstanceOf(Operation::class, $operation);
-        $this->assertDatabaseCount(Operation::class, 18);
+        $this->assertDatabaseCount(Operation::class, 24);
     }
 
     /** @test */
@@ -95,6 +95,7 @@ class OperationsTest extends TestCase implements FrontendTest
     public function reader_cannot_edit_or_create_operations()
     {
         User::first()->assignRole('Operations reader');
+        User::first()->unassignRole('Global Administrator');
         Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->set('operation.operation', Str::random(4))
@@ -106,14 +107,14 @@ class OperationsTest extends TestCase implements FrontendTest
     /** @test */
     public function can_delete_a_operation()
     {
-        $this->assertDatabaseCount(Operation::class, 17);
+        $this->assertDatabaseCount(Operation::class, 23);
         $operationId = Operation::whereOperation('admin/tokenCacheProvider/read')->first()->id;
 
         Log::shouldReceive('info')->once()->withArgs(function ($message) {
             return str_contains($message, 'Destroy Operation') == true;
         });
 
-        User::first()->assignRole('Operations administrator');
+        User::first()->assignRole('Operations Administrator');
         Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->call('deleteModal', $operationId)
@@ -125,7 +126,7 @@ class OperationsTest extends TestCase implements FrontendTest
             ->assertPayloadSet('selected', [])
             ->assertPayloadSet('selectedPage', false)
             ->assertPayloadSet('selectAll', false);
-        $this->assertDatabaseCount(Operation::class, 16);
+        $this->assertDatabaseCount(Operation::class, 22);
     }
 
     /** @test */
@@ -170,11 +171,11 @@ class OperationsTest extends TestCase implements FrontendTest
         Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->set('perPage', 10)
-            ->assertSee('Showing 10 of 17')
+            ->assertSee('Showing 10 of 23')
             ->assertSee('Next')
             ->assertDontSee(__('pagination.previous'))
             ->call('gotoPage', 2)
             ->assertSee(__('pagination.previous'))
-            ->assertSee('Showing 7 of 17');
+            ->assertSee('Showing 10 of 23');
     }
 }

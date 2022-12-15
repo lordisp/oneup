@@ -8,6 +8,8 @@ use App\Http\Livewire\Admin\Operations;
 use App\Http\Livewire\Admin\Provider;
 use App\Http\Livewire\Admin\Roles;
 use App\Http\Livewire\Admin\RolesEdit;
+use App\Http\Livewire\PCI\FirewallRequestsImport;
+use App\Http\Livewire\PCI\FirewallRulesRead;
 use App\Http\Livewire\Profile\Clients;
 use App\Http\Livewire\Rbac\Users;
 use Illuminate\Support\Facades\Route;
@@ -48,6 +50,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/group/create', GroupsCreate::class)->name('admin.group.create');
     Route::get('/admin/group/{id}/{tab}', GroupsEdit::class)->name('admin.group.edit');
 
+    /* Firewall Management */
+    Route::get('/firewall/requests/read', FirewallRulesRead::class)->name('firewall.requests.read');
+    Route::get('/firewall/requests/import', FirewallRequestsImport::class)->name('firewall.requests.import');
 });
 
 require __DIR__ . '/auth.php';

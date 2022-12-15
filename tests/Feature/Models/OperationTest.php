@@ -4,6 +4,7 @@ namespace Tests\Feature\Models;
 
 use App\Models\Operation;
 use App\Models\Role;
+use Database\Seeders\OperationSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -30,7 +31,7 @@ class OperationTest extends TestCase
     /** @test */
     public function can_search_for_operations()
     {
-        Operation::factory()->count(10)->create();
+        $this->seed(OperationSeeder::class);
 
         $results = Operation::search('');
 

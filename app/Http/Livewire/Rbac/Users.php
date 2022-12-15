@@ -7,6 +7,7 @@ use App\Http\Livewire\DataTable\WithPerPagePagination;
 use App\Http\Livewire\DataTable\WithSorting;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Log;
@@ -19,6 +20,10 @@ class Users extends component
 
     protected $listeners = ['refresh' => '$refresh'];
 
+    public function mount()
+    {
+        if(Gate::denies('user-readAll')) abort(403);;
+    }
     public function updatingSearch()
     {
         $this->resetPage();

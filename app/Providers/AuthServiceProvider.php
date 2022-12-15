@@ -12,6 +12,7 @@ use App\Policies\Admin\OperationPolicy;
 use App\Policies\Admin\RolesPolicy;
 use App\Policies\Admin\TokenCacheProviderPolicy;
 use App\Policies\Admin\UserPolicy;
+use App\Policies\PCI\ServiceNowRequestPolicy;
 use App\Policies\Profile\ClientPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
@@ -27,7 +28,6 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         Client::class => ClientPolicy::class,
         Role::class => RolesPolicy::class,
-        User::class => UserPolicy::class,
     ];
 
     /**
@@ -48,6 +48,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerRolePolicy();
         $this->registerOperationPolicy();
         $this->registerGroupPolicy();
+        $this->registerServiceNowPolicy();
     }
 
     protected function registerPassportScopes()
@@ -110,9 +111,12 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('roles-create', [RolesPolicy::class, 'create']);
     }
 
-    protected function registerUserPolicy()
+    protected function registerServiceNowPolicy()
     {
-        Gate::define('user-readAll', [UserPolicy::class, 'viewAny']);
+        Gate::define('serviceNow-firewallRequests-readAll', [ServiceNowRequestPolicy::class, 'viewAny']);
+        Gate::define('serviceNow-firewallRequests-read', [ServiceNowRequestPolicy::class, 'view']);
+        Gate::define('serviceNow-firewallRequests-import', [ServiceNowRequestPolicy::class, 'create']);
+        Gate::define('serviceNow-firewallRequests-deleteAll', [ServiceNowRequestPolicy::class, 'deleteAll']);
     }
 
     protected function registerOperationPolicy()
@@ -139,8 +143,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('group-create', [GroupPolicy::class, 'create']);
     }
 
-    protected
-    function registerRbacGates()
+    protected function registerRbacGates()
     {
         Gate::after(function ($user, $operation) {
             return $user->operations()->contains($operation);

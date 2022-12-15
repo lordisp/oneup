@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Events\FirewallReviewAvailableEvent;
+use App\Events\ImportNewFirewallRequestsEvent;
+use App\Listeners\ImportNewFirewallRequestsEventListener;
+use App\Listeners\NotifyFirewallImportDispatcherListener;
+use App\Listeners\FirewallImportAddUsersListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -16,6 +21,13 @@ class EventServiceProvider extends ServiceProvider
     protected $listen = [
         Registered::class => [
             SendEmailVerificationNotification::class,
+        ],
+        FirewallReviewAvailableEvent::class => [
+            FirewallImportAddUsersListener::class,
+            NotifyFirewallImportDispatcherListener::class,
+        ],
+        ImportNewFirewallRequestsEvent::class => [
+            ImportNewFirewallRequestsEventListener::class,
         ],
     ];
 

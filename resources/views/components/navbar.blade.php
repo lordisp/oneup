@@ -15,37 +15,24 @@
             <livewire:admin.as-user/>
         @endif
         </div>
-        <div class="ml-4 flex items-center md:ml-6 space-x-4">
+        <div wire:poll.keep-alive class="ml-4 flex items-center md:ml-6 space-x-4">
             <!-- Notifications -->
-            <x-dropdown>
-                <button x-ref="button"
-                        x-on:click="toggle()"
-                        :aria-expanded="open"
-                        :aria-controls="$id('dropdown-button')"
-                        type="button"
-                        class="p-1 rounded-full dark:text-gray-300 dark:hover:text-gray-400 text-gray-400 hover:text-gray-500 focus:outline-none">
-                    <span class="sr-only">View notifications</span>
-                    <x-icon.bell size="6"/>
-                </button>
-                <x-dropdown.panel wide="w-96">
-                    <div class="mx-3 my-1 text-xs text-lhg-text dark:text-gray-100">
-                        Foo
-                    </div>
-                </x-dropdown.panel>
-            </x-dropdown>
+            <button x-on:click="notifySlider = true" class="p-1 rounded-full dark:text-gray-300 dark:hover:text-gray-400 text-gray-400 hover:text-gray-500 focus:outline-none">
+                <livewire:notification-bell/>
+            </button>
             <!-- Profile dropdown -->
             <x-dropdown>
                 <!-- Button -->
                 <x-dropdown.avatar/>
                 <!-- Panel -->
                 <x-dropdown.panel>
-                    <x-dropdown.link href="#1">
+                    <x-dropdown.link class="hidden" href="#1">
                         Account settings
                     </x-dropdown.link>
-                    <x-dropdown.link href="{{route('profile.clients')}}">
+                    <x-dropdown.link class="hidden" href="{{route('profile.clients')}}">
                         Clients
                     </x-dropdown.link>
-                    <x-dropdown.link href="#3">
+                    <x-dropdown.link class="hidden" href="#3">
                         License
                     </x-dropdown.link>
                     <form class="m-0" method="POST" action="{{route('logout')}}" role="none">

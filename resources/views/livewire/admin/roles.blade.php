@@ -98,6 +98,11 @@
         </x-table>
     </div>
 
+    <!-- Section Pagination -->
+    <div class="text-xs flex justify-center items-center md:justify-start md:items-start">
+        Showing {{{ $rows->count() ." of ". $rows->total() }}}</div>
+    <div>{{ $rows->onEachSide(2)->links('components/paginate') }}</div>
+
     <!-- Section delete provider-->
     <x-modal modal="delete">
         <form wire:submit.prevent="delete">

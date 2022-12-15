@@ -42,6 +42,10 @@ return [
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
+            'from' => [
+                'address' => env('MAIL_FROM_ADDRESS', 'oneup@dlh.de'),
+                'name' => env('MAIL_FROM_NAME', 'ONEUP'),
+            ],
         ],
 
         'ses' => [

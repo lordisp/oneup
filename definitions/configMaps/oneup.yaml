@@ -36,7 +36,7 @@ data:
   MAIL_USERNAME: "email"
   MAIL_ENCRYPTION: "tls"
   MAIL_FROM_ADDRESS: "oneup@dlh.de"
-  MAIL_FROM_NAME: "OneUp - No-Replay"
+  MAIL_FROM_NAME: "ONEUP"
   APACHE_RUN_USER: "www-data"
   APACHE_RUN_GROUP: "www-data"
   apache : |

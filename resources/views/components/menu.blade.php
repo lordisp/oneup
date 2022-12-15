@@ -4,7 +4,24 @@
         <x-icon.home class="icon-menu" size="6"/>
     </x-slot>
 </x-menu.link>
-@canany(['roles-readAll','operation-readAll','provider-readAll','group-read','group-readAll'])
+
+@canany(['serviceNow-firewallRequests-read','serviceNow-firewallRequests-readAll','serviceNow-firewallRequests-import'])
+    <x-menu.dropdown route="firewall*">
+        <x-slot name="title">Firewall Management</x-slot>
+        <x-slot name="icon">
+            <x-icon.firewall class="icon-menu" size="6"/>
+        </x-slot>
+        @canany(['serviceNow-firewallRequests-read','serviceNow-firewallRequests-readAll'],[auth()->user()])
+            <x-menu.dropdown-link request="firewall/requests/read" href="{{route('firewall.requests.read')}}">View Requests</x-menu.dropdown-link>
+        @endcanany
+        @canany(['serviceNow-firewallRequests-import'],[auth()->user()])
+            <x-menu.dropdown-link request="firewall/requests/import" href="{{route('firewall.requests.import')}}">Import Requests</x-menu.dropdown-link>
+        @endcanany
+    </x-menu.dropdown>
+@endcanany
+
+
+@canany(['roles-readAll','operation-readAll','provider-readAll','group-read','group-readAll','user-readAll'])
     <x-menu.dropdown route="admin*">
         <x-slot name="title">Administration</x-slot>
         <x-slot name="icon">

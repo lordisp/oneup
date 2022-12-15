@@ -29,7 +29,7 @@ The `request` property is optional to allow conditionaly behave based on the cur
             this.active = value  ? this.id : null
         },
     }"
-     x-init="active={{  $request == ''|| request()->is($request) ? $id : null }}"
+     x-init="active={{  $request == ''|| request()->is($request) ? $id : 1 }}"
      role="region" class="border border-black rounded-md shadow">
     <button
         x-on:click="expanded = !expanded"

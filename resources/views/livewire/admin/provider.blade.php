@@ -12,7 +12,7 @@
     </x-title>
 
     <div class="flex justify-end space-x-1">
-        @can('delete-provider')
+        @can('provider-delete')
             <x-btn.secondary wire:click="deleteModal"
                              class="{{empty($selected) ? 'hidden' : ''}}"
             >{{ __('button.provider_bulk_delete') }}</x-btn.secondary>

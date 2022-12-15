@@ -8,5 +8,14 @@ use App\Traits\Uuid;
 
 class {{ class }} extends Model
 {
-    use HasFactory, Uuid;
+    use HasFactory, Uuid, HasSlug;
+
+    protected $fillable=['*'];
+
+    public function getSlugOptions(): SlugOptions
+    {
+        return SlugOptions::create()
+            ->generateSlugsFrom('name')
+            ->saveSlugsTo('slug');
+    }
 }

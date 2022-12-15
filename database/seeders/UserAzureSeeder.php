@@ -38,5 +38,13 @@ class UserAzureSeeder extends Seeder
             'provider' => 'oneup_aad',
             'email' => 'bernd.zeinar@dlh.de',
         ])->save();
+        User::create([
+            'firstName' => 'Jörg',
+            'lastName' => 'Peise',
+            'displayName' => 'Peise, Jörg',
+            'provider_id' => '7761796b-20da-4c22-9497-485df7e7a7c8',
+            'provider' => 'oneup_aad',
+            'email' => 'joerg.peise@dlh.de',
+        ])->save();
     }
 }

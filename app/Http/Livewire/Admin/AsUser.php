@@ -41,7 +41,7 @@ class AsUser extends Component
         return <<<'blade'
             <div class="flex w-full p-2 " >
                 <div class="flex justify-center items-center w-full rounded-md border border-red-900 bg-red-100 text-red-900">
-                    <div>You're logged in as <span> {{ auth()->user()->email}} </span>. <x-btn.link wire:click="closeSession">Close Session.</x-btn.link></div>
+                    <div>You're logged in as <span> {{ auth()->user()->firstName}} {{ auth()->user()->lastName}} <span class="italic text-sm">({{ auth()->user()->email}})</span> </span>. <x-btn.link wire:click="closeSession">Close Session.</x-btn.link></div>
                 </div>
             </div>
 blade;

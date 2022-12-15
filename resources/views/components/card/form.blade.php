@@ -7,7 +7,7 @@
 'contrast' => false,
 ])
 
-<div @click.away="search = false" {{ $attributes->merge(['class' => 'shadow overflow-hidden rounded-md']) }}>
+<div @click.away="search = false" {{ $attributes->merge(['class' => 'shadow-md overflow-hidden rounded-md']) }}>
     <div class="{{$contrast ? 'bg-gray-50' : 'bg-white dark:bg-gray-800'}}">
         @if($search)
             <div class="flex {{$justify ? "justify-".$justify : "justify-end"}}">
@@ -35,7 +35,7 @@
             {{$slot}}
         </div>
         @if($buttons)
-            <div class="{{$contrast ? 'bg-gray-200' : 'bg-gray-50'}} border-gray-100 items-center border-t flex {{$justify ? "justify-".$justify : "justify-end"}} mt-6 px-4 py-4 space-x-2">
+            <div class="{{$contrast ? 'bg-gray-200' : 'bg-gray-50'}} border-gray-100 items-center border-t flex flex-col sm:flex-row justify-around sm:justify-end mt-6 px-4 py-4 space-y-2 sm:space-y-0 sm:space-x-2">
                 {{$buttons}}
             </div>
         @endif

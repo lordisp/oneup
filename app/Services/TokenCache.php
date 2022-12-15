@@ -16,6 +16,8 @@ class TokenCache
 
     protected array $config = [], $client = [];
 
+    public bool $cache = true;
+
     public function __construct()
     {
         $this->config = $this->loadConfig();
@@ -77,7 +79,7 @@ class TokenCache
         if (auth()->check()) {
             $oid = auth()->user()->provider_id;
             $token = Cache::tags($oid)->get('access_token');
-            $accessToken = isset($token)?decrypt($token):null;
+            $accessToken = isset($token) ? decrypt($token) : null;
 
             if (!empty($accessToken) && $accessToken['expire'] >= $now) return encrypt($accessToken['access_token']);
         }
@@ -195,10 +197,18 @@ class TokenCache
         $this->client = array_merge($body, $providerBody);
     }
 
+    public function noCache(): static
+    {
+        $this->cache = false;
+        return $this;
+    }
+
     protected function getToken(): static
     {
         $key = $this->getKey();
-        $token = Cache::tags([$this->provider])->get($key) ?: $this->setToken($key);
+        $token = Cache::tags([$this->provider])->get($key) && $this->cache
+            ? Cache::tags([$this->provider])->get($key)
+            : $this->setToken($key);
         $this->token = $this->config['encrypt'] ? $token : decrypt($token);
         return $this;
     }

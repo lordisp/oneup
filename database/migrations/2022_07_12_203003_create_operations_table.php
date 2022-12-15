@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('operations', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('operation');
-            $table->string('description')->nullable();
+            $table->string('operation')->unique();
+            $table->string('description');
             $table->string('slug')->nullable();
             $table->timestamps();
         });

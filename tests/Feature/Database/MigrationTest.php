@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Database;
 
+use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\GroupSeeder;
 use Database\Seeders\OperationSeeder;
 use Database\Seeders\RoleSeeder;
@@ -27,7 +28,7 @@ class MigrationTest extends TestCase
     {
         $this->seed(UserAzureSeeder::class);
 
-        $this->assertDatabaseCount('users', 3);
+        $this->assertDatabaseCount('users', 4);
     }
 
     /** @test */
@@ -40,8 +41,9 @@ class MigrationTest extends TestCase
     /** @test */
     public function can_seed_roles()
     {
+        $this->seed(UserAzureSeeder::class);
         $this->seed(RoleSeeder::class);
-        $this->assertDatabaseCount('roles', 12);
+        $this->assertDatabaseCount('roles', 19);
 
     }
 
@@ -49,7 +51,18 @@ class MigrationTest extends TestCase
     public function can_seed_operations()
     {
         $this->seed(OperationSeeder::class);
-        $this->assertDatabaseCount('operations', 17);
+        $this->assertDatabaseCount('operations', 23);
+    }
+
+    /** @test */
+    public function can_seed_all()
+    {
+        $this->seed(DatabaseSeeder::class);
+        $this->assertDatabaseCount('users', 4);
+        $this->assertDatabaseCount('token_cache_providers', 4);
+        $this->assertDatabaseCount('roles', 19);
+        $this->assertDatabaseCount('operations', 23);
+        $this->assertDatabaseCount('business_services', 12);
     }
 
 }

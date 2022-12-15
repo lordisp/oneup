@@ -17,7 +17,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Livewire\Component;
-use function MongoDB\BSON\toRelaxedExtendedJSON;
 
 /**
  * @property mixed $group
@@ -148,7 +147,7 @@ class GroupsEdit extends Component
 
         switch ($this->tab) {
             case 'members':
-                if (Gate::allows('group-attach-members')) {
+                if (Gate::allows('group-attach-members', $this->edit)) {
                     $this->edit->attachUsers(array_unique($ids));
                     $this->clearSideOver();
                     $this->event(Str::ucfirst(count(array_unique($ids)) > 1 ? Str::plural($this->tab) . ' have ' : Str::singular($this->tab) . ' has ') . 'been assigned!', 'success');
@@ -166,7 +165,7 @@ class GroupsEdit extends Component
                 }
                 break;
             case 'owners':
-                if (Gate::allows('group-attach-owners',$this->edit)) {
+                if (Gate::allows('group-attach-owners', $this->edit)) {
                     $this->edit->attachOwners(array_unique($ids));
                     $this->clearSideOver();
                     $this->event(Str::ucfirst(count(array_unique($ids)) > 1 ? Str::plural($this->tab) . ' have ' : Str::singular($this->tab) . ' has ') . 'been assigned!', 'success');

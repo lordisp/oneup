@@ -68,7 +68,7 @@ class RolesCreateTest extends TestCase implements FrontendTest
     /** @test */
     public function can_create_a_new_role()
     {
-        $this->assertDatabaseCount(Role::class, 12);
+        $this->assertDatabaseCount(Role::class, 19);
         User::first()->assignRole('Roles operator');
         $role = Livewire::actingAs(User::first())
             ->test(RolesEdit::class)
@@ -79,13 +79,13 @@ class RolesCreateTest extends TestCase implements FrontendTest
             ->assertHasNoErrors()
             ->get('role');
         $this->assertInstanceOf(Role::class, $role);
-        $this->assertDatabaseCount(Role::class, 13);
+        $this->assertDatabaseCount(Role::class, 20);
     }
 
     /** @test */
     public function create_a_new_role_has_errors()
     {
-        $this->assertDatabaseCount(Role::class, 12);
+        $this->assertDatabaseCount(Role::class, 19);
         User::first()->assignRole('Roles administrator');
         Livewire::actingAs(User::first())
             ->test(RolesEdit::class)
@@ -98,6 +98,6 @@ class RolesCreateTest extends TestCase implements FrontendTest
                 'selected' => ['required'],
             ])
             ->get('role');
-        $this->assertDatabaseCount(Role::class, 12);
+        $this->assertDatabaseCount(Role::class, 19);
     }
 }

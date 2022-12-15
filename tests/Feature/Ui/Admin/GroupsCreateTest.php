@@ -40,7 +40,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     /** @test */
     public function can_access_route_as_user()
     {
-        User::first()->assignRole('Group operator');
+        User::first()->assignRole('Group Operator');
         $this->actingAs(User::first())
             ->get('/admin/group/create')
             ->assertOk();
@@ -49,7 +49,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     /** @test */
     public function can_render_the_component()
     {
-        User::first()->assignRole('Group operator');
+        User::first()->assignRole('Group Operator');
         Livewire::actingAs(User::first())
             ->test(GroupsCreate::class)
             ->assertOk();
@@ -58,7 +58,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     /** @test */
     public function can_view_component()
     {
-        User::first()->assignRole('Group administrator');
+        User::first()->assignRole('Group Administrator');
         $this->actingAs(User::first())
             ->get('/admin/group/create')
             ->assertSeeLivewire('admin.groups-create')
@@ -69,7 +69,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     /** @test */
     public function can_create_a_group()
     {
-        User::first()->assignRole('Group administrator');
+        User::first()->assignRole('Group Administrator');
         Livewire::actingAs(User::first())
             ->test(GroupsCreate::class)
             ->set('group.name', 'A new test-group')

@@ -49,4 +49,14 @@ module.exports = {
         require('@tailwindcss/aspect-ratio'),
         require('@tailwindcss/line-clamp'),
     ],
+    safelist: [
+        'animate-pulse',
+        'bg-red-400',
+        'border-red-900',
+        'text-gray-500',
+        'text-green-500',
+        'text-red-500',
+        'text-yellow-500',
+        'text-red-500',
+    ]
 }

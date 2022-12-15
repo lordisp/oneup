@@ -80,4 +80,9 @@ trait Helper
             ]),
         ])->create()->name;
     }
+
+    protected function getStub(string $name)
+    {
+        return json_decode(file_get_contents(base_path() . '/tests/Feature/Stubs/' . $name), true);
+    }
 }

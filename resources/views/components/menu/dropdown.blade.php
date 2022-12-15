@@ -10,7 +10,7 @@
         x-cloak
     >
         {{ $icon }}
-        <span class="flex-1">{{ $title }}</span>
+        <span class="flex-1 md:text-center xl:text-start">{{ $title }}</span>
         <span>
         <x-icon.chevron-down x-show="open" class="md:hidden xl:block" size="5"/>
         <x-icon.chevron-up x-show="!open" class="md:hidden xl:block" size="5"/>

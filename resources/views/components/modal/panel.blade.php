@@ -15,6 +15,10 @@
                 <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10">
                     <x-icon.warning class="text-red-600" size="6"/>
                 </div>
+            @elseif($type=='info')
+                <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-blue-100 sm:mx-0 sm:h-10 sm:w-10">
+                    <x-icon.info class="text-lhg-blue" size="6"/>
+                </div>
             @endif
             <h3 class="text-center sm:text-left" :id="$id('modal-title')">{{$title}}</h3>
         </div>
@@ -23,7 +27,8 @@
             {{ $content }}
         </p>
         <!-- Buttons -->
-        <div class="mt-8 flex justify-end space-x-2">
+        <div class="mt-8 flex justify-end items-center space-x-2">
+            <span wire:loading.class.remove="hidden" class="hidden animate-pulse text-gray-500">Loading ...</span>
             {{ $button }}
         </div>
     </div>

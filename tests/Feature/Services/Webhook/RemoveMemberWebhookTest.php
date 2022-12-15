@@ -69,7 +69,7 @@ class RemoveMemberWebhookTest extends TestCase
     {
         $this->makeAlaProvider();
         $this->seed(UserAzureSeeder::class);
-        $this->assertDatabaseCount(User::class, 3);
+        $this->assertDatabaseCount(User::class, 4);
         Http::fake([
             'https://api.loganalytics.io/v1/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/stubs/remove_member_results.json'), true)),
             'https://login.microsoftonline.com/*' => Http::sequence()
@@ -87,6 +87,6 @@ class RemoveMemberWebhookTest extends TestCase
             json_decode(file_get_contents(__DIR__ . '/stubs/remove_member_webhook.json'), true)
         )->assertStatus(201);
         $this->assertCount(3, User::where('status', false)->get());
-        $this->assertDatabaseCount(User::class, 3);
+        $this->assertDatabaseCount(User::class, 4);
     }
 }

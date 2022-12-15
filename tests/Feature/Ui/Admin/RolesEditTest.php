@@ -34,11 +34,6 @@ class RolesEditTest extends TestCase
 
         Livewire::actingAs($user)
             ->test(Roles::class)
-            ->call('clearSearch')
-            ->assertSee('test1')
-            ->assertSee('description1')
-            ->assertSee('test2')
-            ->assertSee('description2')
             ->set('search','test1')
             ->assertSee('test1')
             ->assertSee('description1')
