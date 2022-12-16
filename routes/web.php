@@ -26,7 +26,7 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return view('maintenance.index');
+    return view('welcome');
 });
 
 /* auth web routes*/
