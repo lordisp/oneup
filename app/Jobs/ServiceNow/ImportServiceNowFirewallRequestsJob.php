@@ -57,7 +57,7 @@ class ImportServiceNowFirewallRequestsJob implements ShouldQueue
 
             if (isset($this->value['rules'])) foreach ($this->value['rules'] as $rule) {
 
-                $rule['pci_dss'] = $this->isPci(BusinessService::class, 'name', $businessService) || $rule['pci_dss'] == 'Yes';;
+                $rule['pci_dss'] = $this->isPci(BusinessService::class, 'name', $businessService)/* || $rule['pci_dss'] == 'Yes'*/;
 
                 $error = $this->importRule($model, $rule);
 
