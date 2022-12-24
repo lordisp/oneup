@@ -19,8 +19,8 @@
                  x-transition:leave-end="translate-x-full" class="w-screen max-w-md"
                  @if($clickAway)@mousedown.outside="{{$show}} = false" @endif
                  x-cloak>
-                <div class="h-2 bg-lhg-blue"></div>
-                <div {{$attributes->merge(['class' => 'h-full divide-y divide-gray-200 flex flex-col bg-white shadow-xl'])}}>
+                <div class="h-2 bg-lhg-blue dark:bg-gray-600"></div>
+                <div {{$attributes->merge(['class' => 'h-full divide-y divide-gray-200 flex flex-col bg-white dark:bg-gray-800 shadow-xl'])}}>
                     <div class="min-h-0 flex-1 flex flex-col py-6 overflow-y-scroll">
                         <div class="px-4 sm:px-6">
                             <div class="flex items-start justify-between">
@@ -29,7 +29,7 @@
                                 </h2>
                                 <div class="ml-3 h-7 flex items-center">
                                     <button wire:click.prevent="resetPage" @click.prevent="{{$show}} = false"
-                                            class="bg-white rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-lh-yellow">
+                                            class="bg-white dark:bg-transparent rounded-md text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-lh-yellow">
                                         <span class="sr-only">Close panel</span>
                                         <svg class="h-6 w-6" x-description="Heroicon name: outline/x" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -42,14 +42,14 @@
                             {{$content}}
                         </div>
                     </div>
-                    <div class="flex-shrink-0 px-4 py-4 flex justify-end space-x-2 bg-white">
-                        <x-btn.cancel wire:click.prevent="resetPage" @click.prevent="{{$show}} = false">
+                    <div class="flex-shrink-0 px-4 py-4 flex justify-end space-x-2 bg-white dark:bg-gray-700">
+                        <x-btn.primary wire:click.prevent="resetPage" @click.prevent="{{$show}} = false">
                             {{$cancel}}
-                        </x-btn.cancel>
+                        </x-btn.primary>
                         @if($withoutSave===false)
-                            <x-btn.primary type="submit" @click="{{$show}} = false">
+                            <x-btn.secondary type="submit" @click="{{$show}} = false">
                                 {{$submit}}
-                            </x-btn.primary>
+                            </x-btn.secondary>
                         @endif
                     </div>
                 </div>

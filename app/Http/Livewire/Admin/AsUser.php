@@ -20,15 +20,15 @@ class AsUser extends Component
 
     public function closeSession()
     {
-        $userId = session()->get('fromUser');
+        $userId = session('fromUser');
 
         $fromUser = User::find($userId);
 
-        Log::info($fromUser->email . ' closed session from ' . auth()->user()->email);
-
-        auth()->logout();
-        auth()->login($fromUser);
-
+        if (isset($fromUser)) {
+            Log::info($fromUser->email . ' closed session from ' . auth()->user()->email);
+            auth()->logout();
+            auth()->login($fromUser);
+        }
         session()->flash('fromUser');
 
         $this->redirect(RouteServiceProvider::HOME);

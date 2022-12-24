@@ -35,7 +35,7 @@
             {{$slot}}
         </div>
         @if($buttons)
-            <div class="{{$contrast ? 'bg-gray-200' : 'bg-gray-50'}} border-gray-100 items-center border-t flex flex-col sm:flex-row justify-around sm:justify-end mt-6 px-4 py-4 space-y-2 sm:space-y-0 sm:space-x-2">
+            <div class="{{$contrast ? 'bg-gray-200 dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-900'}} border-gray-100 dark:border-gray-700 items-center border-t flex flex-col sm:flex-row justify-between sm:justify-end mt-6 px-4 py-4 space-y-2 sm:space-y-0 sm:space-x-2">
                 {{$buttons}}
             </div>
         @endif

@@ -10,10 +10,12 @@ use App\Http\Livewire\DataTable\WithSorting;
 use App\Jobs\InviteFirewallReviewerJob;
 use App\Models\FirewallRule;
 use App\Models\ServiceNowRequest;
+use App\Models\Tag;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\QueryException;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -46,8 +48,7 @@ class FirewallRulesRead extends Component
     public function deleteAll()
     {
         if (Gate::denies('serviceNow-firewallRequests-deleteAll')) $this->redirect(RouteServiceProvider::HOME);
-        ServiceNowRequest::all()->map->delete();
-
+        ServiceNowRequest::all()->map->truncate();
         $this->event('All records deleted!', 'success');
     }
 

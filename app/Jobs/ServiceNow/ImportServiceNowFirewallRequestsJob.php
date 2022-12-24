@@ -4,8 +4,8 @@ namespace App\Jobs\ServiceNow;
 
 use App\Models\BusinessService;
 use App\Models\FirewallRule;
+use App\Models\Group;
 use App\Models\ServiceNowRequest;
-use App\Models\Tag;
 use App\Models\User;
 use App\Traits\ValidationRules;
 use Carbon\Exceptions\InvalidFormatException;
@@ -45,27 +45,24 @@ class ImportServiceNowFirewallRequestsJob implements ShouldQueue
     {
         $invalid = $this->preValidateFirewallRequestFiles($this->value);
 
-        foreach ($this->value['tag'] as $key => $val) $tags[] = ['name' => $key, 'value' => $val];
-
         $model = ServiceNowRequest::firstOrNew(['ritm_number' => $this->value['RITMNumber']]);
 
-        $businessService = data_get($this->value, 'tag.business_service');
-
         if (!$model->exists && empty($invalid)) {
+
+            $businessService = array_key_exists('business_service', $this->value['tag'])
+                ? data_get($this->value, 'tag.business_service')
+                : null;
 
             $error = $this->importRequest($model);
 
             if (isset($this->value['rules'])) foreach ($this->value['rules'] as $rule) {
 
-                $rule['pci_dss'] = $this->isPci(BusinessService::class, 'name', $businessService)/* || $rule['pci_dss'] == 'Yes'*/;
-
+                $rule['pci_dss'] = $this->isPci(BusinessService::class, 'name', $businessService);
+                $rule['business_service'] = $businessService;
                 $error = $this->importRule($model, $rule);
 
             }
 
-            if (isset($tags) && is_array($tags)) foreach ($tags as $tag) {
-                $error = $this->importTag($model, $tag);
-            }
 
             if (!$error) Log::info($this->value['Subject'] . ' imported');
             unset($exception, $message);
@@ -118,36 +115,22 @@ class ImportServiceNowFirewallRequestsJob implements ShouldQueue
             );
             $ruleModel->end_date = $rule['end_date'];
             $ruleModel->status = $rule['status'];
+            $ruleModel->business_service = $rule['business_service'];
             $message = $ruleModel->exists ? 'Update' : 'Create';
+            $ruleModel->save();
 
             Log::info($message . ' rule from ' . $this->value['Subject'], $rule);
-            return !($ruleModel->save());
+
         } catch (QueryException $exception) {
             Log::error('ImportServiceNowFirewallRequestsJob: ' . $exception->getMessage(), (array)$exception);
             return true;
         }
+        return false;
     }
 
-    protected function importTag($model, $tag): bool
+    protected function syncTags($tags, $ruleModel)
     {
-        try {
-            $attach = Tag::firstOrCreate(['name' => $tag['name'], 'value' => $tag['value']]);
-            $message = $attach->exists ? 'Create' : 'Receive';
-            Log::debug($message . ' Tag ' . $attach->id, $attach->toArray());
-            $error = false;
-        } catch (QueryException $exception) {
-            Log::error($exception->getMessage());
-            $error = true;
-        }
 
-        if (isset($attach)) try {
-            $model->tags()->attach($attach->id);
-            Log::debug("Attach Tag $attach->id to $model->id");
-        } catch (QueryException $exception) {
-            $error = true;
-            Log::error($exception->getMessage());
-        }
-        return $error;
     }
 
     /**

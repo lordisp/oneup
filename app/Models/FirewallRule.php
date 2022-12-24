@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Gate;
@@ -16,7 +15,7 @@ use Illuminate\Support\Facades\Gate;
  */
 class FirewallRule extends Model
 {
-    use HasFactory, Uuid;
+    use Uuid;
 
     const REVIEW = 6;
 
@@ -44,7 +43,6 @@ class FirewallRule extends Model
         'last_review' => 'datetime',
     ];
 
-
     public function request(): BelongsTo
     {
         return $this->belongsTo(ServiceNowRequest::class, 'service_now_request_id');
@@ -54,12 +52,6 @@ class FirewallRule extends Model
     {
         return $this->all()->map->request;
     }
-
-    public function tags()
-    {
-        return $this->request->tags();
-    }
-
 
     public function statusName(): Attribute
     {
@@ -108,26 +100,26 @@ class FirewallRule extends Model
     }
 
     /**
-     * Change the Status to 'review' if its value is unequal to `delete` and `last_review` is behind 6 months or `null`
+     * Change the Status for PCI to 'review' if its value is unequal to `delete` and `last_review` is behind 6 months or `null`
      * @return Attribute
      */
     public function newStatus(): Attribute
     {
         return Attribute::make(
-            function () {
-                if ($this->status != 'deleted' && $this->pci_dss == true) {
-                    if ($this->last_review <= now()->subMonths(self::REVIEW) || $this->last_review == null) {
-                        return 'review';
-                    } else {
-                        return $this->status;
-                    }
-                } else {
-                    return $this->status;
-                }
-            },
+            fn() => $this->status != 'deleted' && $this->pci_dss
+                ? ($this->last_review <= now()->subMonths(self::REVIEW) || $this->last_review == null
+                    ? 'review'
+                    : $this->status)
+                : $this->status,
         );
     }
 
+    public function pci(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->pci_dss ? 'Yes' : 'No',
+        );
+    }
 
     public function scopeAdded($query)
     {
@@ -139,7 +131,7 @@ class FirewallRule extends Model
      * @param $query
      * @return void
      */
-    public function scopeReview($query)
+    public function scopeReview($query): void
     {
         $query->where(function ($query) {
             $query->where('action', '=', 'add');

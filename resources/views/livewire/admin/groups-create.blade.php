@@ -52,7 +52,7 @@
 
                             <!-- Section Slide-Over "Add Owners" -->
                             <div>
-                                <x-slide-over show="owners" withoutSave cancel="Close" class="max-h-screen  overflow-hidden">
+                                <x-slide-over show="owners" withoutSave cancel="{{ __('button.close') }}" class="max-h-screen  overflow-hidden">
                                     <x-slot name="title">Add Owners</x-slot>
                                     <x-slot name="content">
                                         <x-input.text type="search" class="w-full" wire:model="search"></x-input.text>
@@ -110,7 +110,7 @@
 
                             <!-- Section Slide-Over "Add Member" -->
                             <div>
-                                <x-slide-over show="member" withoutSave cancel="Close" class="max-h-screen  overflow-hidden">
+                                <x-slide-over show="member" withoutSave cancel="{{ __('button.close') }}" class="max-h-screen  overflow-hidden">
                                     <x-slot name="title">Add Member</x-slot>
                                     <x-slot name="content">
                                         <x-input.text type="search" class="w-full" wire:model="search"></x-input.text>
@@ -172,10 +172,10 @@
                                 <x-btn.toggle wire:click.prevent="roleAssigment" label="Add Roles?"/>
                             </div>
                             <span>
-                                <a class="btn-secondary" href="{{route('admin.group')}}">Cancel</a>
-                                <x-btn.primary type="submit">
+                                <a class="btn-primary" href="{{route('admin.group')}}">Cancel</a>
+                                <x-btn.secondary type="submit">
                                     Save
-                                </x-btn.primary>
+                                </x-btn.secondary>
                             </span>
                         </x-slot>
                     </x-card.form>
@@ -221,7 +221,7 @@
                                             @endforelse
                                         @else
                                             <x-table.row>
-                                                <x-table.cell colspan="3" class="bg-white space-y-4 text-center py-4">
+                                                <x-table.cell colspan="3" class="space-y-4 text-center py-4">
                                                     <div class="flex justify-center items-center space-x-2 text-gray-400">
                                                         <x-icon.document-search size="7"/>
                                                         <h3>Start adding roles...</h3>
@@ -235,7 +235,7 @@
                             <!-- Section Slide-Over "Add Roles" -->
                             <div>
                                 <form wire:submit.prevent="roleAssigment('attach')">
-                                    <x-slide-over show="roles" cancel="Close" submit="Add Selected" class="max-h-screen  overflow-hidden">
+                                    <x-slide-over show="roles" cancel="{{ __('button.cancel') }}" submit="{{ __('button.apply') }}" class="max-h-screen  overflow-hidden">
                                         <x-slot name="title">Add Roles</x-slot>
                                         <x-slot name="content">
                                             <x-input.text type="search" class="w-full" wire:model="search"></x-input.text>
@@ -253,7 +253,7 @@
                                                                     {{$result['name']}}
                                                                 </x-slot>
                                                                 <x-slot name="second">
-                                                                    {{strtolower($result['email'])}}
+                                                                    {{strtolower($result['description'])}}
                                                                 </x-slot>
                                                             </x-list.sticky>
                                                         @empty

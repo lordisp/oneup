@@ -23,12 +23,12 @@
             <h3 class="text-center sm:text-left" :id="$id('modal-title')">{{$title}}</h3>
         </div>
         <!-- Content -->
-        <p class="mt-2 text-gray-600">
+        <p class="mt-2">
             {{ $content }}
         </p>
         <!-- Buttons -->
         <div class="mt-8 flex justify-end items-center space-x-2">
-            <span wire:loading.class.remove="hidden" class="hidden animate-pulse text-gray-500">Loading ...</span>
+            <span wire:loading.class.remove="hidden" class="hidden animate-pulse text-gray-500 dark:text-gray-300">Loading ...</span>
             {{ $button }}
         </div>
     </div>

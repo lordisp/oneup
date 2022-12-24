@@ -42,6 +42,7 @@
     </x-slide-over>
 </div>
 </div>
+@stack('draggable')
 @livewireScripts
 </body>
 </html>

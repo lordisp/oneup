@@ -44,10 +44,10 @@ class Avatar extends Component
                 }, throw: false)
                 ->get($uri);
         }
-
+        $alt = str_replace(['(', ')', '-', '#', '_', 'Extern'], '', $this->alt);
         return (isset($response) && $response->status() == 200)
             ? 'data:image/jpeg;base64,' . base64_encode($response->body())
-            : 'https://ui-avatars.com/api/?name=' . urlencode($this->alt) . '&color=7F9CF5&background=random';
+            : 'https://ui-avatars.com/api/?name=' . urlencode($alt) . '&color=7F9CF5&background=random';
     }
 
     public function getAvatarProperty(): string
@@ -80,4 +80,6 @@ class Avatar extends Component
             </div>
         blade;
     }
+
+
 }

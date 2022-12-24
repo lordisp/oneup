@@ -4,10 +4,9 @@ namespace App\Models;
 
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\MorphToMany;
+use Illuminate\Support\Str;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -17,11 +16,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class ServiceNowRequest extends Model
 {
-    use HasFactory, Uuid, HasSlug;
-
-    protected $casts = [
-        'tags' => 'array'
-    ];
+    use Uuid, HasSlug;
 
     public function getSlugOptions(): SlugOptions
     {
@@ -44,18 +39,24 @@ class ServiceNowRequest extends Model
         return $this->hasMany(FirewallRule::class);
     }
 
-    /**
-     * Get all the tags for the post.
-     */
-    public function tags(): MorphToMany
-    {
-        return $this->morphToMany(Tag::class, 'taggable');
-    }
-
     public function requestor_name(): Attribute
     {
         return Attribute::make(
-            set: fn() => $this->requestor_firstName . ' ' . $this->requestor_lastName
+            set: fn() => Str::title($this->requestor_firstName) . ' ' . Str::title($this->requestor_lastName)
+        );
+    }
+public function dddd(): Attribute
+{
+    return Attribute::make(
+        get: fn($value) => $value,
+        set: fn($value) => $value,
+    );
+}
+
+    public function subjectName(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => str_replace(['_', 'Firewall', 'Request'], '', $this->subject),
         );
     }
 }

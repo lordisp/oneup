@@ -10,9 +10,9 @@
             </x-input.select>
         </x-slot>
     </x-title>
-    <x-table class="table-fixed w-full">
+    <x-table class="resizeable">
         <x-slot name="head">
-            <x-table.heading class="hidden md:table-cell" sortable multiColumn wire:click="sortBy('firstName')" :direction="$sorts['firstName'] ?? null">First name</x-table.heading>
+            <x-table.heading class="w-10 hidden md:table-cell" sortable multiColumn wire:click="sortBy('firstName')" :direction="$sorts['firstName'] ?? null">First name</x-table.heading>
             <x-table.heading sortable multiColumn wire:click="sortBy('lastName')" :direction="$sorts['lastName'] ?? null">Name</x-table.heading>
             <x-table.heading class="hidden md:table-cell" sortable multiColumn wire:click="sortBy('email')" :direction="$sorts['email'] ?? null">Email</x-table.heading>
             <x-table.heading class="hidden md:table-cell">

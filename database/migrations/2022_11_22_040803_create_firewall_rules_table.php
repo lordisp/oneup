@@ -30,6 +30,7 @@ return new class extends Migration {
             $table->string('contact')->nullable();
             $table->string('business_purpose')->nullable();
             $table->string('status'); // 'open, review, extended, deleted'
+            $table->string('business_service')->nullable();
             $table->timestamp('last_review')->nullable();
             $table->timestamps();
 
@@ -37,6 +38,7 @@ return new class extends Migration {
                 ->constrained('service_now_requests')
                 ->onUpdate('cascade')
                 ->onDelete('cascade');
+
         });
     }
 

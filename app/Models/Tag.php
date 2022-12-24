@@ -12,7 +12,7 @@ use Spatie\Sluggable\SlugOptions;
 
 class Tag extends Model
 {
-    use HasFactory, Uuid, HasSlug;
+    use Uuid, HasSlug;
 
     public function getSlugOptions(): SlugOptions
     {
@@ -26,8 +26,8 @@ class Tag extends Model
     /**
      * Get all the requests that are assigned this tag.
      */
-    public function requests(): MorphToMany
+    public function rules()
     {
-        return $this->morphedByMany(ServiceNowRequest::class, 'taggable');
+        return $this->morphedByMany(FirewallRule::class, 'taggable');
     }
 }

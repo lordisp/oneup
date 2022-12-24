@@ -31,7 +31,7 @@
 
     <!-- Filters -->
     <div class="pb-2">
-        <x-card.form x-show="filter" x-collapse contrast buttons>
+        <x-card.form x-show="filter" x-collapse buttons>
             <div class="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 ">
                 <!-- Filters -->
                 <x-input.group inline for="pci" label="PCI">
@@ -67,112 +67,91 @@
 
 
     <div x-data="{ selectPagePopup:@entangle('selectPagePopup') }">
-        <x-table class="md:table-auto md:max-w-screen-2xl">
+        <x-table class="md:table-auto">
             <x-slot name="head">
-                {{--<x-table.heading class="w-5">
-                    <x-input.checkbox wire:model="selectPage" disabled="{{$rows->total() === 0}}"/>
-                </x-table.heading>--}}
-
-                <x-table.heading class="hidden md:table-cell w-5"><span class="sr-only">Description</span></x-table.heading>
-
+                <x-table.heading class="hidden md:table-cell w-5"><span>Rule</span></x-table.heading>
+                <x-table.heading class="hidden md:table-cell">Description</x-table.heading>
                 <x-table.heading class="hidden md:table-cell">Status</x-table.heading>
             </x-slot>
             <x-slot name="body">
                 <x-table.body>
-                    {{--<x-table.row>
-                        <x-table.cell x-show="selectPagePopup"
-                                      class="bg-lhg-yellow text-white font-bold top-0"
-                                      colspan="3"
-                        >
-                            <div class="flex space-x-1">
-                                    <span class="whitespace-normal">
-                                        {{ __('messages.selected', ['attribute' => count($selected),'type' => 'Rules']) }}
-                                        <x-btn.link type="button" wire:click="selectAll">{{ __('messages.select_all', ['attribute' => $rows->total()]) }}</x-btn.link>
-                                    </span>
-                            </div>
-                        </x-table.cell>
-                    </x-table.row>--}}
                     @forelse($rows as $row)
-                        <x-table.row wire:key="{{$row->id}}" class="hover:bg-gray-50 dark:hover:bg-gray-500 dark:bg-amber-50">
-                            {{--<x-table.cell>
-                                <x-input.checkbox value="{{ $row->id }}" x-model="$wire.selected" class="'{{$selectPage?'checked':''}}'"/>
-                            </x-table.cell>--}}
-
-                            <x-table.cell colspan="2">
-                                <div wire:click.prevent="edit('{{ $row->id }}')" class="flex items-center  cursor-pointer">
-                                    <div class="flex min-w-0 flex-1 items-center">
-                                        <div class="min-w-0 flex-1 px-4 md:grid md:grid-cols-2 md:gap-4">
-                                            <div class="grid grid-cols-1 lg:grid-cols-2">
-                                                <div class="space-y-2">
-                                                    <spam class="truncate text-sm font-medium text-lhg-blue">{{Str::title($row->request->requestor_name)}}</spam>
-                                                    <span class=" flex items-center text-sm text-gray-500 space-x-1">
-                                                        <x-icon.mail-open mini class="text-gray-400"/>
-                                                        <span class="truncate">{{$row->request->requestor_mail}}</span>
-                                                    </SPAN>
-                                                    <span class="flex items-center text-sm text-gray-500 space-x-1">
+                        <x-table.row wire:click.prevent="edit('{{ $row->id }}')" wire:key="{{$row->id}}">
+                            <x-table.cell>
+                                <div class="flex items-center  cursor-pointer">
+                                    <div class="flex flex-1 items-center">
+                                        <div class="grid grid-cols-1 md:grid-cols-none">
+                                            <div class="space-y-2">
+                                                <div class="truncate md:flex md:flex-col">
+                                                    <spam class="truncate text-sm font-bold text-lhg-blue dark:text-white">
+                                                        {{$row->request->subjectName}}
+                                                    </spam>
+                                                    <spam class="truncate text-xs italic text-lhg-blue dark:text-white">
+                                                        ({{$row->business_service}})
+                                                    </spam>
+                                                </div>
+                                                <span class=" md:hidden flex items-center text-sm space-x-1">
+                                                    <span class="truncate">{{$row->description}}</span>
+                                                </span>
+                                                <span class="md:hidden flex items-center text-sm space-x-1">
                                                         @if($row->newStatus==='review')
-                                                            <x-icon.info :class="$row->status_text"/>
-                                                        @elseif($row->newStatus==='deleted')
-                                                            <x-icon.ban :class="$row->status_text"/>
-                                                        @elseif($row->newStatus==='extended')
-                                                            <x-icon.check-circle :class="$row->status_text"/>
-                                                        @endif
+                                                        <x-icon.info :class="$row->status_text"/>
+                                                    @elseif($row->newStatus==='deleted')
+                                                        <x-icon.ban :class="$row->status_text"/>
+                                                    @elseif($row->newStatus==='extended')
+                                                        <x-icon.check-circle :class="$row->status_text"/>
+                                                    @endif
                                                         <span>{{$row->status_name}}</span>
                                                     </span>
-                                                    <span class="flex items-center text-xs italic text-gray-500 space-x-1">
-                                                        @if(isset($row->lastStatusName) && isset($row->last_review))
-                                                            <span class="truncate">{{$row->lastStatusName}} {{$row->last_review->diffForHumans()}}</span>
-                                                        @else
-                                                            <span class="truncate">Never reviewed</span>
-                                                        @endif
-                                                    </span>
-
-                                                </div>
-                                                <div class="hidden lg:block">
-                                                    <ul>
-                                                        @foreach($row->request->tags()->get() as $tag)
-                                                            @if($tag->value)
-                                                                <li>
-                                                                    <x-badge class="bg-lhg-yellow text-yellow-900">{{$tag->value}}</x-badge>
-                                                                </li>
-                                                            @endif
-                                                        @endforeach
-
-                                                    </ul>
-                                                </div>
-                                            </div>
-
-                                            <div class="hidden md:block">
-                                                <div class="space-y-2">
-                                                    <span class="text-sm text-gray-900">
-                                                        {{\Illuminate\Support\Str::replace('Request_Firewall_','',$row->request->subject)}} <span class="italic">({{$row->request->ritm_number}})</span>
-                                                    </span>
-                                                    <span class="flex items-center text-sm text-gray-500 space-x-1">
-
-                                                        {{ $row->description }}
-                                                    </span>
-                                                    <span class="flex items-center text-sm text-gray-500 space-x-1">
-
-                                                        {{$row->request->description}}
-                                                    </span>
-                                                    <span class="flex items-center text-xs italic text-gray-500 space-x-1">
-
-                                                        {{$row->id}}
-                                                    </span>
-                                                </div>
+                                                <span class="md:hidden flex items-center text-xs italic space-x-1">
+                                                @if(isset($row->lastStatusName) && isset($row->last_review))
+                                                        <span class="truncate">{{$row->lastStatusName}} {{$row->last_review->diffForHumans()}}</span>
+                                                    @else
+                                                        <span class="truncate">Never reviewed</span>
+                                                    @endif
+                                                </span>
                                             </div>
                                         </div>
+                                    </div>
+                                    <div class="md:hidden">
+                                        <x-icon.chevron-right mini class="text-gray-400"/>
+                                    </div>
+                                </div>
+                            </x-table.cell>
+
+                            <x-table.cell class="hidden md:table-cell">
+                                <div class="whitespace-normal">
+                                    <div><span class="font-bold mr-1">Source</span>{{\Illuminate\Support\Str::limit($row->source,80)}}</div>
+                                    <div><span class="font-bold mr-1">Destination</span>{{\Illuminate\Support\Str::limit($row->destination,80)}}</div>
+                                    <div>{{$row->description}}</div>
+                                </div>
+                            </x-table.cell>
+                            <x-table.cell class="hidden md:table-cell">
+                                <div class="flex justify-between">
+                                    <div>
+                                        <span class="flex items-center text-sm space-x-1">
+                                        @if($row->newStatus==='review')
+                                                <x-icon.info :class="$row->status_text"/>
+                                            @elseif($row->newStatus==='deleted')
+                                                <x-icon.ban :class="$row->status_text"/>
+                                            @elseif($row->newStatus==='extended')
+                                                <x-icon.check-circle :class="$row->status_text"/>
+                                            @endif
+                                        <span>{{$row->status_name}}</span>
+                                    </span>
+                                        <span class="flex items-center text-xs italic space-x-1">
+                                    @if(isset($row->lastStatusName) && isset($row->last_review))
+                                                <span class="truncate">{{$row->lastStatusName}} {{$row->last_review->diffForHumans()}}</span>
+                                            @else
+                                                <span class="truncate">Never reviewed</span>
+                                            @endif
+                                        </span>
                                     </div>
                                     <div>
                                         <x-icon.chevron-right mini class="text-gray-400"/>
                                     </div>
                                 </div>
                             </x-table.cell>
-
-                            {{--                            <x-table.cell class="hidden md:table-cell truncate">--}}
-                            {{--                                <x-badge class="shadow {{ $row->status_background }} {{ $row->status_text }}">{{ $row->status_name }}</x-badge>--}}
-                            {{--                            </x-table.cell>--}}
-
                         </x-table.row>
 
                     @empty
@@ -208,7 +187,7 @@
             <x-slot name="title">
                 @if(isset($rule)&& !empty($rule))
                     <div>
-                        <span>{{Str::replace('Request_Firewall_',' ',$rule->request->subject)}} </span>
+                        <span>{{Str::replace('Request_Firewall_',' ',$rule->request->subjectName)}} </span>
                         <span class="italic font-normal text-sm">({{$rule->request->ritm_number}})</span>
                         <span class="italic font-normal text-sm">({{$rule->id}})</span>
                     </div>
@@ -218,50 +197,48 @@
             </x-slot>
             <x-slot name="content">
                 @if(isset($rule)&& !empty($rule))
-
-                    <div class="border-t border-gray-200 px-4 py-5 sm:p-0">
-                        <dl class="sm:divide-y sm:divide-gray-200">
+                    <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:p-0">
+                        <dl class="sm:divide-y sm:divide-gray-200 dark:sm:divide-gray-700">
                             <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Last Review</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{isset($rule->last_review)?$rule->last_review->diffForHumans():'Never'}}</dd>
+                                <dt class="text-sm font-medium">Last Review</dt>
+                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{isset($rule->last_review)?$rule->last_review->diffForHumans():'Never'}}</dd>
                             </div>
                             <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Description</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{$rule->description}}</dd>
+                                <dt class="text-sm font-medium">Description</dt>
+                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->description}}</dd>
                             </div>
                             <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Business Purpose</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{$rule->business_purpose}}</dd>
+                                <dt class="text-sm font-medium">Business Purpose</dt>
+                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->business_purpose}}</dd>
                             </div>
                             <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Source</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{$rule->source}}</dd>
+                                <dt class="text-sm font-medium">Source</dt>
+                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->source}}</dd>
                             </div>
                             <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Service</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{$rule->service}}</dd>
+                                <dt class="text-sm font-medium">Service</dt>
+                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->service}}</dd>
                             </div>
                             <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Destination</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{$rule->destination}}</dd>
+                                <dt class="text-sm font-medium">Destination</dt>
+                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->destination}}</dd>
                             </div>
                             <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Destination Port(s)</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{$rule->destination_port}}</dd>
+                                <dt class="text-sm font-medium">Destination Port(s)</dt>
+                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->destination_port}}</dd>
                             </div>
                             <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">NAT Required</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{$rule->nat_required}}</dd>
+                                <dt class="text-sm font-medium">NAT Required</dt>
+                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->nat_required}}</dd>
                             </div>
                             <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">PCI Relevant</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{$rule->pci_dss}}</dd>
+                                <dt class="text-sm font-medium">PCI Relevant</dt>
+                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->pci}}</dd>
                             </div>
                             <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Application Id</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{$rule->application_id}}</dd>
+                                <dt class="text-sm font-medium">Application Id</dt>
+                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->application_id}}</dd>
                             </div>
-
                         </dl>
                     </div>
 
@@ -270,22 +247,23 @@
             </x-slot>
 
             <x-slot name="button">
-
-                @if(isset($rule->newStatus)&&$rule->status!='deleted')
-                    @if($rule->newStatus!='extended')
-                        <button
+                <div class="space-y-1 md:space-x-1">
+                    @if(isset($rule->newStatus)&&$rule->status!='deleted')
+                        @if($rule->newStatus!='extended')
+                            <x-btn.secondary
+                                    wire:loading.attr="disabled"
+                                    wire:loading.class="cursor-progress"
+                                    wire:click="extendConfirm" type="button">Extend
+                            </x-btn.secondary>
+                        @endif
+                        <x-btn.danger
                                 wire:loading.attr="disabled"
                                 wire:loading.class="cursor-progress"
-                                wire:click="extendConfirm" class="btn-green" type="button">Extend
-                        </button>
+                                wire:click="deleteConfirm" type="button">Decommission
+                        </x-btn.danger>
                     @endif
-                    <x-btn.danger
-                            wire:loading.attr="disabled"
-                            wire:loading.class="cursor-progress"
-                            wire:click="deleteConfirm" type="button">Decommission
-                    </x-btn.danger>
-                @endif
-                <x-btn.secondary x-on:click="open=false">Cancel</x-btn.secondary>
+                    <x-btn.primary x-on:click="open=false">Cancel</x-btn.primary>
+                </div>
             </x-slot>
 
         </x-modal.panel>

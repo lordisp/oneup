@@ -9,7 +9,7 @@
                 <x-slot name="subtitle">Select one or more Json Exports from ServiceNow and click the import button.
                 </x-slot>
                 <x-card.form buttons class="w-full">
-                    <div class="flex-1 min-w-0 space-y-2 sm:px-4">
+                    <div class="flex-1 min-w-0 space-y-2 sm:px-4 max-w-xl">
                         <x-label for="attachments" value="" class="mb-1"/>
                         <x-file-attachment
                                 :file="$attachments"
@@ -35,4 +35,8 @@
             </x-card.fields>
         </x-form>
     </x-card.gray>
+    {{--    @push('draggable')
+            @vite('resources/js/json-form.js')
+        @endpush--}}
+
 </div>

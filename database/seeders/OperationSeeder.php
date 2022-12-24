@@ -36,6 +36,7 @@ class OperationSeeder extends Seeder
         'admin/rbac/group/update' => 'Can update groups',
         /* ServiceNow Firewall */
         'service-now/firewall/import' => 'Can import firewall-requests from Service-Now',
+        'service-now/firewall/request/read' => 'Can read own firewall-requests',
         'service-now/firewall/request/readAll' => 'Can read all firewall-requests',
         'service-now/firewall/request/deleteAll' => 'Can delete all firewall-requests',
     ];

@@ -13,12 +13,14 @@
     "doctrine/dbal": "^3.4",
     "egulias/email-validator": "^3.2",
     "guzzlehttp/guzzle": "^7.2",
+    "intervention/image": "^2.7",
     "laravel/framework": "^9.19",
     "laravel/passport": "^10.4",
     "laravel/sanctum": "^2.14.1",
     "laravel/tinker": "^2.7",
     "livewire/livewire": "^2.10",
-    "spatie/laravel-sluggable": "^3.4"
+    "spatie/laravel-sluggable": "^3.4",
+    "ext-gd": "*"
   },
   "require-dev": {
     "barryvdh/laravel-debugbar": "^3.7",

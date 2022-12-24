@@ -63,18 +63,19 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         Log::shouldReceive('debug')->atMost();
 
         $this->importOneFile();
-        $key = ServiceNowRequest::where('description', 'FW Connection between C and D')
-            ->first()
-            ->rules
-            ->first()
-            ->id;
+        $key = ServiceNowRequest::whereRelation('rules', 'description', 'Access to D rule 1')
+            ->first()->rules->first()->id;
         $user = User::first();
         $user->assignRole('Firewall-Requests Reader');
         Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->assertOk()
             ->assertSee('FW Connection between C and D')
+            ->assertSee('Access to D rule 1')
+            ->assertSee('Access to D rule 2')
+            ->assertSee('Access to D rule 3')
             ->assertDontSee('FW Connection between E and F')
-            ->assertSee('Updated service A to B')
+            ->assertDontSee('to service F rule 1')
+            ->assertDontSee('Changed address for Services rule 2')
             ->assertDontSee('You\'re all done')
             ->call('edit', $key)
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'edit'])
@@ -107,8 +108,12 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->assertOk()
             ->assertSee('FW Connection between C and D')
+            ->assertSee('Access to D rule 1')
+            ->assertSee('Access to D rule 2')
+            ->assertSee('Access to D rule 3')
             ->assertDontSee('FW Connection between E and F')
-            ->assertSee('Updated service A to B')
+            ->assertDontSee('to service F rule 1')
+            ->assertDontSee('Changed address for Services rule 2')
             ->assertDontSee('You\'re all done')
             ->call('edit', $key)
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'edit'])
@@ -152,14 +157,14 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $user->assignRole('Firewall-Requests Reader');
         $rows = Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->set('filters', ['pci_dss' => "'0'", 'status' => 'open'])
-            ->assertSee('FW Connection between C and D')
             ->assertSee('FW Connection between E and F')
+            ->assertSee('Updated service A to B')
             ->get('rows')
             ->pluck('description')
             ->toArray();
         $this->assertCount(2, $rows);
-        $this->assertEquals('Access to D rule 3', $rows[0]);
-        $this->assertEquals('to service F rule 1', $rows[1]);
+        $this->assertEquals('to service F rule 1', $rows[0]);
+        $this->assertEquals('Changed address for Services rule 2', $rows[1]);
     }
 
     /** @test */
@@ -171,15 +176,13 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $user->assignRole('Firewall-Requests Reader');
         $rows = Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->set('filters', ['pci_dss' => "'0'", 'status' => 'open'])
-            ->assertSee('FW Connection between C and D')
             ->assertSee('FW Connection between E and F')
             ->get('rows')
             ->pluck('description')
             ->toArray();
         $this->assertCount(2, $rows);
-
-        $this->assertEquals('Access to D rule 3', $rows[0]);
-        $this->assertEquals('to service F rule 1', $rows[1]);
+        $this->assertEquals('to service F rule 1', $rows[0]);
+        $this->assertEquals('Changed address for Services rule 2', $rows[1]);
     }
 
     /** @test */
@@ -190,7 +193,6 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $user = User::first();
         $user->assignRole('Firewall Administrator');
         Livewire::actingAs($user)->test(FirewallRulesRead::class)
-
             ->call('sendNotification');
 
         $users = User::whereIn('email', ServiceNowRequest::whereRelation('rules', function ($query) {

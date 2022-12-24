@@ -19,7 +19,7 @@ default:
         <div class="md:col-span-1 flex">
             <div>
                 <h3 class="text-lg font-medium leading-6 text-gray-900">{{$title}}</h3>
-                <p class="mt-1 text-sm text-gray-500">
+                <p class="mt-1 text-sm text-gray-500 dark:text-white">
                     {{$subtitle}}
                 </p>
             </div>

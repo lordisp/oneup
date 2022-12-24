@@ -54,6 +54,7 @@ module.exports = {
         'bg-red-400',
         'border-red-900',
         'text-gray-500',
+        'bg-amber-50',
         'text-green-500',
         'text-red-500',
         'text-yellow-500',

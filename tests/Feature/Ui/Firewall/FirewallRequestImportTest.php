@@ -18,6 +18,7 @@ use Database\Seeders\TokenCacheProviderSeeder;
 use Database\Seeders\UserAzureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
@@ -150,7 +151,6 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         }
 
         $this->assertDatabaseCount(ServiceNowRequest::class, 4);
-        $this->assertDatabaseCount(Tag::class, 5);
     }
 
     /** @test */
@@ -190,20 +190,12 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
             return str_contains($message, 'Create rule') === true;
         });
 
-        Log::shouldReceive('debug')->between(20, 20)->withArgs(function ($message) {
-            return str_contains($message, 'Attach Tag') === true;
-        });
-
         Log::shouldReceive('debug')->once()->withArgs(function ($message) {
             return str_contains($message, 'Overwrite "End-date" due to an invalid source value') === true;
         });
 
         Log::shouldReceive('info')->between(4, 4)->withArgs(function ($message) {
             return str_contains($message, 'Request_Firewall') === true;
-        });
-
-        Log::shouldReceive('debug')->between(20, 20)->withArgs(function ($message) {
-            return str_contains($message, 'Create Tag') === true;
         });
 
         Log::shouldReceive('error')->between(0, 0);

@@ -10,5 +10,7 @@ return [
     'role_create' => 'Create new role',
     'create_new' => 'Create :attribute',
     'roles_bulk_delete' => 'Bulk delete roles',
-    'delete'=> 'Delete :attribute'
+    'delete' => 'Delete :attribute',
+    'apply' => 'Apply',
+    'close' => 'Close'
 ];
