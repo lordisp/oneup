@@ -51,7 +51,7 @@ class MigrationTest extends TestCase
     public function can_seed_operations()
     {
         $this->seed(OperationSeeder::class);
-        $this->assertDatabaseCount('operations', 23);
+        $this->assertDatabaseCount('operations', 24);
     }
 
     /** @test */
@@ -61,7 +61,7 @@ class MigrationTest extends TestCase
         $this->assertDatabaseCount('users', 4);
         $this->assertDatabaseCount('token_cache_providers', 4);
         $this->assertDatabaseCount('roles', 19);
-        $this->assertDatabaseCount('operations', 23);
+        $this->assertDatabaseCount('operations', 24);
         $this->assertDatabaseCount('business_services', 12);
     }
 

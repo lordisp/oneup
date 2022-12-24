@@ -69,7 +69,6 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $user->assignRole('Firewall-Requests Reader');
         Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->assertOk()
-            ->assertSee('FW Connection between C and D')
             ->assertSee('Access to D rule 1')
             ->assertSee('Access to D rule 2')
             ->assertSee('Access to D rule 3')
@@ -107,7 +106,6 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $user->assignRole('Firewall-Requests Reader');
         Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->assertOk()
-            ->assertSee('FW Connection between C and D')
             ->assertSee('Access to D rule 1')
             ->assertSee('Access to D rule 2')
             ->assertSee('Access to D rule 3')
@@ -157,8 +155,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $user->assignRole('Firewall-Requests Reader');
         $rows = Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->set('filters', ['pci_dss' => "'0'", 'status' => 'open'])
-            ->assertSee('FW Connection between E and F')
-            ->assertSee('Updated service A to B')
+            ->assertSee('to service F rule 1')
             ->get('rows')
             ->pluck('description')
             ->toArray();
@@ -176,7 +173,6 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $user->assignRole('Firewall-Requests Reader');
         $rows = Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->set('filters', ['pci_dss' => "'0'", 'status' => 'open'])
-            ->assertSee('FW Connection between E and F')
             ->get('rows')
             ->pluck('description')
             ->toArray();
