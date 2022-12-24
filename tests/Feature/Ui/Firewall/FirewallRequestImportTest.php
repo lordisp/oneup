@@ -239,7 +239,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     /** @test */
     public function add_missing_reviewers_to_the_app()
     {
-        $this->importOneFile('valid_with_users_1.json');
+        $this->importOneFile();
 
         User::where(function ($query) {
             $query->where('provider_id', '7dc98c09-d66f-4bdb-aa42-6b01b105af04')
