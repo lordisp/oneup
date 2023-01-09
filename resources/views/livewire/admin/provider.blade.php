@@ -13,9 +13,9 @@
 
     <div class="flex justify-end space-x-1">
         @can('provider-delete')
-            <x-btn.secondary wire:click="deleteModal"
+            <x-btn.danger wire:click="deleteModal"
                              class="{{empty($selected) ? 'hidden' : ''}}"
-            >{{ __('button.provider_bulk_delete') }}</x-btn.secondary>
+            >{{ __('button.provider_bulk_delete') }}</x-btn.danger>
         @endcan
 
         <x-btn.secondary wire:click.debounce="openCreateModal"
@@ -189,8 +189,8 @@
                     </x-slot>
 
                     <x-slot name="button">
+                        <x-btn.primary wire:click="closeModal">Cancel</x-btn.primary>
                         <x-btn.secondary type="submit">Save</x-btn.secondary>
-                        <x-btn.secondary wire:click="closeModal">Cancel</x-btn.secondary>
                     </x-slot>
 
                 </x-modal.panel>
@@ -279,8 +279,8 @@
                 </x-slot>
 
                 <x-slot name="button">
+                    <x-btn.primary wire:click.prevent="closeModal">Cancel</x-btn.primary>
                     <x-btn.secondary type="submit">Create</x-btn.secondary>
-                    <x-btn.secondary wire:click="closeModal">Cancel</x-btn.secondary>
                 </x-slot>
 
             </x-modal.panel>
@@ -311,8 +311,8 @@
                     </div>
                 </x-slot>
                 <x-slot name="button">
+                    <x-btn.primary x-on:click.prevent="open=false">Cancel</x-btn.primary>
                     <x-btn.danger type="submit">Delete provider</x-btn.danger>
-                    <x-btn.secondary x-on:click="open=false">Cancel</x-btn.secondary>
                 </x-slot>
             </x-modal.panel>
         </form>

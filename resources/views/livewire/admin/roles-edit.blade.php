@@ -66,12 +66,12 @@
                             {{ $rows->onEachSide(2)->links('components/paginate-sm') }}
                         </div>
                         <x-slot name="buttons">
-                            <x-btn.secondary wire:click="cancel">
+                            <x-btn.primary wire:click="cancel">
                                 Cancel
-                            </x-btn.secondary>
-                            <x-btn.primary type="submit">
-                                Save
                             </x-btn.primary>
+                            <x-btn.secondary type="submit">
+                                Save
+                            </x-btn.secondary>
                         </x-slot>
                     </div>
                 </x-card.form>

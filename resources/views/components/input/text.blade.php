@@ -6,7 +6,7 @@
     if($leadingAddOn){
         $class="focus:ring-lhg-yellow focus:border-lhg-yellow dark:bg-gray-400 dark:focus:border-yellow-50 block shadow-sm sm:text-sm border-gray-300 rounded-r-md transition duration-300 ease-in-out";
     }else{
-        $class="focus:ring-lhg-yellow focus:border-lhg-yellow dark:bg-gray-400 dark:focus:border-yellow-50 block shadow-sm sm:text-sm border-gray-300 rounded-md transition duration-300 ease-in-out";
+        $class="focus:ring-lhg-yellow focus:border-lhg-yellow dark:bg-gray-600 dark:focus:border-yellow-50 block shadow-sm sm:text-sm border-gray-300 rounded-md transition duration-300 ease-in-out";
     }
 @endphp
 <div class="flex rounded-md shadow-sm justify-center md:justify-start">

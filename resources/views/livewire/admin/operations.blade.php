@@ -120,8 +120,8 @@
                 </x-slot>
 
                 <x-slot name="button">
+                    <x-btn.primary wire:click="closeModal">Cancel</x-btn.primary>
                     <x-btn.secondary type="submit">Create</x-btn.secondary>
-                    <x-btn.secondary wire:click="closeModal">Cancel</x-btn.secondary>
                 </x-slot>
             </x-modal.panel>
         </form>
