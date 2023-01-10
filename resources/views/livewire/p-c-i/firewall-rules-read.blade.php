@@ -58,8 +58,8 @@
                 @endcan
                 <!-- Buttons -->
                 <x-slot name="buttons">
-                    <x-btn.secondary wire:click="resetFilters">Reset Filters</x-btn.secondary>
-                    <x-btn.secondary x-on:click="filter = false">Hide Filters</x-btn.secondary>
+                    <x-btn.primary wire:click="resetFilters">Reset Filters</x-btn.primary>
+                    <x-btn.primary x-on:click="filter = false">Hide Filters</x-btn.primary>
                 </x-slot>
             </div>
         </x-card.form>
