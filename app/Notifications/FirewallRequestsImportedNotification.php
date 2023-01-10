@@ -29,7 +29,7 @@ class FirewallRequestsImportedNotification extends Notification implements Shoul
         return (new MailMessage)
             ->greeting("Hello {$firstName}!")
             ->line("{$this->event['totalJobs']} Firewall-Requests have been imported or updated in {$duration}.")
-            ->action('view Firewall-Rules', url(route('firewall.requests.read')))
+            ->action('Review Now', url(route('firewall.requests.read')))
             ->tag('oneup');
     }
 
