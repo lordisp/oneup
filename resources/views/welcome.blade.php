@@ -62,8 +62,10 @@
                     </div>
                     @if (Route::has('login'))
                         <div class="flex justify-center">
-                            <a class="border border-white duration-300 ease-in-out focus:outline-none font-medium hover:bg-white hover:border-white hover:no-underline hover:text-lhg-blue px-4 py-3 rounded-md sm:w-auto text-white transition"
-                               href="{{route('login')}}">Click to Signin</a>
+                            <form action="{{route('signin')}}" method="post">
+                                @csrf
+                                <x-btn.blank type="submit" class="w-full justify-center font-bold bg-lhg-blue text-white hover:bg-white hover:text-lhg-blue">Click to Signin</x-btn.blank>
+                            </form>
                         </div>
                     @endif
                 </div>
