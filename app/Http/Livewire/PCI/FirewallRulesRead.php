@@ -48,7 +48,7 @@ class FirewallRulesRead extends Component
     public function deleteAll()
     {
         if (Gate::denies('serviceNow-firewallRequests-deleteAll')) $this->redirect(RouteServiceProvider::HOME);
-        ServiceNowRequest::all()->map->truncate();
+        ServiceNowRequest::all()->map->delete();
         $this->event('All records deleted!', 'success');
     }
 
