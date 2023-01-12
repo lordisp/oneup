@@ -54,6 +54,7 @@ ADD https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem /var/www/html/ssl/
 ADD https://cacerts.digicert.com/BaltimoreCyberTrustRoot.crt /var/www/html/ssl/
 
 RUN echo 'memory_limit=2560M' >> /usr/local/etc/php/conf.d/php.ini
+RUN echo 'upload_max_filesize=100M' >> /usr/local/etc/php/conf.d/php.ini
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf
 RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 RUN useradd -o -u ${uid} -G www-data,root -m -s /bin/bash ${user}
