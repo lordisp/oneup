@@ -35,6 +35,7 @@ class FirewallRequestsImport extends Component
     public function mount()
     {
         if (Gate::denies('serviceNow-firewallRequests-import')) $this->redirect(RouteServiceProvider::HOME);
+        ini_set('upload_max_filesize','20M');
     }
 
     public function updatedAttachments()
