@@ -20,12 +20,12 @@ return new class extends Migration
 
             $table->primary(['group_id', 'role_id']);
 
-            $table->foreign('role_id')
-                ->references('id')->on('roles')
+            $table->foreignUuid('role_id')
+                ->constrained('roles')
                 ->onDelete('cascade');
 
-            $table->foreign('group_id')
-                ->references('id')->on('groups')
+            $table->foreignUuid('group_id')
+                ->constrained('groups')
                 ->onDelete('cascade');
         });
     }
