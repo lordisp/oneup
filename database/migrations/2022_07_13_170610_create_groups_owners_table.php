@@ -15,19 +15,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('groups_owners', function (Blueprint $table) {
-//            $table->uuid('group_id')->nullable(false);
-//            $table->uuid('user_id')->nullable(false);
-            $table->timestamps();
-
-            $table->primary(['group_id', 'user_id']);
+            $table->foreignUuid('user_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
 
             $table->foreignUuid('group_id')
-                ->references('id')->on('groups')
-                ->onDelete('cascade');
+                ->constrained('groups')
+                ->cascadeOnDelete();
 
-            $table->foreignUuid('user_id')
-                ->references('id')->on('users')
-                ->onDelete('cascade');
+            $table->primary(['group_id', 'user_id']);
+            $table->timestamps();
         });
     }
 
