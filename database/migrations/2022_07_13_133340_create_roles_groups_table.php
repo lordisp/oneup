@@ -14,18 +14,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('roles_groups', function (Blueprint $table) {
-            $table->uuid('role_id')->nullable(false);
-            $table->uuid('group_id')->nullable(false);
+//            $table->uuid('role_id')->nullable(false);
+//            $table->uuid('group_id')->nullable(false);
             $table->timestamps();
 
             $table->primary(['group_id', 'role_id']);
 
             $table->foreignUuid('role_id')
-                ->constrained('roles')
+                ->references('id')->on('roles')
                 ->onDelete('cascade');
 
             $table->foreignUuid('group_id')
-                ->constrained('groups')
+                ->references('id')->on('groups')
                 ->onDelete('cascade');
         });
     }
