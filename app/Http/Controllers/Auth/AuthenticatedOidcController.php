@@ -55,7 +55,7 @@ class AuthenticatedOidcController extends Controller
     {
         auth()->login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        return Auth::check() ? redirect(RouteServiceProvider::HOME) : redirect()->intended(route('login'));
     }
 
     public function logout(Request $request)
@@ -74,6 +74,6 @@ class AuthenticatedOidcController extends Controller
 
         Auth::logout();
 
-        return is_string($token) ? redirect('https://login.microsoftonline.com/' . $jwt['tid'] . '/oauth2/logout?post_logout_redirect_uri=' . config('app.url')) : redirect('/');
+        return is_string($token) ? redirect()->intended('https://login.microsoftonline.com/' . $jwt['tid'] . '/oauth2/logout?post_logout_redirect_uri=' . config('app.url')) : redirect()->intended();
     }
 }

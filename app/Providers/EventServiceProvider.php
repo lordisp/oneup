@@ -7,6 +7,7 @@ use App\Events\ImportNewFirewallRequestsEvent;
 use App\Listeners\ImportNewFirewallRequestsEventListener;
 use App\Listeners\NotifyFirewallImportDispatcherListener;
 use App\Listeners\FirewallImportAddUsersListener;
+use App\Listeners\SessionExpiredListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -29,6 +30,9 @@ class EventServiceProvider extends ServiceProvider
         ImportNewFirewallRequestsEvent::class => [
             ImportNewFirewallRequestsEventListener::class,
         ],
+        'session.expire' => [
+            SessionExpiredListener::class
+        ]
     ];
 
     /**
