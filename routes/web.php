@@ -30,7 +30,7 @@ Route::get('/', function () {
 });
 
 /* auth web routes*/
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth','auth.session'])->group(function () {
 
     Route::get('/dashboard', function () {
         return view('dashboard');
