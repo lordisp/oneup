@@ -1,4 +1,4 @@
-<div wire:poll.keep-alive>
+<div wire:poll.60s>
     <x-list>
         @forelse($unreadNotifications as $notification)
             <div wire:key="{{$notification['id']}}">
