@@ -15,7 +15,7 @@
             <livewire:admin.as-user/>
         @endif
         </div>
-        <div wire:poll.60s class="ml-4 flex items-center md:ml-6 space-x-4">
+        <div class="ml-4 flex items-center md:ml-6 space-x-4">
             <!-- Notifications -->
             <button x-on:click="notifySlider = true" class="p-1 rounded-full dark:text-gray-300 dark:hover:text-gray-400 text-gray-400 hover:text-gray-500 focus:outline-none">
                 <livewire:notification-bell/>
