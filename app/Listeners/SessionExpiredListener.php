@@ -11,7 +11,7 @@ class SessionExpiredListener
     {
     }
 
-    public function handle($event)
+    public function handle()
     {
         Auth::logout();
 
@@ -19,6 +19,6 @@ class SessionExpiredListener
 
         $this->request->session()->regenerateToken();
 
-        return redirect()->intended(route('login'));
+        return redirect(route('login'));
     }
 }
