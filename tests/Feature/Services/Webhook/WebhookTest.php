@@ -32,4 +32,16 @@ class WebhookTest extends TestCase
         $this->post('api/v1/webhook', ['data' => ['foo']])->assertStatus(400);
         Queue::assertNothingPushed();
     }
+
+    /** @test */
+    public function hit_rate_limit_if_more_than_allowed_requests_where_made()
+    {
+        $i = 1;
+        while ($i < 61) {
+            $this->post('api/v1/webhook', ['data' => ['foo']]);
+            $i++;
+        }
+        $this->post('api/v1/webhook', ['data' => ['foo']])
+        ->assertStatus(429);
+    }
 }

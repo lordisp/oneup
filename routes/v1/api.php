@@ -29,4 +29,4 @@ Route::middleware(['client'])->group(function () {
         return $request->user();
     });
 });
-Route::post('webhook', [WebhookController::class, 'handle'])->middleware('webhook');
+Route::post('webhook', [WebhookController::class, 'handle'])->middleware(['webhook','throttle:api']);
