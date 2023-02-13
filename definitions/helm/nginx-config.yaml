@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+  namespace: ingress-basic
+data:
+  custom-http-headers: |
+    proxy_hide_header X-Powered-By;

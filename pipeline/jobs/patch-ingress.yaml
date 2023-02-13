@@ -44,6 +44,7 @@ jobs:
             --set controller.resources.limits.cpu="200m" \
             --set controller.resources.requests.memory="90Mi" \
             --set controller.resources.limits.memory="180Mi" \
+            --set controller.config.customHttpHeaders.nginxConfigMap="nginx-config" \
             --set defaultBackend.nodeSelector."kubernetes\.io/os"=linux \
             --set defaultBackend.image.registry=${{parameters.registry_name}} \
             --set defaultBackend.image.image=${{parameters.defaultbackend_image}} \
