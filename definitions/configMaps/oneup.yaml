@@ -13,7 +13,7 @@ data:
   DEBUGBAR_ENABLED: "false"
   APP_URL: "https://oneup.az.lhgroup.de"
   RATE_LIMIT_API: "60"
-  LOG_CHANNEL: "stack"
+  LOG_CHANNEL: "db"
   LOG_DEPRECATIONS_CHANNEL: "null"
   LOG_LEVEL: "info"
   DB_CONNECTION: "mysql"
