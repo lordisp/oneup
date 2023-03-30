@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('firewall_rules', function (Blueprint $table) {
-            $table->string('hash');
+            $table->string('hash')->nullable();
             $table->text('business_purpose')->nullable()->change();
             $table->json('destination')->change();
             $table->json('destination_port')->change();
