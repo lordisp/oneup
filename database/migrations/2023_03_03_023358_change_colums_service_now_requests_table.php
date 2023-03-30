@@ -11,7 +11,7 @@ return new class extends Migration {
             $table->dropColumn('template');
         });
         Schema::table('service_now_requests', function (Blueprint $table) {
-            $table->string('cost_center');
+            $table->string('cost_center')->nullable();
         });
         Schema::table('service_now_requests', function (Blueprint $table) {
             $table->dropColumn('status');
