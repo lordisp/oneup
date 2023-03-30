@@ -12,6 +12,7 @@ use Illuminate\Support\Str;
 use Laravel\Passport\TokenRepository;
 use Tests\Helper;
 use Tests\TestCase;
+use function PHPUnit\Framework\classHasAttribute;
 
 class ClientTest extends TestCase
 {
@@ -121,13 +122,13 @@ class ClientTest extends TestCase
     {
         $decoded = app()->accessor::jwt_decode($token);
 
-        $this->assertObjectHasAttribute('aud', $decoded);
-        $this->assertObjectHasAttribute('jti', $decoded);
-        $this->assertObjectHasAttribute('iat', $decoded);
-        $this->assertObjectHasAttribute('nbf', $decoded);
-        $this->assertObjectHasAttribute('exp', $decoded);
-        $this->assertObjectHasAttribute('sub', $decoded);
-        $this->assertObjectHasAttribute('scopes', $decoded);
+        $this->assertArrayHasKey('aud', get_object_vars($decoded));
+        $this->assertArrayHasKey('jti', get_object_vars($decoded));
+        $this->assertArrayHasKey('iat', get_object_vars($decoded));
+        $this->assertArrayHasKey('nbf', get_object_vars($decoded));
+        $this->assertArrayHasKey('exp', get_object_vars($decoded));
+        $this->assertArrayHasKey('sub', get_object_vars($decoded));
+        $this->assertArrayHasKey('scopes', get_object_vars($decoded));
     }
 
 
