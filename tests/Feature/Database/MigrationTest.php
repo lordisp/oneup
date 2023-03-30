@@ -62,7 +62,7 @@ class MigrationTest extends TestCase
         $this->assertDatabaseCount('token_cache_providers', 4);
         $this->assertDatabaseCount('roles', 19);
         $this->assertDatabaseCount('operations', 24);
-        $this->assertDatabaseCount('business_services', 12);
+        $this->assertDatabaseCount('business_services', 0);
     }
 
 }

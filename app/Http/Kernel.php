@@ -36,6 +36,7 @@ class Kernel extends HttpKernel
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
+            \Illuminate\Session\Middleware\AuthenticateSession::class,
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             // must be the last middleware in the stack
@@ -45,8 +46,14 @@ class Kernel extends HttpKernel
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             'throttle:api',
+            'client',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
+        'client' => [
+            'throttle:api',
+            //'client.scope',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ]
     ];
 
     /**
@@ -70,6 +77,7 @@ class Kernel extends HttpKernel
         'scopes' => \Laravel\Passport\Http\Middleware\CheckScopes::class,
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
         'client' => CheckClientCredentials::class,
-        'webhook' => WebhookMiddleware::class
+        'webhook' => WebhookMiddleware::class,
+        'client.scope' => \App\Http\Middleware\ClientScopesMiddleware::class
     ];#
 }

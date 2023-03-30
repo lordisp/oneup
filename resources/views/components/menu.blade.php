@@ -5,13 +5,13 @@
     </x-slot>
 </x-menu.link>
 
-@canany(['serviceNow-firewallRequests-read','serviceNow-firewallRequests-readAll','serviceNow-firewallRequests-import'])
+@canany(['viewAny'],\App\Models\FirewallRule::class)
     <x-menu.dropdown route="firewall*">
         <x-slot name="title">Firewall Management</x-slot>
         <x-slot name="icon">
             <x-icon.firewall class="icon-menu" size="6"/>
         </x-slot>
-        @canany(['serviceNow-firewallRequests-read','serviceNow-firewallRequests-readAll'],[auth()->user()])
+        @canany(['viewAny'],\App\Models\FirewallRule::class)
             <x-menu.dropdown-link request="firewall/requests/read" href="{{route('firewall.requests.read')}}">View Requests</x-menu.dropdown-link>
         @endcanany
         @canany(['serviceNow-firewallRequests-import'],[auth()->user()])
@@ -31,7 +31,7 @@
         <x-menu.dropdown-link request="admin/users" href="{{route('admin.users')}}">Users</x-menu.dropdown-link>
         @endcanany
         @canany(['group-read','group-readAll'],[auth()->user()])
-            <x-menu.dropdown-link request="admin/groups" href="{{route('admin.group')}}">Groups</x-menu.dropdown-link>
+            <x-menu.dropdown-link request="admin/group" href="{{route('admin.group')}}">Groups</x-menu.dropdown-link>
         @endcanany
         @can('roles-readAll',[auth()->user()])
             <x-menu.dropdown-link request="admin/roles" href="{{route('admin.roles')}}">Roles</x-menu.dropdown-link>

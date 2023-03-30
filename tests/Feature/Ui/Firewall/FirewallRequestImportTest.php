@@ -4,23 +4,23 @@ namespace Tests\Feature\Ui\Firewall;
 
 use App\Events\ImportNewFirewallRequestsEvent;
 use App\Http\Livewire\PCI\FirewallRequestsImport;
-use App\Jobs\ServiceNow\ImportServiceNowFirewallRequestsJob;
+use App\Jobs\ServiceNow\ImportFirewallRequestJob;
+use App\Models\BusinessService;
 use App\Models\FirewallRule;
 use App\Models\ServiceNowRequest;
-use App\Models\Tag;
+use App\Models\Subnet;
 use App\Models\User;
 use App\Notifications\FirewallRequestsImportedNotification;
-use App\Services\Scim;
-use Database\Seeders\BusinessServiceSeeder;
 use Database\Seeders\OperationSeeder;
 use Database\Seeders\RoleSeeder;
+use Database\Seeders\SubnetSeeder;
 use Database\Seeders\TokenCacheProviderSeeder;
 use Database\Seeders\UserAzureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Event;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
@@ -40,7 +40,6 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
             UserAzureSeeder::class,
             OperationSeeder::class,
             RoleSeeder::class,
-            BusinessServiceSeeder::class,
             TokenCacheProviderSeeder::class
         ]);
         User::first()->unassignRole('Global Administrator');
@@ -128,6 +127,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     /** @test */
     public function invalid_file_structure_flashes_error_message()
     {
+        Storage::fake('tmp-for-tests');
         $first = file_get_contents(base_path() . '/tests/Feature/Stubs/firewallImport/invalid_1.json');
         $files[] = UploadedFile::fake()->createWithContent('invalid_1.json', $first);
 
@@ -138,70 +138,123 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
             ->assertHasErrors(['attachments.0']);
     }
 
+
+    /** @test */
+    public function can_retrieve_responsibles_from_business_service_over_service_now_api()
+    {
+        // Arrange
+        $clientId = config('servicenow.client_id');
+        $secret = config('servicenow.client_secret');
+        $url = config('servicenow.uri') . '/api/delag/retrieve_cost_centers/GetGroupFromBsandType';
+
+        // Act
+        $response = Http::withBasicAuth($clientId, $secret)
+            ->retry(3)
+            ->post($url, [
+                'types' => ['Responsibles', 'EscalationNotification', 'SecurityContacts'],
+                'names' => ['LHG_GAC_P']
+            ]);
+
+        // Assert
+        $this->assertEquals(200, $response->status());
+        $this->assertContains(
+            'Rafael.Camison@austrian.com',
+            Arr::flatten($response->json('result'))
+        );
+    }
+
     /** @test */
     public function test_import_job()
     {
-        $files = array_merge(
-            $this->getStub('firewallImport/valid_1.json')
-        );
-        $User = User::first();
+        // Arrange
+        Subnet::factory()->createMany([
+            ['name' => '10.253.207.0', 'size' => 24],
+            ['name' => '10.253.186.0', 'size' => 24],
+            ['name' => '10.253.75.0', 'size' => 24],
+        ]);
+        $fileContents = $this->getStub('firewallImport/valid.json');
 
-        foreach ($files as $file) {
-            ImportServiceNowFirewallRequestsJob::dispatch($User, $file);
+        // Assert
+        $this->assertDatabaseCount(ServiceNowRequest::class, 0);
+        $this->assertDatabaseCount(FirewallRule::class, 0);
+        BusinessService::truncate();
+        User::truncate();
+
+        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
+        Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
+
+        // Act
+        foreach ($fileContents as $fileContent) {
+            ImportFirewallRequestJob::dispatch(User::factory()->create(), $fileContent);
         }
 
-        $this->assertDatabaseCount(ServiceNowRequest::class, 4);
+        // Assert
+        $this->assertDatabaseCount(ServiceNowRequest::class, 3);
+        $this->assertDatabaseCount(User::class, 4);
+        $this->assertDatabaseCount(BusinessService::class, 2);
+        $this->assertDatabaseCount(FirewallRule::class, 5);
+        $this->assertCount(
+            3,
+            FirewallRule::query()
+                ->review()
+                ->get()
+        );
     }
 
     /** @test */
     public function can_import_a_valid_json_file()
     {
+        Subnet::factory()->createMany([
+            ['name' => '10.253.207.0', 'size' => 24],
+            ['name' => '10.253.186.0', 'size' => 24],
+            ['name' => '10.253.75.0', 'size' => 24],
+        ]);
+
+        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
+        Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
+
+        $this->seed(SubnetSeeder::class);
+        $this->assertDatabaseCount(BusinessService::class, 0);
+        $this->assertDatabaseCount(Subnet::class, 28);
         $this->importOneFile();
 
-        $rule = FirewallRule::where('pci_dss', true)
-            ->first();
-        $rule->status = 'extended';
-        $rule->save();
+        $this->assertDatabaseCount(ServiceNowRequest::class, 3);
 
-        $this->importOneFile();
-
-        $this->assertDatabaseCount(ServiceNowRequest::class, 4);
-
-        $this->assertDatabaseCount(FirewallRule::class, 7);
+        $this->assertDatabaseCount(FirewallRule::class, 5);
+        $this->assertDatabaseCount(BusinessService::class, 2);
     }
 
     /** @test */
     public function can_import_a_valid_json_file_twice()
     {
-        $this->importOneFile();
+        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
+        Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
+
+        Subnet::factory()->createMany([
+            ['name' => '10.253.207.0', 'size' => 24],
+            ['name' => '10.253.186.0', 'size' => 24],
+            ['name' => '10.253.75.0', 'size' => 24],
+        ]);
 
         $this->importOneFile();
 
-        $this->assertDatabaseCount(ServiceNowRequest::class, 4);
+        $pciRules = FirewallRule::query()->review()->get();
+        $this->assertCount(2, $pciRules);
+        $this->seed(SubnetSeeder::class);
 
-        $this->assertDatabaseCount(FirewallRule::class, 7);
+
+        $this->importOneFile();
+
+        $this->assertDatabaseCount(ServiceNowRequest::class, 3);
+
+        $this->assertDatabaseCount(FirewallRule::class, 5);
+        $pciRules = FirewallRule::query()->review()->get();
+        $this->assertCount(2, $pciRules);
     }
 
-
-    /** @test */
-    public function import_firewall_requests_will_be_logged()
-    {
-        Log::shouldReceive('info')->between(7, 7)->withArgs(function ($message) {
-            return str_contains($message, 'Create rule') === true;
-        });
-
-        Log::shouldReceive('debug')->once()->withArgs(function ($message) {
-            return str_contains($message, 'Overwrite "End-date" due to an invalid source value') === true;
-        });
-
-        Log::shouldReceive('info')->between(4, 4)->withArgs(function ($message) {
-            return str_contains($message, 'Request_Firewall') === true;
-        });
-
-        Log::shouldReceive('error')->between(0, 0);
-
-        $this->importOneFile();
-    }
 
     /** @test */
     public function import_firewall_rules_expect_queued_import_jobs()
@@ -210,7 +263,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
 
         $this->importOneFile();
 
-        Queue::assertPushed(ImportServiceNowFirewallRequestsJob::class, 4);
+        Queue::assertPushed(ImportFirewallRequestJob::class, 3);
     }
 
     /** @test */
@@ -229,6 +282,9 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     {
         Notification::fake();
 
+        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
+        Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
         $this->importOneFile();
 
         Notification::assertSentTo([User::first()], FirewallRequestsImportedNotification::class, 1);
@@ -236,43 +292,12 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
 
-    /** @test */
-    public function add_missing_reviewers_to_the_app()
-    {
-        $this->importOneFile();
-
-        User::where(function ($query) {
-            $query->where('provider_id', '7dc98c09-d66f-4bdb-aa42-6b01b105af04')
-                ->orWhere('provider_id', '7761796b-20da-4c22-9497-485df7e7a7c8');
-        })->delete();
-
-        $emails = ServiceNowRequest::whereRelation('rules', 'pci_dss', true)
-            ->get()
-            ->unique('requestor_mail')
-            ->map
-            ->requestor_mail
-            ->toArray();
-
-        $scim = new Scim();
-        $scim->provider('lhg_graph')
-            ->users($emails)
-            ->add();
-
-        foreach ($emails as $email) {
-            $user = User::whereEmail($email)->first();
-            $this->assertEquals($email, $user->email);
-            $this->assertEquals(true, $user->status);
-        }
-
-
-    }
-
     protected function importOneFile(string $file = '')
     {
-        $file = !empty($file) ? $file : 'valid_1.json';
+        $file = !empty($file) ? $file : 'valid.json';
         Storage::fake('tmp-for-tests');
         $first = file_get_contents(base_path() . '/tests/Feature/Stubs/firewallImport/' . $file);
-        $files[] = UploadedFile::fake()->createWithContent('valid_1.json', $first);
+        $files[] = UploadedFile::fake()->createWithContent('file.json', $first);
 
         $user = User::first();
         $user->assignRole('Firewall Administrator');

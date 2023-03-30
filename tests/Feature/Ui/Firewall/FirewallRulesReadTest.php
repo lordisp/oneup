@@ -3,13 +3,20 @@
 namespace Tests\Feature\Ui\Firewall;
 
 use App\Http\Livewire\PCI\FirewallRulesRead;
+use App\Jobs\ServiceNow\ImportBusinessServiceMemberJob;
+use App\Jobs\ServiceNowDeleteAllJob;
 use App\Models\FirewallRule;
+use App\Models\Group;
 use App\Models\ServiceNowRequest;
+use App\Models\Subnet;
 use App\Models\User;
-use App\Notifications\FirewallReviewRequiredNotification;
-use App\Providers\RouteServiceProvider;
+use App\Notifications\DeveloperNotification;
+use App\Notifications\UserActionNotification;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Tests\FrontendTest;
 
@@ -62,27 +69,27 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         Log::shouldReceive('error')->atMost();
         Log::shouldReceive('debug')->atMost();
 
+        Subnet::factory([
+            'name' => '10.0.0.0',
+            'size' => 8,
+            'pci_dss' => Carbon::now(),
+        ])->create();
+
+        Queue::fake(ImportBusinessServiceMemberJob::class);
         $this->importOneFile();
-        $key = ServiceNowRequest::whereRelation('rules', 'description', 'Access to D rule 1')
-            ->first()->rules->first()->id;
+        $rule = FirewallRule::query()->review()->first();
+        $businessService = $rule->businessService;
+        $key = $rule->id;
         $user = User::first();
-        $user->assignRole('Firewall-Requests Reader');
+        $user->businessServices()->attach($businessService->id);
+
         Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->assertOk()
-            ->assertSee('Access to D rule 1')
-            ->assertSee('Access to D rule 2')
-            ->assertSee('Access to D rule 3')
-            ->assertDontSee('FW Connection between E and F')
-            ->assertDontSee('to service F rule 1')
-            ->assertDontSee('Changed address for Services rule 2')
-            ->assertDontSee('You\'re all done')
             ->call('edit', $key)
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'edit'])
             ->call('extendConfirm')
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'edit'])
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'extendConfirm'])
-            ->assertSee('Are you sure?')
-            ->assertSee('Confirm Extension')
             ->call('extend')
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'extendConfirm'])
             ->assertDispatchedBrowserEvent('notify', ['message' => 'Rule has been extended!', 'type' => 'success']);
@@ -96,23 +103,21 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         Log::shouldReceive('error')->atMost();
         Log::shouldReceive('debug')->atMost();
 
+        Subnet::factory([
+            'name' => '10.0.0.0',
+            'size' => 8,
+            'pci_dss' => Carbon::now(),
+        ])->create();
+        Queue::fake(ImportBusinessServiceMemberJob::class);
         $this->importOneFile();
-        $key = ServiceNowRequest::where('description', 'FW Connection between C and D')
-            ->first()
-            ->rules
-            ->first()
-            ->id;
+        $rule = FirewallRule::query()->review()->first();
+        $businessService = $rule->businessService;
+        $key = $rule->id;
         $user = User::first();
-        $user->assignRole('Firewall-Requests Reader');
+        $user->businessServices()->attach($businessService->id);
+
         Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->assertOk()
-            ->assertSee('Access to D rule 1')
-            ->assertSee('Access to D rule 2')
-            ->assertSee('Access to D rule 3')
-            ->assertDontSee('FW Connection between E and F')
-            ->assertDontSee('to service F rule 1')
-            ->assertDontSee('Changed address for Services rule 2')
-            ->assertDontSee('You\'re all done')
             ->call('edit', $key)
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'edit'])
             ->call('deleteConfirm')
@@ -126,76 +131,146 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $this->assertEquals('deleted', FirewallRule::find($key)->status);
     }
 
+    /** @test */
+    public function it_deletes_all_requests_write_a_log_and_notify_the_user()
+    {
+        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
+        Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
+
+        $this->importOneFile();
+        $user = User::first();
+        $this->assertDatabaseCount(ServiceNowRequest::class, 3);
+        Notification::fake();
+        Log::shouldReceive('info')->once();
+
+        $job = new ServiceNowDeleteAllJob($user);
+        $job->handle();
+        Notification::assertSentTo($user, UserActionNotification::class);
+        Notification::assertNotSentTo($user, DeveloperNotification::class);
+        $this->assertDatabaseCount(ServiceNowRequest::class, 0);
+    }
+
+    /** @test */
+    public function it_fail_to_deletes_requests_write_a_log_and_notify_the_developers()
+    {
+        Subnet::factory([
+            'name' => '10.0.0.0',
+            'size' => 8,
+            'pci_dss' => Carbon::now(),
+        ])->create();
+        Queue::fake(ImportBusinessServiceMemberJob::class);
+        $this->importOneFile();
+        $rule = FirewallRule::query()->review()->first();
+        $businessService = $rule->businessService;
+        $user = User::first();
+        $user->businessServices()->attach($businessService->id);
+        $this->createDeveloperGroup();
+
+        $user->assignGroup('Developers');
+        $this->assertDatabaseCount(ServiceNowRequest::class, 3);
+
+        Notification::fake();
+        Log::shouldReceive('error')->once();
+        $exception = 'An error occurred';
+
+        $job = new ServiceNowDeleteAllJob($user);
+        $job->failed($exception);
+
+        Notification::assertSentTo($user, DeveloperNotification::class);
+        Notification::assertNotSentTo($user, UserActionNotification::class);
+        $this->assertDatabaseCount(ServiceNowRequest::class, 3);
+    }
 
     /** @test */
     public function can_delete_all_requests_by_an_administrartor()
     {
+        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
+        Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
+
         $this->importOneFile();
+        $this->createDeveloperGroup();
         $user = User::first();
         $user->unassignRole('Firewall Administrator');
         $user->assignRole('Firewall-Requests Reader');
+        $user->assignGroup('Developers');
+
+        Notification::fake();
 
         Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->call('deleteAll')
-            ->assertRedirect(RouteServiceProvider::HOME);
+            ->assertStatus(403);
+
+        Notification::assertNotSentTo($user, UserActionNotification::class);
+        Notification::assertNotSentTo($user, DeveloperNotification::class);
 
         $user->unassignRole('Firewall-Requests Reader');
         $user->assignRole('Firewall Administrator');
-        Livewire::actingAs($user)->test(FirewallRulesRead::class)
-            ->call('deleteAll')
-            ->assertDispatchedBrowserEvent('notify', ['message' => 'All records deleted!', 'type' => 'success']);
+
+        $component = Livewire::actingAs(User::first())->test(FirewallRulesRead::class)
+            ->call('deleteAll');
+        $component->assertDispatchedBrowserEvent('notify', ['message' => __('messages.start_delete_all_requests'), 'type' => 'success']);
+
+        Notification::assertSentTo($user, UserActionNotification::class, function ($context) {
+            return $context->message === __('messages.all_requests_deleted');
+        });
+
+
+        Notification::assertSentTo($user, UserActionNotification::class, function ($context) {
+            return $context->message === __('messages.all_requests_deleted');
+        });
+        Notification::assertNotSentTo($user, DeveloperNotification::class);
     }
 
     /** @test */
     public function can_filter_by_non_pci_and_optional_review()
     {
+        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
+        Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
+
         $this->importOneFile();
 
         $user = User::first();
         $user->assignRole('Firewall-Requests Reader');
         $rows = Livewire::actingAs($user)->test(FirewallRulesRead::class)
-            ->set('filters', ['pci_dss' => "'0'", 'status' => 'open'])
-            ->assertSee('to service F rule 1')
+            ->set('filters', ['pci_dss' => "'0'", 'status' => 'open', 'own' => "'1'"])
+            ->assertSee('RITM0073261')
             ->get('rows')
             ->pluck('description')
             ->toArray();
-        $this->assertCount(2, $rows);
-        $this->assertEquals('to service F rule 1', $rows[0]);
-        $this->assertEquals('Changed address for Services rule 2', $rows[1]);
+        $this->assertCount(3, $rows);
+        $this->assertEquals('FMG to Kusco', $rows[0]);
+        $this->assertEquals('LCA connection to HUBSTAR databases', $rows[1]);
     }
 
     /** @test */
     public function can_filter_by_non_pci_and_decommissioned()
     {
+        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
+        Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
         $this->importOneFile();
+
         FirewallRule::first()->update(['status' => 'deleted']);
         $user = User::first();
         $user->assignRole('Firewall-Requests Reader');
         $rows = Livewire::actingAs($user)->test(FirewallRulesRead::class)
-            ->set('filters', ['pci_dss' => "'0'", 'status' => 'open'])
+            ->set('filters', ['pci_dss' => "'0'", 'status' => 'open', 'own' => "'1'"])
             ->get('rows')
             ->pluck('description')
             ->toArray();
-        $this->assertCount(2, $rows);
-        $this->assertEquals('to service F rule 1', $rows[0]);
-        $this->assertEquals('Changed address for Services rule 2', $rows[1]);
+        $this->assertCount(3, $rows);
+        $this->assertEquals('FMG to Kusco', $rows[0]);
+        $this->assertEquals('LCA connection to HUBSTAR databases', $rows[1]);
     }
 
-    /** @test */
-    public function can_invite_pci_relevant_review()
+    protected function createDeveloperGroup()
     {
-        Notification::fake();
-        $this->importOneFile();
-        $user = User::first();
-        $user->assignRole('Firewall Administrator');
-        Livewire::actingAs($user)->test(FirewallRulesRead::class)
-            ->call('sendNotification');
-
-        $users = User::whereIn('email', ServiceNowRequest::whereRelation('rules', function ($query) {
-            $query->review();
-        })->pluck('requestor_mail'))
-            ->get();
-        Notification::assertSentTo($users,FirewallReviewRequiredNotification::class);
+        Group::factory()->state([
+            'name' => 'Developers',
+            'description' => 'OneUp Developers',
+        ])->create();
     }
-
 }

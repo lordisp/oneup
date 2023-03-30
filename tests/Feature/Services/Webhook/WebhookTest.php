@@ -42,6 +42,6 @@ class WebhookTest extends TestCase
             $i++;
         }
         $this->post('api/v1/webhook', ['data' => ['foo']])
-        ->assertStatus(429);
+            ->assertStatus(429);
     }
 }

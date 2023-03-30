@@ -15,4 +15,5 @@ return [
 
     'search' => 'Search',
 
+    'expired' => '{0} Expires in |{1} Expired',
 ];

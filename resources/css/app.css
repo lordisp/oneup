@@ -13,7 +13,7 @@
     }
 
     .input {
-        @apply border-lhg-gray-12 dark:border-slate-600 placeholder-slate-400 dark:bg-slate-600  dark:focus:border-slate-500 selection:bg-lhg-blue selection:text-white  dark:selection:bg-lhg-gray-12 dark:selection:text-lhg-blue
+        @apply border-lhg-gray-12 focus:border-lhg-yellow dark:border-slate-600 placeholder-slate-400 dark:bg-slate-600  dark:focus:border-slate-500 selection:bg-lhg-blue selection:text-white  dark:selection:bg-lhg-gray-12 dark:selection:text-lhg-blue
     }
 
     .icon-menu {
@@ -24,31 +24,12 @@
         @apply inline-flex items-center border  whitespace-nowrap
         py-2
         px-4
-        dark:py-1
-        dark:px-3
         text-lhg-blue
         bg-white
         border-lhg-blue
         hover:text-white
-        dark:text-green-50
-        dark:bg-green-700
-        dark:hover:text-green-50
-        dark:hover:bg-green-600
-        dark:border-green-900
-        focus:outline-none ease-in-out duration-300 hover:bg-lhg-blue text-sm font-bold rounded-md shadow-sm
-    }
-    .btn-green {
-        @apply inline-flex items-center px-4 py-2 border border-green-900 whitespace-nowrap dark:hover:shadow dark:text-green-200 dark:hover:text-gray-800 dark:bg-gray-600 dark:hover:bg-gray-300 dark:border-gray-900 focus:outline-none ease-in-out duration-300 hover:bg-green-900 text-sm font-bold rounded-md bg-green-50 hover:text-green-100 text-green-900 shadow-sm
-    }
-
-    .btn-primary {
-        @apply inline-flex items-center px-4 py-2 border border-lhg-blue whitespace-nowrap text-sm font-bold rounded shadow-sm
-        text-white
         dark:py-1
         dark:px-3
-        hover:text-lhg-blue
-        bg-lhg-blue
-        hover:bg-white
         dark:text-white
         dark:hover:text-gray-200
         dark:bg-gray-800
@@ -56,13 +37,33 @@
         dark:hover:bg-gray-800
         dark:hover:border-gray-400
         dark:shadow
+        focus:outline-none ease-in-out duration-300 hover:bg-lhg-blue text-sm font-bold rounded-md shadow-sm
+    }
+
+    .btn-green {
+        @apply inline-flex items-center px-4 py-2 border border-green-900 whitespace-nowrap dark:hover:shadow dark:text-green-200 dark:hover:text-gray-800 dark:bg-gray-600 dark:hover:bg-gray-300 dark:border-gray-900 focus:outline-none ease-in-out duration-300 hover:bg-green-900 text-sm font-bold rounded-md bg-green-50 hover:text-green-100 text-green-900 shadow-sm
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center px-4 py-2 border border-lhg-blue whitespace-nowrap text-sm font-bold rounded shadow-sm
+        text-white
+        hover:text-lhg-blue
+        bg-lhg-blue
+        hover:bg-white
+        dark:py-1
+        dark:px-3
+        dark:text-green-50
+        dark:bg-green-700
+        dark:hover:text-green-50
+        dark:hover:bg-green-600
+        dark:border-green-900
         focus:outline-none ease-in-out duration-300
     }
+
     .btn-primary-disabled {
         @apply inline-flex items-center px-4 py-2 border border-gray-500 whitespace-nowrap text-sm font-bold rounded shadow-sm text-gray-500   dark:border-gray-900 dark:shadow dark:text-gray-900 dark:bg-gray-200 focus:outline-none ease-in-out duration-300 cursor-not-allowed
     }
 
-    /* #todo design dark-mode */
     .btn-waring-secondary {
         @apply inline-flex items-center px-4 py-2 border
         dark:py-1
@@ -120,11 +121,13 @@
         cursor: pointer;
     }
 
+    .note-danger {
+        @apply border-l border-red-600 p-2 text-xs italic bg-gray-100 dark:bg-gray-700 dark:text-lhg-gray-12
+    }
 
 }
 
 @layer base {
-
     @font-face {
         font-family: "lufthansa_head";
         font-weight: 300;

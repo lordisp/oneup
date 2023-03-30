@@ -8,6 +8,8 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/scale.css';
 import 'tippy.js/themes/light.css';
 
+import '../css/components/choice.css'
+
 import {loadColumnWidths, saveColumnWidths} from './column-widths';
 
 Alpine.plugin(collapse)

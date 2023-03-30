@@ -26,17 +26,17 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('passport:purge')->hourly();
 
-        $schedule->job(new DnsSyncJob(),'dns')
+        $schedule->job(new DnsSyncJob())
             ->everyTenMinutes()
             ->onOneServer()
         ;
-         $schedule->job(new DnsSyncAviatarJob(),'dns')
+         $schedule->job(new DnsSyncAviatarJob())
              ->everyTenMinutes()
          ;
          $schedule->exec('sudo /usr/local/bin/updater.sh')
              ->daily()
          ;
-         $schedule->job(new ScheduledUserImportJob(),'admin')
+         $schedule->job(new ScheduledUserImportJob())
              ->everyFifteenMinutes()
              ->onOneServer()
          ;

@@ -26,11 +26,11 @@
                 <x-dropdown.avatar/>
                 <!-- Panel -->
                 <x-dropdown.panel>
-                    <x-dropdown.link class="hidden" href="#1">
+                    <x-dropdown.link href="https://myaccount.microsoft.com/" target="_blank">
                         Account settings
                     </x-dropdown.link>
                     <x-dropdown.link class="hidden" href="{{route('profile.clients')}}">
-                        Clients
+                        API-Clients
                     </x-dropdown.link>
                     <x-dropdown.link class="hidden" href="#3">
                         License

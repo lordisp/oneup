@@ -3,6 +3,7 @@
 namespace Tests\Feature\API\V1;
 
 use App\Models\TokenCacheProvider;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Tests\Helper;
@@ -32,8 +33,10 @@ class TokenCacheProviderTest extends TestCase
      */
     public function can_retrieve_all_provider()
     {
-        $token = $this->requestToken()['access_token'];
-        $data = $this->withToken($token)
+        $this->createPersonalClient();
+        $token = User::factory()->create()->createToken('TestToken');
+
+        $data = $this->withToken($token->accessToken)
             ->withHeader('Accept', 'application/json')
             ->withHeader('Content-Type', 'application/json')
             ->get('/api/v1/tokencacheprovider')
@@ -55,7 +58,8 @@ class TokenCacheProviderTest extends TestCase
      */
     public function can_create_new_provider()
     {
-        $token = $this->requestToken()['access_token'];
+        $this->createPersonalClient();
+        $token = User::factory()->create()->createToken('TestToken');
         $client = [
             'tenant' => Str::uuid(),
             'client_id' => Str::uuid(),
@@ -69,7 +73,7 @@ class TokenCacheProviderTest extends TestCase
             'auth_endpoint' => 'https://login.microsoftonline.com/',
             'client' => json_encode($client),
         ];
-        $response = $this->withToken($token)
+        $response = $this->withToken($token->accessToken)
             ->post('/api/v1/tokencacheprovider', $data)
             ->assertStatus(201)
             ->json();
@@ -83,8 +87,9 @@ class TokenCacheProviderTest extends TestCase
     public function can_retrieve_a_single_provider()
     {
         $provider = TokenCacheProvider::first()->id;
-        $token = $this->requestToken()['access_token'];
-        $data = $this->withToken($token)
+        $this->createPersonalClient();
+        $token = User::factory()->create()->createToken('TestToken');
+        $data = $this->withToken($token->accessToken)
             ->withHeader('Accept', 'application/json')
             ->withHeader('Content-Type', 'application/json')
             ->get('/api/v1/tokencacheprovider/' . $provider)
@@ -105,7 +110,8 @@ class TokenCacheProviderTest extends TestCase
      */
     public function can_update_a_provider()
     {
-        $token = $this->requestToken()['access_token'];
+        $this->createPersonalClient();
+        $token = User::factory()->create()->createToken('TestToken');
         $current = TokenCacheProvider::first();
 
         $client = [
@@ -121,7 +127,7 @@ class TokenCacheProviderTest extends TestCase
             'auth_endpoint' => 'https://login.microsoftonline.com',
             'client' => json_encode($client),
         ];
-        $response = $this->withToken($token)
+        $response = $this->withToken($token->accessToken)
             ->put('/api/v1/tokencacheprovider/' . $current->id, $data)
             ->assertStatus(201)
             ->json();
@@ -140,12 +146,13 @@ class TokenCacheProviderTest extends TestCase
     /** @test */
     public function can_destroy_a_provider()
     {
-        $this->assertDatabaseCount(TokenCacheProvider::class,5);
-        $token = $this->requestToken()['access_token'];
+        $this->assertDatabaseCount(TokenCacheProvider::class, 5);
+        $this->createPersonalClient();
+        $token = User::factory()->create()->createToken('TestToken');
         $current = TokenCacheProvider::first();
-        $this->withToken($token)
+        $this->withToken($token->accessToken)
             ->delete('/api/v1/tokencacheprovider/' . $current->id)
             ->assertStatus(200);
-        $this->assertDatabaseCount(TokenCacheProvider::class,4);
+        $this->assertDatabaseCount(TokenCacheProvider::class, 4);
     }
 }

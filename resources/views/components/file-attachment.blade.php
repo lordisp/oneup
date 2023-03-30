@@ -68,7 +68,7 @@
 
                 @if ($mode === 'attachment')
                     <div class="text-center flex-1 p-4">
-                        <div class="mb-2">Uploading<span class="animate-ping">...</span> </div>
+                        <div class="mb-2">Uploading<span class="animate-ping">...</span></div>
                         <div>
                             <div class="h-4 relative max-w-lg mx-auto rounded-full overflow-hidden">
                                 <div class="w-full h-full bg-gray-200 absolute"></div>

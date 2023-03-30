@@ -3,9 +3,9 @@
 namespace App\Http\Livewire\PCI;
 
 use App\Events\ImportNewFirewallRequestsEvent;
-use App\Jobs\ServiceNow\ImportServiceNowFirewallRequestsJob;
+use App\Jobs\ServiceNow\ImportFirewallRequestJob;
 use App\Providers\RouteServiceProvider;
-use App\Rules\SnowRequestContentRule;
+use App\Rules\FirewallRequestsRule;
 use App\Traits\Converter;
 use App\Traits\ValidationRules;
 use Illuminate\Support\Arr;
@@ -27,7 +27,7 @@ class FirewallRequestsImport extends Component
         return [
             'attachments' => 'required',
             'attachments.*' => Rule::forEach(fn() => [
-                'required', new SnowRequestContentRule()
+                'required', new FirewallRequestsRule(),
             ])
         ];
     }
@@ -77,7 +77,8 @@ class FirewallRequestsImport extends Component
     protected function import($file): array
     {
         foreach ($file as $value) {
-            $jobs[] = new ImportServiceNowFirewallRequestsJob(auth()->user(), $value);
+            $jobs[] = new ImportFirewallRequestJob(auth()->user(), $value);
+            //$jobs[] = new ImportServiceNowFirewallRequestsJob(auth()->user(), $value);
         }
 
         $this->reset('attachments');
@@ -88,7 +89,10 @@ class FirewallRequestsImport extends Component
     public function render()
     {
         return view('livewire.p-c-i.firewall-requests-import', [
-            'notifications' => auth()->user()->notifications->pluck('data.message')
+            'notifications' => auth()
+                ->user()
+                ->notifications
+                ->pluck('data.message')
         ]);
     }
 }

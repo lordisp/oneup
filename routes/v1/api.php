@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::middleware(['client'])->group(function () {
+Route::middleware(['auth:api'])->group(function () {
     Route::apiResources([
         '/users' => UserController::class,
         'tokencacheprovider' => TokenCacheProviderController::class

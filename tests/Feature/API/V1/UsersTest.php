@@ -13,9 +13,9 @@ class UsersTest extends TestCase
 
     public function testShow()
     {
-        $response = $this->withToken(
-            $this->requestToken()->json('access_token')
-        )->get('/api/v1/users');
+        $this->createPersonalClient();
+        $token = User::factory()->create()->createToken('TestToken');
+        $response = $this->withToken($token->accessToken)->get('/api/v1/users');
 
         $response->assertOk();
 
@@ -42,7 +42,6 @@ class UsersTest extends TestCase
         $this->assertArrayHasKey('per_page', $response->json('meta'));
         $this->assertArrayHasKey('to', $response->json('meta'));
         $this->assertArrayHasKey('total', $response->json('meta'));
-        // dd($response->json());
     }
 
     public function testStore()

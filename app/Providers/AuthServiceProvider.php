@@ -2,18 +2,25 @@
 
 namespace App\Providers;
 
+use App\Models\create_subnets_table;
+use App\Models\FirewallRule;
 use App\Models\Passport\AuthCode;
 use App\Models\Passport\Client;
 use App\Models\Passport\PersonalAccessClient;
 use App\Models\Passport\Token;
 use App\Models\Role;
+use App\Models\Scope;
 use App\Policies\Admin\GroupPolicy;
 use App\Policies\Admin\OperationPolicy;
 use App\Policies\Admin\RolesPolicy;
 use App\Policies\Admin\TokenCacheProviderPolicy;
 use App\Policies\Admin\UserPolicy;
+use App\Policies\create_subnets_tablePolicy;
+use App\Policies\FirewallRulePolicy;
 use App\Policies\PCI\ServiceNowRequestPolicy;
 use App\Policies\Profile\ClientPolicy;
+use App\Policies\ScopePolicy;
+use App\Policies\SubnetPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use Laravel\Passport\Passport;
@@ -28,6 +35,9 @@ class AuthServiceProvider extends ServiceProvider
     protected $policies = [
         Client::class => ClientPolicy::class,
         Role::class => RolesPolicy::class,
+        //Subnet::class => SubnetPolicy::class,
+        Scope::class => ScopePolicy::class,
+        FirewallRule::class => FirewallRulePolicy::class,
     ];
 
     /**
@@ -51,19 +61,22 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerServiceNowPolicy();
     }
 
-    protected function registerPassportScopes()
+    public function registerPassportScopes()
     {
         Passport::tokensCan([
-            'place-orders' => 'Place orders',
-            'check-status' => 'Check order status',
+            'subnets-read' => 'Can read subnets',
+            'subnets-create' => 'Can create subnets',
+            'subnets-update' => 'Can update subnets',
+            'subnets-delete' => 'Can delete subnets',
+        ]);
+        Passport::setDefaultScope([
+
         ]);
     }
 
     protected function registerPassport()
     {
-        if (!$this->app->routesAreCached()) {
-            Passport::routes();
-        }
+        Passport::ignoreRoutes();
 
         /* Hash secrets in database */
         Passport::hashClientSecrets();
@@ -100,6 +113,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('user-loginAs', [UserPolicy::class, 'loginAs']);
         Gate::define('user-update', [UserPolicy::class, 'update']);
         Gate::define('user-delete', [UserPolicy::class, 'delete']);
+        Gate::define('user-lock', [UserPolicy::class, 'lockUser']);
     }
 
     protected function registerRolePolicy()
