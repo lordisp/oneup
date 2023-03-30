@@ -32,7 +32,7 @@ class AuthenticatedOidcController extends Controller
 
         $request->session()->forget('authState');
 
-        if ($state != $authState) redirect(route('login'))->with('Invalid AuthState');
+        if ($state != $authState) return redirect(route('login'))->with('Invalid AuthState');
 
         $params = [
             'code' => $request->query('code'),
@@ -43,7 +43,7 @@ class AuthenticatedOidcController extends Controller
 
         $oid = TokenCache::jwt(decrypt($token))['oid'];
 
-        $user = User::where('provider_id', $oid)->first();
+        $user = User::isActive()->where('provider_id', '=', $oid)->first();
 
         if ($user) return $this->login($user);
 
@@ -55,7 +55,7 @@ class AuthenticatedOidcController extends Controller
     {
         auth()->login($user);
 
-        return Auth::check() ? redirect(RouteServiceProvider::HOME) : redirect(route('login'))->withErrors(['error_description' => 'Failed to login.']);
+        return Auth::check() ? redirect()->intended(RouteServiceProvider::HOME) : redirect(route('login'))->withErrors(['error_description' => 'Failed to login.']);
     }
 
     public function logout(Request $request)

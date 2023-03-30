@@ -1,0 +1,147 @@
+[
+  {
+    "rules": [
+      {
+        "action": "add",
+        "type_destination": "ip_address_dest",
+        "destination": "57.56.57.168",
+        "type_source": "ip_address_source",
+        "source": "10.253.186.101,10.253.186.102,10.253.186.103",
+        "service": "tcp",
+        "destination_port": "25",
+        "description": "Exchange 2016",
+        "no_expiry": "Yes",
+        "end_date": "2100-01-01",
+        "pci_dss": "No",
+        "nat_required": "No",
+        "application_id": "APP-5405",
+        "contact": "",
+        "business_purpose": "AirEM mailing system"
+      }
+    ],
+    "RequestorMail": "przemyslaw.anuszek@lhsystems.com",
+    "RequestorFirstName": "PRZEMYSLAW",
+    "RequestorLastName": "ANUSZEK",
+    "RequestorUID": "U250788",
+    "RITMNumber": "RITM0073170",
+    "opened_by": "PRZEMYSLAW ANUSZEK",
+    "created_on": "2023-03-16 16:10:47",
+    "Subject": "Request_REQ0065228",
+    "tag": {
+      "department": "GDN ATP",
+      "cost_center": "400075",
+      "business_service": "LHG_AIREMCLOUD_P",
+      "request_description": "open connection to new Exchange 2016",
+      "application": "LHG_AIREMCLOUD_P",
+      "business_unit": "LHG"
+    }
+  },
+  {
+    "rules": [
+      {
+        "action": "add",
+        "type_destination": "ip_address_dest",
+        "destination": "57.20.39.16/28\r\n10.253.207.128/27",
+        "type_source": "ip_address_source",
+        "source": "134.247.177.39/32",
+        "service": "tcp",
+        "destination_port": "443,9092",
+        "description": "FMG to Kusco",
+        "no_expiry": "Yes",
+        "end_date": "2100-01-01",
+        "pci_dss": "No",
+        "nat_required": "No",
+        "application_id": "",
+        "contact": "",
+        "business_purpose": ""
+      },
+      {
+        "action": "add",
+        "type_destination": "ip_address_dest",
+        "destination": "10.253.242.230/32\r\n10.253.244.230/32",
+        "type_source": "ip_address_source",
+        "source": "10.176.0.0/14",
+        "service": "tcp",
+        "destination_port": "3306",
+        "description": "LCA connection to HUBSTAR databases",
+        "no_expiry": "Yes",
+        "end_date": "2100-01-01",
+        "pci_dss": "No",
+        "nat_required": "No",
+        "application_id": "",
+        "contact": "",
+        "business_purpose": ""
+      },
+      {
+        "action": "add",
+        "type_destination": "url_destination",
+        "destination_url": "https://login.mypurecloud.de, https://api.mypurecloud.de",
+        "type_source": "ip_address_source",
+        "source": "10.253.75.100/32\n10.253.75.101/32",
+        "service": "tcp_and_udp",
+        "destination_port": "443",
+        "description": "Genesys Firewall rule",
+        "no_expiry": "Yes",
+        "end_date": "2100-01-01",
+        "pci_dss": "No",
+        "nat_required": "No",
+        "application_id": "",
+        "contact": "",
+        "business_purpose": ""
+      }
+    ],
+    "RequestorMail": "krzysztof.torunski@lhsystems.com",
+    "RequestorFirstName": "KRZYSZTOF",
+    "RequestorLastName": "TORUNSKI",
+    "RequestorUID": "U556691",
+    "RITMNumber": "RITM0073261",
+    "opened_by": "KRZYSZTOF TORUNSKI",
+    "created_on": "2023-03-16 21:35:08",
+    "Subject": "Request_REQ0065316",
+    "tag": {
+      "department": "GDN ATP",
+      "cost_center": "400081",
+      "business_service": "LHG_LHGMDW_P",
+      "request_description": "FMG to Kusco",
+      "application": "LHG_LHGMDW_P",
+      "business_unit": "LHG"
+    }
+  },
+  {
+    "rules": [
+      {
+        "action": "delete",
+        "type_destination": "ip_address_dest",
+        "destination": "57.56.57.168",
+        "type_source": "ip_address_source",
+        "source": "10.253.186.101,10.253.186.102,10.253.186.103",
+        "service": "tcp",
+        "destination_port": "25",
+        "description": "Exchange 2016",
+        "no_expiry": "Yes",
+        "end_date": "2100-01-01",
+        "pci_dss": "No",
+        "nat_required": "No",
+        "application_id": "APP-5405",
+        "contact": "",
+        "business_purpose": "AirEM mailing system"
+      }
+    ],
+    "RequestorMail": "krzysztof.ostrowski.sp@dlh.de",
+    "RequestorFirstName": "KRZYSZTOF",
+    "RequestorLastName": "OSTROWSKI (Extern)",
+    "RequestorUID": "U172971",
+    "RITMNumber": "RITM0027584",
+    "opened_by": "KRZYSZTOF OSTROWSKI (Extern)",
+    "created_on": "2022-09-14 13:26:42",
+    "Subject": "Request_REQ0027178",
+    "tag": {
+      "department": "FRA GI/KCP",
+      "cost_center": "400081",
+      "business_service": "LHG_AIREMCLOUD_P",
+      "request_description": "Please open a Firewall for Corona Export Interfaces Corona@Cloud",
+      "application": "LHG_AZUREACCESSLAYER_D",
+      "business_unit": "LHG"
+    }
+  }
+]

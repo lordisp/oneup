@@ -2,16 +2,23 @@
 
 namespace App\Services;
 
+use App\Facades\AzureAD\User as AzureADUser;
 use App\Jobs\Scim\ImportUserJob;
+use App\Models\BusinessService;
 use App\Models\TokenCacheProvider;
 use App\Models\User;
+use App\Services\AzureAD\UserPrincipal;
+use App\Services\AzureAD\UserProperties;
 use App\Traits\Token;
+use Exception;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
+use Str;
 
 class Scim
 {
@@ -20,6 +27,7 @@ class Scim
     protected string $provider;
     protected bool $status;
     protected array $users = [];
+    protected string $businessService = '';
 
     public function provider($provider): static
     {
@@ -34,7 +42,7 @@ class Scim
             $groupMembersUrl = 'https://graph.microsoft.com/v1.0/groups/' . $objectId . '/members/microsoft.graph.user?$count=true&$select=id,displayName,givenName,surname,mail,userPrincipalName';
             $response = Http::withHeaders(['ConsistencyLevel' => 'eventual'])
                 ->withToken(decrypt($this->token($this->provider)))
-                ->retry(10, 200, function ($exception, $request): bool {
+                ->retry(10, 50, function ($exception, $request): bool {
                     if ($exception instanceof RequestException && $exception->getCode() === 401) {
                         Log::warning('Scim: Group-Members: ' . $exception->getMessage());
                         $request->withToken(decrypt($this->token($this->provider)));
@@ -57,45 +65,41 @@ class Scim
         return $this;
     }
 
+    public function withBusinessService($businessService): static
+    {
+        $this->businessService = $businessService;
+        return $this;
+    }
+
     public function users(string|array $userPrincipalNames): static
     {
         $userPrincipalNames = (array)$userPrincipalNames;
-        $users = collect();
+        $users = [];
+
         foreach ($userPrincipalNames as $userPrincipalName) {
 
-            $token = decrypt($this->token($this->provider));
-
-            $user = Http::withToken($token)
-                ->retry(10, 0, function ($exception, $request) use ($userPrincipalName): bool {
-                    if ($exception instanceof RequestException && $exception->getCode() === 404) {
-                        #todo notify administrators
-                        return false;
-                    } else {
-                        Log::error('AddUserFromAADJob/GetUser: ' . $exception->getMessage());
-                        $request->withToken(decrypt($this->token($this->provider)));
-                        return true;
-                    }
-                }, throw: false)
-                ->get("https://graph.microsoft.com/v1.0/users/{$userPrincipalName}?\$select=id,displayName,givenName,surname")
-                ->json();
+            $user = AzureADUser::select(new UserProperties('id,displayName,givenName,surname'))
+                ->get(new UserPrincipal($userPrincipalName));
 
             if (!Arr::has($user, 'error')) {
-                unset($user['@odata.context']);
                 $user['email'] = $userPrincipalName;
-
-                $users = $users->add($user);
+                $user['displayName'] = Str::title($user['displayName']);
+                $user['givenName'] = Str::title($user['givenName']);
+                $user['surname'] = Str::title($user['surname']);
+                $users[] = $user;
             }
         }
 
-        $this->users = $users->toArray();
+        $this->users = $users;
         return $this;
 
     }
 
-    public function add(): void
+    public function add(): Response
     {
         $this->status = true;
         $this->updateOrCreate($this->users);
+        return response(status: 201);
     }
 
     public function remove(): void
@@ -105,24 +109,18 @@ class Scim
     }
 
 
-    protected function updateOrCreate($users): void
+    protected function updateOrCreate(array $users): void
     {
         foreach ($users as $user) {
-            try {
-                User::updateOrCreate(
-                    ['provider_id' => $user['id']],
-                    [
-                        'provider_id' => $user['id'],
-                        'displayName' => $user['displayName'],
-                        'firstName' => $user['givenName'],
-                        'lastName' => $user['surname'],
-                        'email' => $user['email'],
-                        'status' => $this->status
-                    ]);
-            } catch (QueryException $exception) {
-                Log::error("Scim: Failed to updateOrCreate {$user['email']}", (array)$exception);
+            $userInstance = $this->saveUserInstance($user);
+            if (isset($this->businessService)) {
+                $businessService = BusinessService::firstOrCreate(['name' => $this->businessService]);
+                try {
+                    $userInstance->businessServices()->syncWithoutDetaching($businessService->id);
+                } catch (Exception) {
+                    break;
+                }
             }
-
         }
     }
 
@@ -140,6 +138,25 @@ class Scim
         return Validator::make(['provider' => $provider], [
             'provider' => 'required|string'
         ])->validate();
+    }
+
+    public function saveUserInstance(array $user): User
+    {
+        try {
+            return User::updateOrCreate(
+                ['email' => $user['email']],
+                [
+                    'displayName' => $user['displayName'],
+                    'firstName' => $user['givenName'],
+                    'lastName' => $user['surname'],
+                    'provider_id' => $user['id'],
+                    'status' => $this->status,
+                    'provider' => $this->provider,
+                ]);
+        } catch (QueryException $exception) {
+            Log::error("Scim: Failed to updateOrCreate {$user['email']}", (array)$exception);
+            return User::newModelInstance();
+        }
     }
 
 }

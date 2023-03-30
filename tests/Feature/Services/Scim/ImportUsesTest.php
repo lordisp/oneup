@@ -3,6 +3,7 @@
 namespace Tests\Feature\Services\Scim;
 
 use App\Jobs\Scim\ImportUserJob;
+use App\Models\BusinessService;
 use App\Models\User;
 use App\Services\Scim;
 use Database\Seeders\TokenCacheProviderSeeder;
@@ -30,14 +31,14 @@ class ImportUsesTest extends TestCase
      */
     public function throw_validation_exception_by_invalid_provider_name()
     {
-        $this->expectErrorMessage(__('validation.required', ['attribute' => 'provider']));
+        $this->expectExceptionMessage(__('validation.required', ['attribute' => 'provider']));
         $this->scim->provider('');
     }
 
     /** @test */
     public function throw_exception_if_provider_is_invalid()
     {
-        $this->expectErrorMessage(__('validation.required', ['attribute' => 'provider']));
+        $this->expectExceptionMessage(__('validation.required', ['attribute' => 'provider']));
         $this->scim->provider('invalid');
     }
 
@@ -135,5 +136,30 @@ class ImportUsesTest extends TestCase
         $this->scim->provider('lhg_graph')
             ->groups(['64a289f8-7430-40b4-830f-f64ffd6452fc']);
         $this->assertDatabaseCount(User::class, 1);
+    }
+
+    /** @test */
+    public function can_import_a_user_with_a_business_service()
+    {
+        (new Scim())
+            ->provider('lhg_graph')
+            ->users('rafael.camison@austrian.com')
+            ->withBusinessService('My_BusinessService_P')
+            ->add();
+        (new Scim())
+            ->provider('lhg_graph')
+            ->users('rafael.camison@austrian.com')
+            ->withBusinessService('My_BusinessService_P')
+            ->add();
+
+        $this->assertDatabaseCount(User::class, 1);
+        $this->assertDatabaseCount(BusinessService::class, 1);
+
+        $businessServices = User::whereEmail('rafael.camison@austrian.com')
+            ->first()
+            ->businessServices
+            ->first();
+
+        $this->assertEquals('My_BusinessService_P', $businessServices->name);
     }
 }

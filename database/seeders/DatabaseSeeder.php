@@ -19,7 +19,8 @@ class DatabaseSeeder extends Seeder
             TokenCacheProviderSeeder::class,
             OperationSeeder::class,
             RoleSeeder::class,
-            BusinessServiceSeeder::class
+            //BusinessServiceSeeder::class
+            SubnetSeeder::class
         ]);
     }
 }

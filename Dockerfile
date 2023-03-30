@@ -19,7 +19,7 @@ WORKDIR /app
 RUN npm install && npm run build && npm install shiki
 
 # Application
-FROM php:8.1-apache
+FROM php:8.2-apache
 ENV port 8000
 ENV uid 1000
 ENV user oneup

@@ -17,12 +17,13 @@
 
     <div class="flex justify-end space-x-1">
         @can('serviceNow-firewallRequests-deleteAll')
-            <x-btn.danger wire:loading.class="disabled" wire:click="deleteAll">
-                <x-icon.delete/>
+            <x-btn.danger wire:loading.class="disabled" wire:click="deleteAll" wire:target="deleteAll">
+                <x-icon.delete wire:loading.class="hidden" wire:target="deleteAll"/>
+                <x-icon.spinner class="hidden" wire:loading.class.remove="hidden" wire:target="deleteAll"/>
             </x-btn.danger>
         @endcan
         @can('serviceNow-firewallRequests-import')
-            <x-btn.secondary wire:loading.class="disabled" wire:click="sendNotification">
+            <x-btn.secondary wire:loading.class="disabled" wire:click="sendNotification" wire:target="sendNotification">
                 Send Notifications
             </x-btn.secondary>
         @endcan
@@ -30,40 +31,7 @@
 
 
     <!-- Filters -->
-    <div class="pb-2">
-        <x-card.form x-show="filter" x-collapse buttons>
-            <div class="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 ">
-                <!-- Filters -->
-                <x-input.group inline for="pci" label="PCI">
-                    <x-input.select wire:model="filters.pci_dss" placeholder="select Type" id="filter-pci" class="w-full">
-                        <option value="1">PCI Only</option>
-                        <option value="'0'">Non-PCI</option>
-                        <option value="">Any</option>
-                    </x-input.select>
-                </x-input.group>
-
-                <x-input.group inline for="status" label="Status">
-                    <x-input.select wire:model="filters.status" placeholder="select Type" id="filter-status" class="w-full">
-                        <option value="review">Review outstanding</option>
-                        <option value="open">Optional Review</option>
-                        <option value="extended">Extended</option>
-                        <option value="deleted">Decommissioned</option>
-                        <option value="">Any</option>
-                    </x-input.select>
-                </x-input.group>
-                @can('serviceNow-firewallRequests-readAll')
-                    <x-input.group inline for="own" label="Show Own">
-                        <x-input.checkbox value="" wire:model="filters.own"/>
-                    </x-input.group>
-                @endcan
-                <!-- Buttons -->
-                <x-slot name="buttons">
-                    <x-btn.primary wire:click="resetFilters">Reset Filters</x-btn.primary>
-                    <x-btn.primary x-on:click="filter = false">Hide Filters</x-btn.primary>
-                </x-slot>
-            </div>
-        </x-card.form>
-    </div>
+    @include('livewire.p-c-i.section.filter')
 
 
     <div x-data="{ selectPagePopup:@entangle('selectPagePopup') }">
@@ -76,18 +44,21 @@
             <x-slot name="body">
                 <x-table.body>
                     @forelse($rows as $row)
-                        <x-table.row wire:click.prevent="edit('{{ $row->id }}')" wire:key="{{$row->id}}">
+                        <x-table.row wire:click.prevent="edit('{{ $row->id }}')" wire:key="{{$row->id}}" class=cursor-pointer>
                             <x-table.cell>
-                                <div class="flex items-center  cursor-pointer">
+                                <div class="flex items-center  ">
                                     <div class="flex flex-1 items-center">
                                         <div class="grid grid-cols-1 md:grid-cols-none">
                                             <div class="space-y-2">
                                                 <div class="truncate md:flex md:flex-col">
                                                     <spam class="truncate text-sm font-bold text-lhg-blue dark:text-white">
-                                                        {{$row->request->subjectName}}
+                                                        {{$row->request->ritm_number}}
+                                                    </spam>
+                                                    <spam class="truncate text-sm text-lhg-blue dark:text-white">
+                                                        {{$row->request->created_at->format('d.m.Y')}}
                                                     </spam>
                                                     <spam class="truncate text-xs italic text-lhg-blue dark:text-white">
-                                                        ({{$row->business_service}})
+                                                        ({{$row->businessServiceName}})
                                                     </spam>
                                                 </div>
                                                 <span class=" md:hidden flex items-center text-sm space-x-1">
@@ -102,13 +73,15 @@
                                                         <x-icon.check-circle :class="$row->status_text"/>
                                                     @endif
                                                         <span>{{$row->status_name}}</span>
-                                                    </span>
+                                                        <span>{{$row->request->created_at->diffForHumans()}}</span>
+                                                </span>
                                                 <span class="md:hidden flex items-center text-xs italic space-x-1">
                                                 @if(isset($row->lastStatusName) && isset($row->last_review))
                                                         <span class="truncate">{{$row->lastStatusName}} {{$row->last_review->diffForHumans()}}</span>
                                                     @else
                                                         <span class="truncate">Never reviewed</span>
                                                     @endif
+                                                        <span class="truncate">{{$row->request->created_at->diffForHumans()}}</span>
                                                 </span>
                                             </div>
                                         </div>
@@ -121,32 +94,14 @@
 
                             <x-table.cell class="hidden md:table-cell">
                                 <div class="whitespace-normal">
-                                    <div><span class="font-bold mr-1">Source</span>{{\Illuminate\Support\Str::limit($row->source,80)}}</div>
-                                    <div><span class="font-bold mr-1">Destination</span>{{\Illuminate\Support\Str::limit($row->destination,80)}}</div>
+                                    <div><span class="font-bold mr-1">Source</span>{{\Illuminate\Support\Str::limit($row->sourceString,80)}}</div>
+                                    <div><span class="font-bold mr-1">Destination</span>{{\Illuminate\Support\Str::limit($row->destinationString,80)}}</div>
                                     <div>{{$row->description}}</div>
                                 </div>
                             </x-table.cell>
                             <x-table.cell class="hidden md:table-cell">
                                 <div class="flex justify-between">
-                                    <div>
-                                        <span class="flex items-center text-sm space-x-1">
-                                        @if($row->newStatus==='review')
-                                                <x-icon.info :class="$row->status_text"/>
-                                            @elseif($row->newStatus==='deleted')
-                                                <x-icon.ban :class="$row->status_text"/>
-                                            @elseif($row->newStatus==='extended')
-                                                <x-icon.check-circle :class="$row->status_text"/>
-                                            @endif
-                                        <span>{{$row->status_name}}</span>
-                                    </span>
-                                        <span class="flex items-center text-xs italic space-x-1">
-                                    @if(isset($row->lastStatusName) && isset($row->last_review))
-                                                <span class="truncate">{{$row->lastStatusName}} {{$row->last_review->diffForHumans()}}</span>
-                                            @else
-                                                <span class="truncate">Never reviewed</span>
-                                            @endif
-                                        </span>
-                                    </div>
+                                    @include('livewire.p-c-i.table-cell.status')
                                     <div>
                                         <x-icon.chevron-right mini class="text-gray-400"/>
                                     </div>
@@ -187,9 +142,8 @@
             <x-slot name="title">
                 @if(isset($rule)&& !empty($rule))
                     <div>
-                        <span>{{Str::replace('Request_Firewall_',' ',$rule->request->subjectName)}} </span>
-                        <span class="italic font-normal text-sm">({{$rule->request->ritm_number}})</span>
-                        <span class="italic font-normal text-sm">({{$rule->id}})</span>
+                        <span>{{Str::replace('Request_Firewall_',' ',$rule->request->subject)}} </span>
+                        <span class="italic font-normal text-lg ">({{$rule->request->ritm_number}})</span>
                     </div>
 
                 @endif
@@ -197,72 +151,133 @@
             </x-slot>
             <x-slot name="content">
                 @if(isset($rule)&& !empty($rule))
-                    <div class="border-t border-gray-200 dark:border-gray-700 px-4 py-5 sm:p-0">
-                        <dl class="sm:divide-y sm:divide-gray-200 dark:sm:divide-gray-700">
-                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium">Last Review</dt>
-                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{isset($rule->last_review)?$rule->last_review->diffForHumans():'Never'}}</dd>
-                            </div>
-                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium">Description</dt>
-                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->description}}</dd>
-                            </div>
-                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium">Business Purpose</dt>
-                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->business_purpose}}</dd>
-                            </div>
-                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium">Source</dt>
-                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->source}}</dd>
-                            </div>
-                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium">Service</dt>
-                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->service}}</dd>
-                            </div>
-                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium">Destination</dt>
-                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->destination}}</dd>
-                            </div>
-                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium">Destination Port(s)</dt>
-                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->destination_port}}</dd>
-                            </div>
-                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium">NAT Required</dt>
-                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->nat_required}}</dd>
-                            </div>
-                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium">PCI Relevant</dt>
-                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->pci}}</dd>
-                            </div>
-                            <div class="py-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:py-5 sm:px-6">
-                                <dt class="text-sm font-medium">Application Id</dt>
-                                <dd class="mt-1 text-sm sm:col-span-2 sm:mt-0">{{$rule->application_id}}</dd>
-                            </div>
+                    <div class="relative border-t border-gray-200 dark:border-gray-600 px-4 py-5 sm:px-6">
+                        {{-- Content --}}
+                        <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+
+                            <x-dl.dl1 class="sm:col-span-1" title="Status">
+                                <span class="flex items-center text-sm space-x-1">
+                                    @if($rule->newStatus==='review')
+                                        <x-icon.info :class="$rule->status_text"/>
+                                    @elseif($rule->newStatus==='deleted')
+                                        <x-icon.ban :class="$rule->status_text"/>
+                                    @elseif($rule->newStatus==='extended')
+                                        <x-icon.check-circle :class="$rule->status_text"/>
+                                    @endif
+                                    <span>{{$rule->status_name}}</span>
+                                </span>
+                            </x-dl.dl1>
+
+                            <x-dl.dl1 class="sm:col-span-1" title="Last review">
+                                @if(isset($rule->lastStatusName) && isset($rule->last_review))
+                                    <span class="truncate">{{$rule->last_review->diffForHumans()}} on {{$rule->last_review->format('d.m.Y')}}</span>
+                                @else
+                                    <span class="truncate">Never reviewed</span>
+                                @endif
+                            </x-dl.dl1>
+                            <x-dl.dl1 class="sm:col-span-1" title="PCI Scope">
+                                {{$rule->pci}}
+                            </x-dl.dl1>
+                            <x-dl.dl1 class="sm:col-span-1" title="Business Service">
+                                {{$rule->businessServiceName}}
+                            </x-dl.dl1>
+                            <x-dl.dl1 class="sm:col-span-1" title="Source">
+                                <ul class="max-h-28 overflow-scroll">
+                                    @foreach(json_decode($rule->source,true) as $value)
+                                        <li>{{$value}}</li>
+                                    @endforeach
+                                </ul>
+                            </x-dl.dl1>
+                            <x-dl.dl1 class="sm:col-span-1" title="Destination">
+                                <ul class="max-h-28 overflow-scroll">
+                                    @foreach(json_decode($rule->destination,true) as $value)
+                                        <li>{{$value}}</li>
+                                    @endforeach
+                                </ul>
+                            </x-dl.dl1>
+
+                            <x-dl.dl1 class="sm:col-span-1" title="Service">
+                                {{$rule->service}}
+                            </x-dl.dl1>
+                            <x-dl.dl1 class="sm:col-span-1" title="Port(s)">
+                                <ul class="max-h-28 overflow-scroll">
+                                    @foreach(json_decode($rule->destination_port,true) as $value)
+                                        <li>{{$value}}</li>
+                                    @endforeach
+                                </ul>
+                            </x-dl.dl1>
+                            <x-dl.dl1 class="sm:col-span-1" title="Requested by">
+                                <ul class="max-h-28 overflow-scroll flex space-x-1">
+                                    <span>{{$rule->request->requestor_name}}</span>
+                                    @if($rule->request->requestor_mail && !str_contains($rule->request->requestor_name,'Inactive'))
+                                        <span>
+                                            <a class="outline-none" target="_blank" href="https://teams.microsoft.com/l/chat/0/0?users={{$rule->request->requestor_mail}}">
+                                                <x-icon.mail-close/>
+                                            </a>
+                                    </span>
+                                    @endif
+                                </ul>
+                            </x-dl.dl1>
+
+                            <x-dl.dl1 class="sm:col-span-1" title="Cost-Center">
+                                {{$rule->request->cost_center}}
+                            </x-dl.dl1>
+
+
+
+                            <x-dl.dl1 class="sm:col-span-1" title="Requested at">
+                                {{$rule->request->created_at->format('d.m.Y')}}
+                            </x-dl.dl1>
+                            <x-dl.dl1 class="sm:col-span-1">
+                                <x-slot name="title">
+                                  @if($rule->end_date < now())
+                                      Expired at
+                                  @else
+                                      Expires
+                                  @endif
+                                </x-slot>
+                                {{$rule->expires}}
+                            </x-dl.dl1>
+
+                            <x-dl.dl1 class="sm:col-span-1" title="Description">
+                                {{$rule->request->description}}
+                                @if($rule->request->description !==$rule->description)
+                                    <div>
+                                        {{$rule->description}}
+                                    </div>
+                                @endif
+                            </x-dl.dl1>
+
                         </dl>
+                        <div class="absolute -top-14 -right-2">
+                            <button x-on:click="open=false" class="inline-flex justify-center px-1 py-1 dark:text-white text-sm font-medium rounded-md focus:outline-none">
+                                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                    <path d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"></path>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
-
                 @endif
-
             </x-slot>
 
             <x-slot name="button">
                 <div class="space-y-1 md:space-x-1">
-                    @if(isset($rule->newStatus)&&$rule->status!='deleted')
-                        @if($rule->newStatus!='extended')
-                            <x-btn.secondary
-                                    wire:loading.attr="disabled"
-                                    wire:loading.class="cursor-progress"
-                                    wire:click="extendConfirm" type="button">Extend
-                            </x-btn.secondary>
-                        @endif
+                    @can('extend',$rule)
+                        <x-btn.primary
+                                wire:loading.attr="disabled"
+                                wire:loading.class="cursor-progress"
+                                wire:target="extendConfirm"
+                                wire:click="extendConfirm" type="button">Extend
+                        </x-btn.primary>
+                    @endcan
+                    @can('decommission',$rule)
                         <x-btn.danger
                                 wire:loading.attr="disabled"
                                 wire:loading.class="cursor-progress"
+                                wire:target="deleteConfirm"
                                 wire:click="deleteConfirm" type="button">Decommission
                         </x-btn.danger>
-                    @endif
-                    <x-btn.primary x-on:click="open=false">Cancel</x-btn.primary>
+                    @endcan
                 </div>
             </x-slot>
 
@@ -276,7 +291,7 @@
             <x-slot name="content">
                 @if(isset($rule))
                     <div class="text-xs md:text-base space-y-2">
-                        {{ __('lines.rule.extend', ['request' => $rule->request->ritm_number, 'date' => now()->addMonths(7)->diffForHumans()]) }}
+                        {{ __('lines.rule.extend', ['request' => $rule->request->ritm_number, 'date' => now()->addQuarter()->format('d.m.Y')]) }}
                     </div
                             @endif>
             </x-slot>

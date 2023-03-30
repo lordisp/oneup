@@ -24,4 +24,15 @@ return [
     'selected' => 'You are currently selecting :attribute :type.',
     'select_all' => 'Do you want to select all :attribute?',
 
+    'access_denied' => 'Access denied!',
+    'not_allowed' => 'You don\'t have appropriated permissions.',
+    'action_completed' => 'Action completed',
+    'all_requests_deleted' => 'All Firewall-Rules have been deleted!',
+    'start_delete_all_requests' => 'Start deleting all records...',
+    'request_description' => [
+        'decommission_request' => 'The connection will be dismantled via the quarterly review for firewall rules through OneUp.',
+    ],
+    'failed' => [
+        'firewall_request_validation' => 'Firewall-Request Validation failed',
+    ],
 ];

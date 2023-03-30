@@ -179,6 +179,7 @@ return [
         \Barryvdh\Debugbar\ServiceProvider::class,
         App\Providers\TokenCacheServiceProvider::class,
         App\Providers\DnsSyncServiceProvider::class,
+        App\Providers\AzureAD\UserServiceProvider::class
     ],
 
     /*
@@ -196,6 +197,7 @@ return [
         // 'ExampleClass' => App\Example\ExampleClass::class,
         'TokenCache' => App\Facades\TokenCache::class,
         'DnsSync' => App\Facades\DnsSync::class,
+        'User' => App\Facades\AzureAD\User::class
     ])->toArray(),
 
 ];

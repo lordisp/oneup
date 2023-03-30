@@ -39,6 +39,8 @@ data:
   MAIL_ENCRYPTION: "tls"
   MAIL_FROM_ADDRESS: "oneup@dlh.de"
   MAIL_FROM_NAME: "ONEUP"
+  SNOW_CLIENT_URI: "https://lhgroup.service-now.com"
+  SNOW_CLIENT_ID: "pcifirewall.interface"
   APACHE_RUN_USER: "www-data"
   APACHE_RUN_GROUP: "www-data"
   apache : |

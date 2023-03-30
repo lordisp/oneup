@@ -8,9 +8,9 @@ use Illuminate\Support\Carbon;
 trait WithFilteredColumns
 {
     public array $filters = [
-        'pci_dss' => '1',
-        'own' => '',
+        'own' => true,
         'status' => 'review',
+        'bs' => '',
     ];
 
     public $columns;
@@ -34,7 +34,7 @@ trait WithFilteredColumns
 
     public function resetFilters(): void
     {
-        $this->reset('filters');
+        $this->reset('filters', 'bs', 'searchBs');
         session()->forget('filters');
         $this->resetPage();
     }
@@ -43,49 +43,23 @@ trait WithFilteredColumns
     {
         foreach ($this->filters as $filter => $value) {
             switch ($filter) {
-                case $filter == 'pci_dss' && !empty($value) :
-                    $value = (int)$value;
-                    $query->when($filter, function ($query, $filter) use ($value) {
-                        return $query->where('pci_dss', '=', $value);
-                    });
+                case $filter == 'status' && $value === 'review' :
+                    $query->when($filter, fn($query) => $query->review());
                     break;
-                case $filter == 'status' && !empty($value) && is_string($value) :
-                    if ($value == 'review') {
-                        $query->when($filter, fn($query, $filter) => $query->where(function ($sub) use ($value) {
-                            $sub->where('status', '=', $value)
-                                ->orWhere('status', '=', 'extended')
-                                ->where('pci_dss', '=', 1);
-                        })->lastReview());
-
-                    } elseif ($value == 'deleted') {
-                        $query->when($filter, fn($query, $filter) => $query->where('status', '=', $value));
-
-                    } elseif ($value == 'extended') {
-                        $query->when($filter, fn($query, $filter) => $query->where(function ($sub) use ($value) {
-                            if ($this->filters['pci_dss'] == 1) {
-                                $sub->where('status', '=', $value)
-                                    ->where('pci_dss', '=', 1)
-                                    ->notLastReview();
-                            } elseif ($this->filters['pci_dss'] == "'0'") {
-                                $sub->where('status', '=', $value)
-                                    ->where('pci_dss', '=', 0)
-                                    ->notLastReview();
-                            } else {
-                                $sub->where('status', '=', $value)
-                                    ->notLastReview();
-                            }
-                        }));
-                    } elseif ($value == 'open') {
-                        $query->when($filter, fn($query, $filter) => $query->where(function ($sub) use ($value) {
-                            $sub->where('status', '=', $value)
-                                ->orWhere('status', '=', 'extended')
-                                ->where('pci_dss', '=', 0);
-                        })->lastReview());
-                    }
+                case $filter == 'status' && $value === 'open' :
+                    $query->when($filter, fn($query) => $query->open());
                     break;
-                case $filter == 'own' && !empty($value) :
-                    $value = (int)$value;
-                    $query->when($filter, fn($query) => $query->visibleTo(auth()->user(), $value));
+                case $filter == 'status' && $value === 'extended' :
+                    $query->when($filter, fn($query) => $query->extended());
+                    break;
+                case $filter == 'status' && $value === 'deleted' :
+                    $query->when($filter, fn($query) => $query->deleted());
+                    break;
+                case $filter === 'own' && $value === true:
+                    $query->when($filter, fn($query) => $query->own());
+                    break;
+                case $filter === 'bs' && !empty($value):
+                    $query->when($filter, fn($query) => $query->byBusinessService($value));
                     break;
             }
         }

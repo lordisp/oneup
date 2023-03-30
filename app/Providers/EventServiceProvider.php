@@ -4,9 +4,9 @@ namespace App\Providers;
 
 use App\Events\FirewallReviewAvailableEvent;
 use App\Events\ImportNewFirewallRequestsEvent;
+use App\Listeners\CleanUpFirewallRulesListener;
 use App\Listeners\ImportNewFirewallRequestsEventListener;
 use App\Listeners\NotifyFirewallImportDispatcherListener;
-use App\Listeners\FirewallImportAddUsersListener;
 use App\Listeners\SessionExpiredListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
@@ -24,8 +24,8 @@ class EventServiceProvider extends ServiceProvider
             SendEmailVerificationNotification::class,
         ],
         FirewallReviewAvailableEvent::class => [
-            FirewallImportAddUsersListener::class,
             NotifyFirewallImportDispatcherListener::class,
+            CleanUpFirewallRulesListener::class,
         ],
         ImportNewFirewallRequestsEvent::class => [
             ImportNewFirewallRequestsEventListener::class,

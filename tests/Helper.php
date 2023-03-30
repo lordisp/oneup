@@ -2,6 +2,9 @@
 
 namespace Tests;
 
+use App\Models\ClientScope;
+use App\Models\Passport\Client;
+use App\Models\Scope;
 use App\Models\TokenCacheProvider;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
@@ -26,18 +29,15 @@ trait Helper
         ]);
     }
 
-    protected function requestToken(): TestResponse
+    protected function requestToken(string $scopes = 'subnets-create'): string
     {
-        $client = $this->createClient();
+        list($client, $scope) = $this->getPassportClientWithScopes($scopes);
 
-        $data = [
-            'grant_type' => 'client_credentials',
-            'client_id' => $client['id'],
-            'client_secret' => $client['plainSecret'],
-            'scope' => '*',
-        ];
-
-        return $this->post('/oauth/token', $data, ['content-type' => 'application/x-www-form-urlencoded']);
+        return $this->createPassportClientToken(
+            $client->id,
+            $client->secret,
+            $scope->scope
+        );
     }
 
     protected function createPersonalClient(): Model|Builder|stdClass|null
@@ -79,6 +79,54 @@ trait Helper
                 'resource' => 'https://api.loganalytics.io',
             ]),
         ])->create()->name;
+    }
+
+    protected function createPassportClient(string $name = null): \Laravel\Passport\Client
+    {
+        $name = $name ?: config('app.name');
+
+        Passport::$hashesClientSecrets = false;
+
+        $this->artisan(
+            'passport:client',
+            ['--name' => $name, '--client' => null]
+        );
+
+        $client = DB::table('oauth_clients')
+            ->select(['id'])
+            ->where('name', '=', $name)
+            ->where('personal_access_client', '=', false)
+            ->where('password_client', '=', false)
+            ->where('redirect', '=', '')
+            ->where('provider', '=', null)
+            ->where('user_id', '=', null)
+            ->first();
+
+        return Client::whereId($client->id)->first();
+    }
+
+    protected function createPassportClientToken($clientId, $secret, $scope = '*')
+    {
+        $response = $this->post('/oauth/token', [
+            'grant_type' => 'client_credentials',
+            'client_id' => $clientId,
+            'client_secret' => $secret,
+            'scope' => $scope,
+        ]);
+        if ($response->isSuccessful()) {
+            return $response->json()['access_token'];
+        }
+        return response(status: $response->status());
+    }
+
+    public function getPassportClientWithScopes(string $scope): array
+    {
+        $client = $this->createPassportClient();
+        $scope = Scope::firstOrCreate(['scope' => $scope]);
+        $client->clientScopes()->attach($scope->id);
+        ClientScope::whereClientScope($client->id, $scope->id)
+            ->approveScope(User::factory()->create());
+        return array($client, $scope);
     }
 
     protected function getStub(string $name)

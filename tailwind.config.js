@@ -58,6 +58,14 @@ module.exports = {
         'text-green-500',
         'text-red-500',
         'text-yellow-500',
+        'text-lhg-yellow',
+        'border-lhg-yellow',
         'text-red-500',
+        'p-1',
+        'list-none',
+        'pl-0',
+        'm-0',
+        'rounded-full',
+        'ring-lhg-yellow',
     ]
 }

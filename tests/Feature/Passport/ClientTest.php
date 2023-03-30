@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\Passport;
 
-use App\Models\Passport\Client;
-use App\Models\Passport\PersonalAccessClient;
 use App\Models\User;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
@@ -11,10 +9,10 @@ use Illuminate\Contracts\Container\BindingResolutionException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Laravel\Passport\Passport;
 use Laravel\Passport\TokenRepository;
 use Tests\Helper;
 use Tests\TestCase;
+use function PHPUnit\Framework\classHasAttribute;
 
 class ClientTest extends TestCase
 {
@@ -74,13 +72,13 @@ class ClientTest extends TestCase
      */
     public function can_request_an_access_token()
     {
-        $client = $this->createClient();
+        list($client, $scope) = $this->getPassportClientWithScopes('subnets-create');
 
         $data = [
             'grant_type' => 'client_credentials',
-            'client_id' => $client['id'],
-            'client_secret' => $client['plainSecret'],
-            'scope' => '*',
+            'client_id' => $client->id,
+            'client_secret' => $client->secret,
+            'scope' => $scope->scope,
         ];
 
         $response = $this->post(
@@ -124,15 +122,14 @@ class ClientTest extends TestCase
     {
         $decoded = app()->accessor::jwt_decode($token);
 
-        $this->assertObjectHasAttribute('aud', $decoded);
-        $this->assertObjectHasAttribute('jti', $decoded);
-        $this->assertObjectHasAttribute('iat', $decoded);
-        $this->assertObjectHasAttribute('nbf', $decoded);
-        $this->assertObjectHasAttribute('exp', $decoded);
-        $this->assertObjectHasAttribute('sub', $decoded);
-        $this->assertObjectHasAttribute('scopes', $decoded);
+        $this->assertArrayHasKey('aud', get_object_vars($decoded));
+        $this->assertArrayHasKey('jti', get_object_vars($decoded));
+        $this->assertArrayHasKey('iat', get_object_vars($decoded));
+        $this->assertArrayHasKey('nbf', get_object_vars($decoded));
+        $this->assertArrayHasKey('exp', get_object_vars($decoded));
+        $this->assertArrayHasKey('sub', get_object_vars($decoded));
+        $this->assertArrayHasKey('scopes', get_object_vars($decoded));
     }
-
 
 
     /** @test

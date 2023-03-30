@@ -20,6 +20,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         Passport::cookie('oneup_token');
+        Passport::ignoreRoutes();
     }
 
     /**
@@ -29,6 +30,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        //$this->handleHeaders();
         $this->handleHttpSchema();
         $this->registerAccessor();
         $this->registerLivewireMacros();
@@ -80,5 +82,22 @@ class AppServiceProvider extends ServiceProvider
         Http::macro('graph', function () {
             return Http::baseUrl('https://graph.microsoft.com');
         });
+    }
+
+    protected function handleHeaders(): void
+    {
+        header_remove('X-Powered-By');
+        $headers = [
+            'X-Content-Type-Options' => 'nosniff',
+            'X-Frame-Options' => 'sameorigin',
+            //'Content-Security-Policy' => "default-src 'self'; style-src 'self' {$url}",
+            //'Content-Security-Policy' => "script-src 'nonce-".Vite::cspNonce()."'",
+            'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains',
+            'Referrer-Policy' => 'no-referrer-when-downgrade',
+        ];
+
+        foreach ($headers as $header => $value) {
+            header($header . ': ' . $value);
+        }
     }
 }

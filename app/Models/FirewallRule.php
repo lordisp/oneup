@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Support\Facades\Gate;
 
 
 /**
@@ -16,8 +15,6 @@ use Illuminate\Support\Facades\Gate;
 class FirewallRule extends Model
 {
     use Uuid;
-
-    const REVIEW = 6;
 
     protected $fillable = [
         'action',
@@ -35,12 +32,18 @@ class FirewallRule extends Model
         'application_id',
         'contact',
         'business_purpose',
-        'last_review'
+        'last_review',
+        'hash',
+        'status',
+        'business_service_id',
     ];
 
     protected $casts = [
         'end_date' => 'datetime',
         'last_review' => 'datetime',
+        'destination' => 'json',
+        'source' => 'json',
+        'destination_port' => 'json',
     ];
 
     public function request(): BelongsTo
@@ -48,9 +51,31 @@ class FirewallRule extends Model
         return $this->belongsTo(ServiceNowRequest::class, 'service_now_request_id');
     }
 
+    public function businessService(): BelongsTo
+    {
+        return $this->belongsTo(BusinessService::class);
+    }
+
     public function requests()
     {
         return $this->all()->map->request;
+    }
+
+    public function pciMailer()
+    {
+        return $this->where('pci_dss', '=', 1)
+            ->where('action', '=', 'add')
+            ->where('end_date', '>=', now())
+            ->whereNull('last_review')
+            ->orWhere('last_review', '<=', now()->subQuarter())
+            ->get()
+            ->map
+            ->businessService
+            ->unique()
+            ->map
+            ->users
+            ->flatten()
+            ->unique('email');
     }
 
     public function statusName(): Attribute
@@ -62,6 +87,16 @@ class FirewallRule extends Model
                 'deleted' => __('lines.statuses.deleted'),
                 'open' => '',
             ][$this->newStatus] ?? '',
+        );
+    }
+
+    public function expires(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => [
+                'Yes' => 'never',
+                'No' => $this->end_date->format('d.m.Y'),
+            ][$this->no_expiry] ?? '',
         );
     }
 
@@ -77,14 +112,24 @@ class FirewallRule extends Model
         );
     }
 
-    public function getStatusBackgroundAttribute()
+
+    public function businessServiceName(): Attribute
     {
-        return [
-            'open' => 'bg-gray-100',
-            'extended' => 'bg-green-100',
-            'deleted' => 'bg-red-100',
-            'review' => 'bg-yellow-100',
-        ][$this->newStatus] ?? '';
+        return Attribute::make(
+            get: fn() => $this->businessService()->get('name')->first()->name,
+        );
+    }
+
+    public function statusBackground(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => [
+                'open' => 'bg-gray-100',
+                'extended' => 'bg-green-100',
+                'deleted' => 'bg-red-100',
+                'review' => 'bg-yellow-100',
+            ][$this->newStatus] ?? '',
+        );
     }
 
     public function statusText(): Attribute
@@ -107,7 +152,7 @@ class FirewallRule extends Model
     {
         return Attribute::make(
             fn() => $this->status != 'deleted' && $this->pci_dss
-                ? ($this->last_review <= now()->subMonths(self::REVIEW) || $this->last_review == null
+                ? ($this->last_review <= now()->subQuarter() || $this->last_review == null
                     ? 'review'
                     : $this->status)
                 : $this->status,
@@ -121,9 +166,24 @@ class FirewallRule extends Model
         );
     }
 
+    public function sourceString(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => implode(', ', json_decode($this->source, true)),
+        );
+    }
+
+    public function destinationString(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => implode(', ', json_decode($this->destination, true)),
+        );
+    }
+
     public function scopeAdded($query)
     {
-        $query->where('action', '=', 'add');
+        $query->where('action', '=', 'add')
+            ->where('end_date', '>=', now());
     }
 
     /**
@@ -137,30 +197,82 @@ class FirewallRule extends Model
             $query->where('action', '=', 'add');
             $query->where('pci_dss', '=', true);
             $query->where('status', '!=', 'deleted');
+            $query->where('end_date', '>', now());
 
             $query->where(function ($sub) {
                 $sub->where('last_review', '=', null)
-                    ->orWhere('last_review', '<=', now()->subMonths(self::REVIEW));
+                    ->orWhere('last_review', '<=', now()->subQuarter());
             });
         });
+    }
+
+    public function scopeForFirewallRequest($query)
+    {
+        return $query->with(['businessService' => fn($request) => $request->select('id', 'name')])
+            ->select(['action', 'type_destination', 'destination', 'type_source', 'source', 'service', 'destination_port', 'description', 'no_expiry', 'end_date', 'pci_dss', 'nat_required', 'application_id', 'contact', 'business_purpose', 'business_service_id',])
+            ->first()
+            ->toArray();
+    }
+
+    public function scopeOpen($query): void
+    {
+        $query->where(function ($query) {
+            $query->where('action', '=', 'add');
+            $query->where('pci_dss', '=', false);
+            $query->where('status', '!=', 'deleted');
+            $query->where('end_date', '>=', now());
+
+            $query->where(function ($sub) {
+                $sub->where('last_review', '=', null)
+                    ->orWhere('last_review', '<=', now()->subQuarter());
+            });
+        });
+    }
+
+    public function scopeExtended($query): void
+    {
+        $query->where(function ($query) {
+            $query->where('action', '=', 'add');
+            $query->where('status', '=', 'extended');
+        });
+    }
+
+    public function scopeDeleted($query): void
+    {
+        $query->where(function ($query) {
+            $query->where('status', '=', 'deleted')
+                ->whereNotNull('last_review');
+        });
+    }
+
+    public function scopeOwn($query): void
+    {
+        $query->whereRelation('businessService', function ($query) {
+            $query->whereIn('name', auth()->user()->businessServices()->select('name')->get()->map->name);
+        });
+    }
+
+    public function scopeByBusinessService(Builder $query, $value): Builder
+    {
+        return $query->whereRelation('businessService', 'name', '=', $value);
     }
 
     public function scopeLastReview(Builder $query): Builder
     {
         return $query->where(function ($query) {
             $query->where('last_review', '=', null)
-                ->orWhere('last_review', '<=', now()->subMonths(self::REVIEW));
+                ->orWhere('last_review', '<=', now()->subQuarter());
         });
     }
 
     public function scopeOrNotLastReview(Builder $query): Builder
     {
-        return $query->orWhereNot('last_review', '<=', now()->subMonths(self::REVIEW));
+        return $query->orWhereNot('last_review', '<=', now()->subQuarter());
     }
 
     public function scopeNotLastReview(Builder $query): Builder
     {
-        return $query->whereNot('last_review', '<=', now()->subMonths(self::REVIEW));
+        return $query->whereNot('last_review', '<=', now()->subQuarter());
     }
 
     public function scopeSearchBy($query, $terms = null)
@@ -178,16 +290,15 @@ class FirewallRule extends Model
                 ->orWhere('source', 'like', $term)
                 ->orWhere('destination', 'like', $term)
                 ->orWhere('id', 'like', $term)
-
             );
         });
     }
 
-    public function scopeVisibleTo($query, User $user, $own = false)
+    public function scopeVisibleTo($query, $own = false)
     {
-        if (Gate::allows('serviceNow-firewallRequests-readAll') && !$own) return;
-        $query->whereIn('service_now_request_id', ServiceNowRequest::query()
-            ->where('requestor_mail', '=', $user->email)
-            ->pluck('id'));
+        if (auth()->user()->operations()->contains('service-now/firewall/request/readAll') && !$own) {
+            return;
+        }
+        $query->own();
     }
 }

@@ -3,10 +3,13 @@
 namespace App\Models;
 
 use App\Traits\Uuid;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Laravel\Passport\HasApiTokens;
 
@@ -28,6 +31,7 @@ class User extends Authenticatable
         'provider_id',
         'displayName',
         'avatar',
+        'status',
     ];
 
     /**
@@ -120,12 +124,55 @@ class User extends Authenticatable
         $this->roles()->detach($role);
     }
 
-    public function operations(): \Illuminate\Support\Collection
+    public function operations(): Collection
     {
         $operations = $this->roles->map->operations->flatten()->pluck('operation')->unique()->toArray();
         $groupsOperations = $this->groups->map->operations()->flatten()->unique()->toArray();
         array_push($operations, ...$groupsOperations);
 
         return collect(array_unique($operations));
+    }
+
+    public function scopeIsActive(Builder $query): Builder
+    {
+        return $query->where('status', '=', 1);
+    }
+
+    public function scopeIsInactive(Builder $query): Builder
+    {
+        return $query->where('status', '=', 0);
+    }
+
+    public function businessServices(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            related: BusinessService::class,
+            table: 'business_service_user',
+            foreignPivotKey: 'user_id',
+            relatedPivotKey: 'business_service_id',
+        )
+            ->withPivot('user_id', 'business_service_id')
+            ->withTimestamps();
+    }
+
+    public function hasBusinessService(string $businessService): bool
+    {
+        return $this->businessServices()
+            ->pluck('name')
+            ->contains($businessService);
+    }
+
+    public function hasFirewallRules(): bool
+    {
+        $rules = $this->businessServices->map->rules->flatten()->first();
+        if ($rules) {
+            return $rules->exists;
+        }
+        return false;
+    }
+
+    public function firewallRules()
+    {
+        return $this->businessServices->map->rules->flatten();
     }
 }

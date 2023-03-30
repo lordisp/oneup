@@ -26,12 +26,15 @@ class ServiceNowRequest extends Model
     }
 
     protected $fillable = [
-        'template',
-        'description',
+        'opened_by',
+        'cost_center',
+        'requestor_name',
         'requestor_mail',
         'ritm_number',
         'subject',
-        'opened_by',
+        'description',
+        'created_at',
+        'updated_at',
     ];
 
     public function rules(): HasMany
@@ -43,20 +46,6 @@ class ServiceNowRequest extends Model
     {
         return Attribute::make(
             set: fn() => Str::title($this->requestor_firstName) . ' ' . Str::title($this->requestor_lastName)
-        );
-    }
-public function dddd(): Attribute
-{
-    return Attribute::make(
-        get: fn($value) => $value,
-        set: fn($value) => $value,
-    );
-}
-
-    public function subjectName(): Attribute
-    {
-        return Attribute::make(
-            get: fn() => str_replace(['_', 'Firewall', 'Request'], '', $this->subject),
         );
     }
 }

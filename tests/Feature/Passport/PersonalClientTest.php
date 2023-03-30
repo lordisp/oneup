@@ -40,9 +40,9 @@ class PersonalClientTest extends TestCase
 
         $this->assertInstanceOf(PersonalAccessTokenResult::class, $user);
 
-        $this->assertObjectHasAttribute('accessToken', $user);
+        $this->assertArrayHasKey('accessToken', get_object_vars($user));
 
-        $this->assertObjectHasAttribute('token', $user);
+        $this->assertArrayHasKey('token', get_object_vars($user));
     }
 
     /** @test
@@ -58,9 +58,9 @@ class PersonalClientTest extends TestCase
 
         $user = User::factory()->create()->createToken('test', ['do-something']);
 
-        $this->assertObjectHasAttribute('accessToken', $user);
+        $this->assertArrayHasKey('accessToken', get_object_vars($user));
 
-        $this->assertObjectHasAttribute('token', $user);
+        $this->assertArrayHasKey('token', get_object_vars($user));
 
         $this->assertEquals(["do-something"], $user->token->scopes);
     }

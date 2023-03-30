@@ -13,6 +13,11 @@ class Operation extends Model
 {
     use HasFactory, HasSlug, Uuid;
 
+    protected $fillable = [
+        'operation',
+        'description'
+    ];
+
     /**
      * Get the options for generating the slug.
      */

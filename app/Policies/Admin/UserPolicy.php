@@ -33,6 +33,11 @@ class UserPolicy
         return $user->operations()->contains('admin/rbac/user/loginAs');
     }
 
+    public function lockUser(User $user): bool
+    {
+        return $user->operations()->contains('admin/rbac/user/lockUser');
+    }
+
     /**
      * Determine whether the user can update the model.
      *
