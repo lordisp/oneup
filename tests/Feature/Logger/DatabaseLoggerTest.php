@@ -114,7 +114,7 @@ class DatabaseLoggerTest extends TestCase
     {
         report(new Exception('This exception should be logged.'));
 
-        $this->assertDatabaseCount(LogMessage::class,1);
+        $this->assertDatabaseCount(LogMessage::class, 1);
     }
 
     /** @test */
@@ -138,7 +138,7 @@ class DatabaseLoggerTest extends TestCase
 
         $logMessage->restore();
 
-        $this->assertDatabaseCount(LogMessage::class,1);
+        $this->assertDatabaseCount(LogMessage::class, 1);
     }
 
     /** @test */
@@ -149,10 +149,10 @@ class DatabaseLoggerTest extends TestCase
 
         LogMessage::get()->map->delete();
 
-        $this->assertDatabaseCount(LogMessage::class,2);
+        $this->assertDatabaseCount(LogMessage::class, 2);
 
         LogMessage::withTrashed()->get()->map->forceDelete();
 
-        $this->assertDatabaseCount(LogMessage::class,0);
+        $this->assertDatabaseCount(LogMessage::class, 0);
     }
 }

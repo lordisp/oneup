@@ -51,7 +51,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['db'],
             'ignore_exceptions' => false,
         ],
 
@@ -63,6 +63,7 @@ return [
         'db' => [
             'driver' => 'custom',
             'via' => DatabaseLogger::class,
+            'level' => env('LOG_LEVEL', 'debug'),
         ],
 
         'daily' => [

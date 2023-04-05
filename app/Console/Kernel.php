@@ -26,20 +26,36 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('passport:purge')->hourly();
 
+        $schedule->command('logs:clear', ['--level' => 'debug', '--age' => now()->subHour()->toDateTimeString(),'--job' => true])
+            ->hourly()
+            ->onOneServer()
+            ->runInBackground();
+
+        $schedule->command('logs:clear', ['--level' => 'info', '--age' => now()->subMonth()->toDateTimeString(),'--job' => true])
+            ->daily()
+            ->onOneServer()
+            ->runInBackground();
+
+        $schedule->command('logs:clear', ['--level' => 'error', '--age' => now()->subMonth()->toDateTimeString(),'--job' => true])
+            ->daily()
+            ->onOneServer()
+            ->runInBackground();
+
         $schedule->job(new DnsSyncJob())
             ->everyTenMinutes()
-            ->onOneServer()
-        ;
-         $schedule->job(new DnsSyncAviatarJob())
-             ->everyTenMinutes()
-         ;
-         $schedule->exec('sudo /usr/local/bin/updater.sh')
-             ->daily()
-         ;
-         $schedule->job(new ScheduledUserImportJob())
-             ->everyFifteenMinutes()
-             ->onOneServer()
-         ;
+            ->onOneServer();
+
+        $schedule->job(new DnsSyncAviatarJob())
+            ->everyTenMinutes();
+
+        $schedule->exec('sudo /usr/local/bin/updater.sh')
+            ->daily();
+
+        $schedule->job(new ScheduledUserImportJob())
+            ->everyFifteenMinutes()
+            ->onOneServer();
+
+
     }
 
     /**
