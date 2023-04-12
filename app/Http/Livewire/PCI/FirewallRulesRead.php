@@ -106,7 +106,7 @@ class FirewallRulesRead extends Component
         $saved = $this->rule->save();
         $this->dispatchBrowserEvent('close-modal', ['modal' => 'deleteConfirm']);
 
-        // CreateFirewallRequestJob::dispatch($this->rule->id, auth()->user());
+        CreateFirewallRequestJob::dispatch($this->rule->id, auth()->user());
 
         $this->event('Rule has been flagged as decommissioned!', 'success');
         if ($saved) Log::info(auth()->user()->id . ' has decommissioned rule from ' . $this->rule->request->subject, $this->rule->toArray());
