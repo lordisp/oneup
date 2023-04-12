@@ -65,7 +65,7 @@
                                                     <span class="truncate">{{$row->description}}</span>
                                                 </span>
                                                 <span class="md:hidden flex items-center text-sm space-x-1">
-                                                        @if($row->newStatus==='review')
+                                                    @if($row->newStatus==='review')
                                                         <x-icon.info :class="$row->status_text"/>
                                                     @elseif($row->newStatus==='deleted')
                                                         <x-icon.ban :class="$row->status_text"/>
@@ -239,7 +239,7 @@
                                 {{$rule->expires}}
                             </x-dl.dl1>
 
-                            <x-dl.dl1 class="sm:col-span-1" title="Description">
+                            <x-dl.dl1 class="sm:col-span-2" title="Description">
                                 {{$rule->request->description}}
                                 @if($rule->request->description !==$rule->description)
                                     <div>

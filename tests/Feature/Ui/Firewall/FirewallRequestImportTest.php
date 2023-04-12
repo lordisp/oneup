@@ -168,9 +168,9 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     {
         // Arrange
         Subnet::factory()->createMany([
-            ['name' => '10.253.207.0', 'size' => 24],
-            ['name' => '10.253.186.0', 'size' => 24],
-            ['name' => '10.253.75.0', 'size' => 24],
+            ['name' => '10.123.207.0', 'size' => 24],
+            ['name' => '10.123.186.0', 'size' => 24],
+            ['name' => '10.123.75.0', 'size' => 24],
         ]);
         $fileContents = $this->getStub('firewallImport/valid.json');
 
@@ -234,9 +234,9 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
 
         Subnet::factory()->createMany([
-            ['name' => '10.253.207.0', 'size' => 24],
-            ['name' => '10.253.186.0', 'size' => 24],
-            ['name' => '10.253.75.0', 'size' => 24],
+            ['name' => '10.123.207.0', 'size' => 24],
+            ['name' => '10.123.186.0', 'size' => 24],
+            ['name' => '10.123.75.0', 'size' => 24],
         ]);
 
         $this->importOneFile();
@@ -244,7 +244,6 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         $pciRules = FirewallRule::query()->review()->get();
         $this->assertCount(2, $pciRules);
         $this->seed(SubnetSeeder::class);
-
 
         $this->importOneFile();
 
@@ -254,7 +253,6 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         $pciRules = FirewallRule::query()->review()->get();
         $this->assertCount(2, $pciRules);
     }
-
 
     /** @test */
     public function import_firewall_rules_expect_queued_import_jobs()
@@ -276,7 +274,6 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         Event::assertDispatched(ImportNewFirewallRequestsEvent::class, 1);
     }
 
-
     /** @test */
     public function expect_notification_to_admin_after_import()
     {
@@ -290,7 +287,6 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         Notification::assertSentTo([User::first()], FirewallRequestsImportedNotification::class, 1);
 
     }
-
 
     protected function importOneFile(string $file = '')
     {

@@ -11,7 +11,6 @@ use App\Services\ServiceNow\CreateFirewallRequest;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
@@ -25,7 +24,6 @@ class CreateFirewallRequestTest extends TestCase
         parent::setUp();
         $this->importRules();
     }
-
 
     /** @test */
     public function a_firewall_request_returns_a_successful_response()
@@ -55,7 +53,6 @@ class CreateFirewallRequestTest extends TestCase
         $this->assertEquals('RITM000123456', $response->json('result')['requestItmNumber']);
     }
 
-
     /** @test */
     public function a_connection_timeout_force_a_call_retry()
     {
@@ -81,7 +78,6 @@ class CreateFirewallRequestTest extends TestCase
 
         $this->assertEquals('Success', $response->json('result')['status']);
     }
-
 
     /** @test */
     public function bad_requests()
@@ -127,7 +123,6 @@ class CreateFirewallRequestTest extends TestCase
         Notification::assertSentTo($user, CreateFirewallRequestNotification::class, 1);
         $this->assertStringContainsString($response->content(), 'Rule with the Id \'12365489\' was not found!');
     }
-
 
     protected function importRules()
     {

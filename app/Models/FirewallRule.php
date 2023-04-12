@@ -85,7 +85,7 @@ class FirewallRule extends Model
                 'review' => __('lines.statuses.status'),
                 'extended' => __('lines.statuses.extended'),
                 'deleted' => __('lines.statuses.deleted'),
-                'open' => '',
+                'open' => __('lines.statuses.open'),
             ][$this->newStatus] ?? '',
         );
     }
@@ -210,8 +210,7 @@ class FirewallRule extends Model
     {
         return $query->with(['businessService' => fn($request) => $request->select('id', 'name')])
             ->select(['action', 'type_destination', 'destination', 'type_source', 'source', 'service', 'destination_port', 'description', 'no_expiry', 'end_date', 'pci_dss', 'nat_required', 'application_id', 'contact', 'business_purpose', 'business_service_id',])
-            ->first()
-            ->toArray();
+            ->first();
     }
 
     public function scopeOpen($query): void

@@ -40,12 +40,16 @@ class CreateFirewallRequest
 
     private function getRule(string $ruleId): static
     {
-        $rule = FirewallRule::whereId($ruleId)->first();
-        if ($rule === null) {
+        $rule = FirewallRule::query()
+            ->where('id', $ruleId)
+            ->forFirewallRequest();
+
+        if ($rule->count() === 0) {
             $this->container['response'] = response("Rule with the Id '{$ruleId}' was not found!", 400);
             return $this;
         }
-        cache()->put($this->container['id'], $rule->forFirewallRequest());
+
+        cache()->put($this->container['id'], $rule->toArray());
 
         return $this;
     }
@@ -53,6 +57,7 @@ class CreateFirewallRequest
     private function normalizeRequest(User $user): static
     {
         $rule = cache($this->container['id']);
+
         if ($rule === null) return $this;
 
         $rule['action'] = 'delete';
@@ -62,12 +67,14 @@ class CreateFirewallRequest
         $rule['end_date'] = ($rule['no_expiry'] === 'No') ? Carbon::parse($rule['end_date'])->toDateString() : '';
         $rule['pci_dss'] = $rule['pci_dss'] ? "Yes" : "No";
 
-        $this->container['request']['rule'] = $rule;
+        $this->container['request']['business_service'] = $rule['business_service']['name'];
         $this->container['request']['request_description'] = __('messages.request_description.decommission_request');
         $this->container['request']['requestor_mail'] = $user->email;
         $this->container['request']['opened_by'] = $user->email;
-        $this->container['request']['business_service'] = $rule['business_service']['name'];
         $this->container['request']['cost_center'] = $this->container['cost-center'];
+
+        unset($rule['business_service_id'],$rule['business_service']);
+        $this->container['request']['rules'][] = $rule;
 
         $this->validateRules($this->container['request']);
 
@@ -134,5 +141,4 @@ class CreateFirewallRequest
 
         return implode(', ', $connection);
     }
-
 }

@@ -5,7 +5,8 @@ return [
     'statuses' => [
         'status' => 'Review outstanding',
         'extended' => 'Rule extended',
-        'deleted' => 'Decommissioned'
+        'deleted' => 'Decommissioned',
+        'open' => 'Open (optional)'
     ],
     'are_you_sure' => 'Are you sure?',
     'rule' => [
