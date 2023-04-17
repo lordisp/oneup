@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\Audit;
 use App\Models\ServiceNowRequest;
 use App\Models\User;
 use App\Notifications\DeveloperNotification;
@@ -11,7 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class ServiceNowDeleteAllJob implements ShouldQueue
 {
@@ -37,6 +38,9 @@ class ServiceNowDeleteAllJob implements ShouldQueue
         $all = ServiceNowRequest::all();
         if ($all->count() > 0) {
             $all->map->delete();
+
+            Audit::where('auditable_type','App\Models\FirewallRule')
+                ->delete();
             Log::info($this->user->email . ' Deleted all Firewall-Rule Records');
             $message = [
                 'titel' => 'Action completed',

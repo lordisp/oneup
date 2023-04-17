@@ -5,6 +5,7 @@ namespace Tests\Feature\Ui\Firewall;
 use App\Http\Livewire\PCI\FirewallRulesRead;
 use App\Jobs\ServiceNow\ImportBusinessServiceMemberJob;
 use App\Jobs\ServiceNowDeleteAllJob;
+use App\Models\Audit;
 use App\Models\FirewallRule;
 use App\Models\Group;
 use App\Models\ServiceNowRequest;
@@ -65,10 +66,6 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     /** @test */
     public function can_extend_rules()
     {
-        Log::shouldReceive('info')->atMost();
-        Log::shouldReceive('error')->atMost();
-        Log::shouldReceive('debug')->atMost();
-
         Subnet::factory([
             'name' => '10.0.0.0',
             'size' => 8,
@@ -77,6 +74,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
 
         Queue::fake(ImportBusinessServiceMemberJob::class);
         $this->importOneFile();
+
         $rule = FirewallRule::query()->review()->first();
         $businessService = $rule->businessService;
         $key = $rule->id;
@@ -93,7 +91,13 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
             ->call('extend')
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'extendConfirm'])
             ->assertDispatchedBrowserEvent('notify', ['message' => 'Rule has been extended!', 'type' => 'success']);
-        $this->assertEquals('extended', FirewallRule::find($key)->status);
+
+        $rule = FirewallRule::find($key);
+        $this->assertEquals('extended', $rule->status);
+        $this->assertEquals('Extend Firewall-Rule', $rule->audits->last()->activity);
+        $this->assertEquals($user->email, $rule->audits->last()->actor);
+        $this->assertEquals('Success', $rule->audits->last()->status);
+        $this->assertDatabaseCount(Audit::class, 6);
     }
 
     /** @test */

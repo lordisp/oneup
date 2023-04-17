@@ -50,7 +50,7 @@ class FirewallReviewRequiredNotification extends Notification implements ShouldQ
             ->line("*You have {$this->numberOfRules($notifiable)} firewall rules to review!*")
             ->greeting("Dear {$firstName}!")
             ->line('We would like to inform you that you are a participant in one or more business services that are directly related to PCI-related firewall rules. For this reason, these rules must be reviewed on a quarterly basis.')
-            ->line('This is essential to ensure security and compliance with PCI compliance guidelines. Please take the time to ensure that the firewall rules meet the requirements and are updated if necessary.')
+            ->line('This is essential to ensure security and compliance with PCI guidelines. Please take the time to ensure that the firewall rules meet the requirements and are updated if necessary.')
             ->line('We strongly recommend that you coordinate with the original requester of the firewall rule or the other participants of the business services to ensure that the review can be conducted smoothly. Additionally, it is essential that you adhere to the timeline for these reviews to avoid any compliance issues.')
             ->line('Please note that all other participants of the business services have also received this notification.')
             ->action('Review Now', url(route('firewall.requests.read')))

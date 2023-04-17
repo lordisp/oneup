@@ -6,8 +6,8 @@ use App\Models\BusinessService;
 use App\Models\ServiceNowRequest;
 use App\Models\User;
 use App\Services\FirewallRequests\FirewallRequestValidation;
-use App\Services\FirewallRequests\Request;
 use App\Services\FirewallRequests\Normalizer;
+use App\Services\FirewallRequests\Request;
 use App\Services\FirewallRequests\RulePCI;
 use App\Services\FirewallRequests\RuleStatus;
 use Illuminate\Bus\Batchable;
@@ -147,16 +147,17 @@ class ImportFirewallRequestJob implements ShouldQueue
         }
 
 
-        try {
-            $request->rules()->createMany(
-                data_get($this->container, 'rules')
-            );
-        } catch (\Exception $e) {
-            Log::debug(sprintf(
-                'Failed to insert Rule for Request %s/%s with %s',
-                $request->subject, $request->ritm_number, $e->getMessage()));
-            return $this;
-        }
+        $rules = $request->rules()->createMany(
+            data_get($this->container, 'rules')
+        );
+
+        $rules->map(function ($rule) {
+            $rule->audits()->create([
+                'actor' => $this->User->email,
+                'activity' => 'Import rule',
+                'status' => 'Success',
+            ]);
+        });
 
         return $this;
     }
@@ -180,6 +181,14 @@ class ImportFirewallRequestJob implements ShouldQueue
             RuleStatus::reset($rule);
             RulePCI::reset($rule);
         }
+
+        $rules->map(function ($rule) {
+            $rule->audits()->create([
+                'actor' => $this->User->email,
+                'activity' => 'Update rule',
+                'status' => 'Success',
+            ]);
+        });
 
         return $this;
     }
