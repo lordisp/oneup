@@ -18,7 +18,6 @@ use App\Models\ServiceNowRequest;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
@@ -84,19 +83,20 @@ class FirewallRulesRead extends Component
 
     public function extend()
     {
-        $this->rule->status = 'extended';
-        $this->rule->last_review = now();
-        try {
-            $this->rule->save();
-            Log::info(auth()->user()->id . ' has extended rule from ' . $this->rule->request->subject, $this->rule->toArray());
-            $this->event('Rule has been extended!', 'success');
-        } catch (QueryException $exception) {
-            $this->event('Failed to update Database! ' . $exception->getMessage(), 'error');
-            Log::error(auth()->user()->id . ' tried to extended rule from ' . $this->rule->request->subject . 'but failed.', $this->rule->toArray());
-        }
+        $this->rule->update([
+            'status' => 'extended',
+            'last_review' => now(),
+        ]);
+
+        $this->rule->audits()->create([
+            'actor' => auth()->user()->email,
+            'activity' => 'Extend Firewall-Rule',
+            'status' => 'Success',
+        ]);
+
+        $this->event('Rule has been extended!', 'success');
+
         $this->dispatchBrowserEvent('close-modal', ['modal' => 'extendConfirm']);
-
-
     }
 
     public function delete()

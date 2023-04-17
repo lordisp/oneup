@@ -1,8 +1,13 @@
-@props(['type'=>null, 'title'=>'Change me!'])
+@props([
+    'type'=>null,
+    'title'=>'Change me!',
+    'hCenter'=>false
+    ])
 <div
         x-show="open" x-transition
         x-on:click="open = false"
-        class="relative min-h-screen flex items-center justify-center p-4"
+        class="relative flex items-center justify-center px-1 py-1 sm:px-4 sm:py-8 "
+        :class="'{{ $hCenter }}' ? 'min-h-screen' : ''"
 >
     <div
             x-on:click.stop

@@ -1,4 +1,7 @@
-@props(['rounded' => true])
+@props([
+    'rounded' => true,
+    'trClass'=>''
+    ])
 <div x-data="{ stick: false}"
      @scroll.window="document.documentElement.scrollTop > 99 ? stick = true : stick = false"
      class="-my-2 -mx-6 lg:-mx-8"
@@ -8,7 +11,7 @@
         <div class="shadow ring-1 ring-black ring-opacity-5 md:rounded" :class="{'overflow-hidden': stick === false}">
             <table {{ $attributes->merge(['class' => 'w-full text-left text-sm text-gray-500 dark:text-gray-400']) }}>
                 <thead class="bg-gray-50 text-xs whitespace-nowrap text-gray-700 dark:bg-gray-700 dark:text-gray-200" :class="{'sticky top-16': stick === true}">
-                <tr>
+                <tr class="{{$trClass}}">
                     {{$head}}
                 </tr>
                 </thead>

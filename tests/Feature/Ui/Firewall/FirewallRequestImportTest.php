@@ -5,6 +5,7 @@ namespace Tests\Feature\Ui\Firewall;
 use App\Events\ImportNewFirewallRequestsEvent;
 use App\Http\Livewire\PCI\FirewallRequestsImport;
 use App\Jobs\ServiceNow\ImportFirewallRequestJob;
+use App\Models\Audit;
 use App\Models\BusinessService;
 use App\Models\FirewallRule;
 use App\Models\ServiceNowRequest;
@@ -194,6 +195,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         $this->assertDatabaseCount(User::class, 4);
         $this->assertDatabaseCount(BusinessService::class, 2);
         $this->assertDatabaseCount(FirewallRule::class, 5);
+        $this->assertDatabaseCount(Audit::class, 5);
         $this->assertCount(
             3,
             FirewallRule::query()
@@ -286,20 +288,5 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
 
         Notification::assertSentTo([User::first()], FirewallRequestsImportedNotification::class, 1);
 
-    }
-
-    protected function importOneFile(string $file = '')
-    {
-        $file = !empty($file) ? $file : 'valid.json';
-        Storage::fake('tmp-for-tests');
-        $first = file_get_contents(base_path() . '/tests/Feature/Stubs/firewallImport/' . $file);
-        $files[] = UploadedFile::fake()->createWithContent('file.json', $first);
-
-        $user = User::first();
-        $user->assignRole('Firewall Administrator');
-        Livewire::actingAs($user)->test(FirewallRequestsImport::class)
-            ->set('attachments', $files)
-            ->assertHasNoErrors()
-            ->call('save');
     }
 }

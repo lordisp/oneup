@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 
 /**
@@ -56,26 +57,14 @@ class FirewallRule extends Model
         return $this->belongsTo(BusinessService::class);
     }
 
+    public function audits(): MorphMany
+    {
+        return $this->morphMany(Audit::class, 'auditable');
+    }
+
     public function requests()
     {
         return $this->all()->map->request;
-    }
-
-    public function pciMailer()
-    {
-        return $this->where('pci_dss', '=', 1)
-            ->where('action', '=', 'add')
-            ->where('end_date', '>=', now())
-            ->whereNull('last_review')
-            ->orWhere('last_review', '<=', now()->subQuarter())
-            ->get()
-            ->map
-            ->businessService
-            ->unique()
-            ->map
-            ->users
-            ->flatten()
-            ->unique('email');
     }
 
     public function statusName(): Attribute

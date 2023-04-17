@@ -67,5 +67,15 @@ module.exports = {
         'm-0',
         'rounded-full',
         'ring-lhg-yellow',
+        'bg-red-100',
+        'bg-green-100',
+        'text-red-800',
+        'text-green-800',
+        'border-red-500',
+        'border-green-500',
+        'dark:bg-red-800',
+        'dark:bg-green-800',
+        'dark:text-red-100',
+        'dark:text-green-100',
     ]
 }

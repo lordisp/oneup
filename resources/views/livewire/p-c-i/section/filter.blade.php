@@ -31,11 +31,7 @@
                             @endforeach
                         </ul>
                     @endif
-
-
                 </div>
-
-
 {{--                <livewire:components.form.select-multi :multiple="true" :options="$this->businessServices"/>--}}
             </x-input.group>
 
@@ -46,8 +42,8 @@
             @endcan
             <!-- Buttons -->
             <x-slot name="buttons">
-                <x-btn.primary wire:click="resetFilters">Reset Filters</x-btn.primary>
-                <x-btn.primary x-on:click="filter = false">Hide Filters</x-btn.primary>
+                <x-btn.secondary wire:click="resetFilters">Reset Filters</x-btn.secondary>
+                <x-btn.secondary x-on:click="filter = false">Hide Filters</x-btn.secondary>
             </x-slot>
         </div>
 

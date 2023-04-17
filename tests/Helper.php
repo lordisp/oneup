@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use App\Http\Livewire\PCI\FirewallRequestsImport;
 use App\Models\ClientScope;
 use App\Models\Passport\Client;
 use App\Models\Scope;
@@ -9,9 +10,12 @@ use App\Models\TokenCacheProvider;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 use Laravel\Passport\Passport;
+use Livewire\Livewire;
 use ReflectionClass;
 use ReflectionException;
 use stdClass;
@@ -132,5 +136,20 @@ trait Helper
     protected function getStub(string $name)
     {
         return json_decode(file_get_contents(base_path() . '/tests/Feature/Stubs/' . $name), true);
+    }
+
+    protected function importOneFile(string $file = '')
+    {
+        $file = !empty($file) ? $file : 'valid.json';
+        Storage::fake('tmp-for-tests');
+        $first = file_get_contents(base_path() . '/tests/Feature/Stubs/firewallImport/' . $file);
+        $files[] = UploadedFile::fake()->createWithContent('file.json', $first);
+
+        $user = User::first();
+        $user->assignRole('Firewall Administrator');
+        Livewire::actingAs($user)->test(FirewallRequestsImport::class)
+            ->set('attachments', $files)
+            ->assertHasNoErrors()
+            ->call('save');
     }
 }
