@@ -26,17 +26,17 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('passport:purge')->hourly();
 
-        $schedule->command('logs:clear', ['--level' => 'debug', '--age' => now()->subHour()->toDateTimeString(),'--job' => true])
+        $schedule->command(sprintf("logs:clear --level debug --age %s --job", now()->subHour()->toDateTimeString()))
             ->hourly()
             ->onOneServer()
             ->runInBackground();
 
-        $schedule->command('logs:clear', ['--level' => 'info', '--age' => now()->subMonth()->toDateTimeString(),'--job' => true])
+        $schedule->command(sprintf("logs:clear --level info --age %s --job", now()->subMonth()->toDateTimeString()))
             ->daily()
             ->onOneServer()
             ->runInBackground();
 
-        $schedule->command('logs:clear', ['--level' => 'error', '--age' => now()->subMonth()->toDateTimeString(),'--job' => true])
+        $schedule->command(sprintf("logs:clear --level error --age %s --job", now()->subMonth()->toDateTimeString()))
             ->daily()
             ->onOneServer()
             ->runInBackground();

@@ -151,13 +151,13 @@ class ImportFirewallRequestJob implements ShouldQueue
             data_get($this->container, 'rules')
         );
 
-        $rules->map(function ($rule) {
+        foreach ($rules as $rule) {
             $rule->audits()->create([
                 'actor' => $this->User->email,
                 'activity' => 'Import rule',
                 'status' => 'Success',
             ]);
-        });
+        };
 
         return $this;
     }
@@ -182,13 +182,13 @@ class ImportFirewallRequestJob implements ShouldQueue
             RulePCI::reset($rule);
         }
 
-        $rules->map(function ($rule) {
+        foreach ($rules as $rule) {
             $rule->audits()->create([
                 'actor' => $this->User->email,
                 'activity' => 'Update rule',
                 'status' => 'Success',
             ]);
-        });
+        };
 
         return $this;
     }

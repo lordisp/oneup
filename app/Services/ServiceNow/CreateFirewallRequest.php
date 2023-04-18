@@ -32,7 +32,7 @@ class CreateFirewallRequest
         return (new static())
             ->getRule($ruleId)
             ->normalizeRequest($user)
-            ->callServiceNowApi()
+            ->callServiceNowApi($user)
             ->notifyUser($user)
             ->clearCache()
             ->container['response'];
@@ -81,7 +81,7 @@ class CreateFirewallRequest
         return $this;
     }
 
-    protected function callServiceNowApi(): static
+    protected function callServiceNowApi(User $user): static
     {
         if (cache($this->container['id']) === null) return $this;
 
@@ -103,7 +103,7 @@ class CreateFirewallRequest
         }
 
         if ($this->container['response']->successful()) {
-            Log::debug('Create Firewall Request Created', (array)$this->container['response']->json());
+            Log::info('Create Firewall Request Created by '.$user->email, (array)$this->container['response']->json());
         }
 
         return $this;
