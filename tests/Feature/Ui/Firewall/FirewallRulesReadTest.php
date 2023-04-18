@@ -3,6 +3,7 @@
 namespace Tests\Feature\Ui\Firewall;
 
 use App\Http\Livewire\PCI\FirewallRulesRead;
+use App\Jobs\ServiceNow\CreateFirewallRequestJob;
 use App\Jobs\ServiceNow\ImportBusinessServiceMemberJob;
 use App\Jobs\ServiceNowDeleteAllJob;
 use App\Models\Audit;
@@ -112,7 +113,10 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
             'size' => 8,
             'pci_dss' => Carbon::now(),
         ])->create();
-        Queue::fake(ImportBusinessServiceMemberJob::class);
+        Queue::fake([
+            ImportBusinessServiceMemberJob::class,
+            CreateFirewallRequestJob::class
+        ]);
         $this->importOneFile();
         $rule = FirewallRule::query()->review()->first();
         $businessService = $rule->businessService;
@@ -133,6 +137,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'deleteConfirm'])
             ->assertDispatchedBrowserEvent('notify', ['message' => 'Rule has been flagged as decommissioned!', 'type' => 'success']);
         $this->assertEquals('deleted', FirewallRule::find($key)->status);
+        Queue::assertPushed(CreateFirewallRequestJob::class);
     }
 
     /** @test */
