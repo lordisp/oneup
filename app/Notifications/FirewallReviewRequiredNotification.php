@@ -44,7 +44,7 @@ class FirewallReviewRequiredNotification extends Notification implements ShouldQ
     public function toMail($notifiable): MailMessage
     {
         $firstName = $notifiable->firstName;
-        $due = now()->addWeeks(2)->weekday()->format('d.m.Y');
+        $due = now()->addWeeks(2)->format('d.m.Y');
         return (new MailMessage)
             ->subject('Quarterly Review of PCI-Related Firewall Rules')
             ->line("*You have {$this->numberOfRules($notifiable)} firewall rules to review!*")
