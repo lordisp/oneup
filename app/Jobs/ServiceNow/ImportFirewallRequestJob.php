@@ -202,8 +202,8 @@ class ImportFirewallRequestJob implements ShouldQueue
         $businessService = data_get($this->container, 'business_service');
 
         if (!empty($businessService)) {
-            $identifier = Str::random(40);
-            ImportBusinessServiceMemberJob::dispatch($businessService->name, $identifier);
+            ImportBusinessServiceMemberJob::dispatch($businessService->name, Str::random(40))
+                ->afterCommit();
         }
 
         return $this;

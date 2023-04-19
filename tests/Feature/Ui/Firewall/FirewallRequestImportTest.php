@@ -220,12 +220,14 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         $this->seed(SubnetSeeder::class);
         $this->assertDatabaseCount(BusinessService::class, 0);
         $this->assertDatabaseCount(Subnet::class, 28);
+        $this->assertDatabaseCount(Audit::class, 0);
+
         $this->importOneFile();
 
         $this->assertDatabaseCount(ServiceNowRequest::class, 3);
-
         $this->assertDatabaseCount(FirewallRule::class, 5);
         $this->assertDatabaseCount(BusinessService::class, 2);
+        $this->assertDatabaseCount(Audit::class, 6);
     }
 
     /** @test */

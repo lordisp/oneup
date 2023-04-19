@@ -1,9 +1,10 @@
 @props([
     'rounded' => true,
-    'trClass'=>''
+    'trClass'=>'',
+    'sticky' => true
     ])
 <div x-data="{ stick: false}"
-     @scroll.window="document.documentElement.scrollTop > 99 ? stick = true : stick = false"
+     @scroll.window="{{$sticky}} && document.documentElement.scrollTop > 99 ? stick = true : stick = false"
      class="-my-2 -mx-6 lg:-mx-8"
      :class="{'overflow-x-auto': stick === false}"
 >

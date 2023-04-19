@@ -105,7 +105,8 @@ class FirewallRule extends Model
     public function businessServiceName(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->businessService()->get('name')->first()->name,
+            get: fn() => cache()->rememberForever("business_service_name-{$this->id}",
+                fn() => $this->businessService()->get('name')->first()->name),
         );
     }
 

@@ -101,16 +101,16 @@ class FirewallRulesRead extends Component
 
     public function delete()
     {
-        $this->rule->status = 'deleted';
-        $this->rule->last_review = now();
-        $saved = $this->rule->save();
         $this->dispatchBrowserEvent('close-modal', ['modal' => 'deleteConfirm']);
 
-        CreateFirewallRequestJob::dispatch($this->rule->id, auth()->user());
+        CreateFirewallRequestJob::dispatch($this->rule, auth()->user());
 
-        $this->event('Rule has been flagged as decommissioned!', 'success');
-        if ($saved) Log::info(auth()->user()->id . ' has decommissioned rule from ' . $this->rule->request->subject, $this->rule->toArray());
-        if (!$saved) Log::error(auth()->user()->id . ' tried to decommission rule from ' . $this->rule->request->subject . 'but failed.', $this->rule->toArray());
+        $this->rule->update([
+            'status' => 'deleted',
+            'last_review' => now(),
+        ]);
+
+        $this->event('Saved...', 'success');
     }
 
     public function sendNotification()
@@ -182,7 +182,7 @@ class FirewallRulesRead extends Component
 
     public function getRowsProperty(FirewallRule $model): Builder
     {
-        return $model::query()->with(['request', 'businessService']);
+        return $model::query()->with(['request', 'businessService', 'audits']);
     }
 
     public function render(): View
