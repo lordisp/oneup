@@ -35,4 +35,5 @@ return [
     'failed' => [
         'firewall_request_validation' => 'Firewall-Request Validation failed',
     ],
+    'rule_previously_decommissioned' => 'Rule previously decommissioned!',
 ];

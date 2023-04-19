@@ -27,39 +27,42 @@ class CreateFirewallRequest
     }
 
 
-    public static function process(string $ruleId, User $user): ClientResponse|HttpResponse
+    public static function process(FirewallRule $rule, User $user): ClientResponse|HttpResponse
     {
         return (new static())
-            ->getRule($ruleId)
+            ->getRule($rule)
             ->normalizeRequest($user)
             ->callServiceNowApi($user)
+            ->setAudit($rule, $user)
             ->notifyUser($user)
-            ->clearCache()
             ->container['response'];
     }
 
-    private function getRule(string $ruleId): static
+    private function getRule(FirewallRule $rule): static
     {
-        $rule = FirewallRule::query()
-            ->where('id', $ruleId)
-            ->forFirewallRequest();
 
-        if ($rule->count() === 0) {
-            $this->container['response'] = response("Rule with the Id '{$ruleId}' was not found!", 400);
+        if (!$rule->exists) {
+            $this->container['response'] = response("Rule was not found!", 400);
             return $this;
         }
 
-        cache()->put($this->container['id'], $rule->toArray());
+        $status = FirewallRule::whereId($rule->id)->first()->status;
+
+        if ($status === 'deleted') {
+            $this->container['response'] = response(__('messages.rule_previously_decommissioned'), 400);
+            return $this;
+        }
+        $this->container['rule'] = $rule;
 
         return $this;
     }
 
     private function normalizeRequest(User $user): static
     {
-        $rule = cache($this->container['id']);
+        if ($this->container['response']->status() != 102) return $this;
 
-        if ($rule === null) return $this;
-
+        $rule = $this->container['rule'];
+        $rule = $rule->toArray();
         $rule['action'] = 'delete';
         $rule['destination'] = $this->normalizeConnections($rule['destination']);
         $rule['source'] = $this->normalizeConnections($rule['source']);
@@ -73,7 +76,7 @@ class CreateFirewallRequest
         $this->container['request']['opened_by'] = $user->email;
         $this->container['request']['cost_center'] = $this->container['cost-center'];
 
-        unset($rule['business_service_id'],$rule['business_service']);
+        unset($rule['audits'], $rule['business_service_id'], $rule['business_service']);
         $this->container['request']['rules'][] = $rule;
 
         $this->validateRules($this->container['request']);
@@ -83,7 +86,7 @@ class CreateFirewallRequest
 
     protected function callServiceNowApi(User $user): static
     {
-        if (cache($this->container['id']) === null) return $this;
+        if ($this->container['response']->status() != 102) return $this;
 
         Log::debug('API Payload', $this->container['request']);
 
@@ -98,12 +101,40 @@ class CreateFirewallRequest
                 $this->container['request']
             );
 
-        if ($this->container['response']->failed()) {
-            Log::error('Failed to Create Firewall Request', (array)$this->container['response']->json());
+        return $this;
+    }
+
+    private function setAudit(FirewallRule $rule, User $user): static
+    {
+        $audits = [];
+
+        if ($this->container['response']->status() >= 500 || $this->container['response']->status() >= 400 && $this->container['response']->status() < 500) {
+            $audits = [
+                'message' => 'Failed to file service-now request',
+                'status' => 'Error',
+            ];
+
+            $response = $this->container['response'] instanceof HttpResponse
+                ? $this->container['response']->content()
+                : $this->container['response']->json();
+
+            Log::error($audits['message'], (array)$response);
         }
 
-        if ($this->container['response']->successful()) {
-            Log::info('Create Firewall Request Created by '.$user->email, (array)$this->container['response']->json());
+        if ($this->container['response']->status() >= 200 && $this->container['response']->status() < 300) {
+            $audits = [
+                'message' => 'Successfully filed service-now request',
+                'status' => 'Success',
+            ];
+            Log::info(sprintf("%s %s", $audits['message'], $user->email), (array)$this->container['response']->json());
+        }
+
+        if ($rule->exists) {
+            $rule->audits()->create([
+                'actor' => $user->email,
+                'activity' => $audits['message'],
+                'status' => $audits['status'],
+            ]);
         }
 
         return $this;
@@ -112,12 +143,6 @@ class CreateFirewallRequest
     private function notifyUser(User $user): static
     {
         $user->notify(new CreateFirewallRequestNotification($this->container['response']));
-        return $this;
-    }
-
-    private function clearCache(): static
-    {
-        cache()->forget($this->container['id']);
         return $this;
     }
 
@@ -130,7 +155,9 @@ class CreateFirewallRequest
                 'errors' => $validation->errors(),
                 'data' => $validation->getData(),
             ]);
-            $this->clearCache();
+
+            $countErrors = count($validation->errors());
+            $this->container['response'] = response("Rule validation failed with {$countErrors} errors!", 400);
         }
         Log::debug('Rules are valid');
     }

@@ -4,7 +4,6 @@ namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
-
 use Illuminate\Http\Client\Response as ClientResponse;
 use Illuminate\Http\Response as HttpResponse;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -21,6 +20,14 @@ class CreateFirewallRequestNotification extends Notification implements ShouldQu
         if ($response->status() >= 200 && $response->status() < 300) {
             $this->body = $response->json('result');
         }
+        if ($response->status() >= 500 || $response->status() >= 400 && $response->status() < 500) {
+            if ($response instanceof ClientResponse) {
+                $this->body = $response->json('result');
+            }
+            if ($response instanceof HttpResponse) {
+                $this->body = $response->content();
+            }
+        }
     }
 
     public function via($notifiable): array
@@ -30,12 +37,19 @@ class CreateFirewallRequestNotification extends Notification implements ShouldQu
 
     public function toMail($notifiable): MailMessage
     {
-        if ($this->response->status() >= 500||$this->response->status() >= 400 && $this->response->status() < 500) {
+        if ($this->response->status() === 400 && $this->response->content() === __('messages.rule_previously_decommissioned')) {
+            return (new MailMessage)
+                ->greeting("Hello {$notifiable->firstName}!")
+                ->line('Your request was saved in OneUp, but a request to Service-Now to forward the dismantling was already done by a co-worker. Therefore, it\'s no longer required to file another request.')
+                ->line('If you have any question, dont hesitate to contact us.');
+        }
+
+        if ($this->response->status() >= 500 || $this->response->status() >= 400 && $this->response->status() < 500) {
             return (new MailMessage)
                 ->greeting("Hello {$notifiable->firstName}!")
                 ->line('Your request was saved in OneUp, but we could not reach Service-Now to forward the dismantling. Therefore, we ask you to manually order the dismantling of the rule in Service-Now.')
                 ->action('Decommissioned Rules', url(route('firewall.requests.read', ['filters' => ['own' => '1', 'status' => 'delete']])))
-                ->action('Firewall-Request Form', 'https://lhgroup.service-now.com/sp?id=sc_cat_item&sys_id=960ac540db10eb00fe5d9785ca96191e')
+                ->action('Firewall-Request Form', config('servicenow.uri') . '/sp?id=sc_cat_item&sys_id=960ac540db10eb00fe5d9785ca96191e')
                 ->line('If you have any question, dont hesitate to contact us.');
         }
 
@@ -49,5 +63,10 @@ class CreateFirewallRequestNotification extends Notification implements ShouldQu
     public function toArray($notifiable): array
     {
         return [];
+    }
+
+    public function getBody()
+    {
+        return $this->body;
     }
 }

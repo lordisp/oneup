@@ -27,12 +27,15 @@ class FirewallRulePolicy
         return false;
     }
 
-    public function extend(User $user, FirewallRule $rule):bool
+    public function extend(User $user, FirewallRule $rule): bool
     {
-        $operation = Operation::firstOrCreate([
-            'operation' => 'service-now/firewall/request/extendAll',
-            'description' => 'Can extend all firewall rules'
-        ]);
+        $key = 'service-now/firewall/request/extendAll';
+        $operation = cache()->rememberForever($key, function () use ($key) {
+            return Operation::firstOrCreate([
+                'operation' => $key,
+                'description' => 'Can extend all firewall rules'
+            ]);
+        });
 
         return $user->hasBusinessService($rule->businessService->name)
             && isset($rule->new_status)
@@ -42,10 +45,13 @@ class FirewallRulePolicy
 
     public function decommission(User $user, FirewallRule $rule): bool
     {
-        $operation = Operation::firstOrCreate([
-            'operation' => 'service-now/firewall/request/decommissionAll',
-            'description' => 'Can decommission all firewall rules'
-        ]);
+        $key = 'service-now/firewall/request/decommissionAll';
+        $operation = cache()->rememberForever($key, function () use ($key) {
+            return Operation::firstOrCreate([
+                'operation' => $key,
+                'description' => 'Can decommission all firewall rules'
+            ]);
+        });
 
         return $user->hasBusinessService($rule->businessService->name)
             && isset($rule->new_status)
@@ -55,16 +61,23 @@ class FirewallRulePolicy
 
     public function update(User $user, FirewallRule $rule): bool
     {
-        return $user->hasBusinessService($rule->business_service);
+        $key = $user->id . $rule->id . $rule->business_service;
+
+        return cache()->remember($key, now()->addMinutes(15), function () use ($user, $rule) {
+            return $user->hasBusinessService($rule->business_service);
+        });
+
     }
 
     public function delete(User $user, FirewallRule $rule): bool
     {
-
-        $operation = Operation::firstOrCreate([
-            'operation' => 'service-now/firewall/request/delete',
-            'description' => 'Can delete firewall rules'
-        ]);
+        $key = 'service-now/firewall/request/delete';
+        $operation = cache()->rememberForever($key, function () use ($key) {
+            return Operation::firstOrCreate([
+                'operation' => $key,
+                'description' => 'Can delete firewall rules'
+            ]);
+        });
         return $user->operations()->contains($operation->operation);
     }
 

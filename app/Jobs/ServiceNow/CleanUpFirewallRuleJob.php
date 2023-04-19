@@ -15,19 +15,26 @@ class CleanUpFirewallRuleJob implements ShouldQueue
 
     private array $firewallRule;
 
-    public function __construct(array$firewallRule)
+    public function __construct(array $firewallRule)
     {
         $this->firewallRule = $firewallRule;
     }
 
     public function handle()
     {
-        FirewallRule::with(['request' => fn($request) => $request
-                ->where('created_at', '<', $this->firewallRule['created_at'])
-                ->select('id', 'created_at')])
+        $rule = FirewallRule::with(['request' => fn($request) => $request
+            ->where('created_at', '<', $this->firewallRule['created_at'])
+            ->select('id', 'created_at')])
             ->select('id', 'hash', 'action', 'service_now_request_id')
             ->where('hash', $this->firewallRule['hash'])
-            ->where('action', 'add')
-            ->update(['status' => 'deleted']);
+            ->where('action', 'add');
+
+        $rule->update(['status' => 'deleted']);
+
+        $rule->first()->audits()->create([
+            'actor' => 'Previous Service-Now Request',
+            'activity' => 'Decommission Rule',
+            'status' => 'Success'
+        ]);
     }
 }

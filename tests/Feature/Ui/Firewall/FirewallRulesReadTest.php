@@ -3,7 +3,6 @@
 namespace Tests\Feature\Ui\Firewall;
 
 use App\Http\Livewire\PCI\FirewallRulesRead;
-use App\Jobs\ServiceNow\CreateFirewallRequestJob;
 use App\Jobs\ServiceNow\ImportBusinessServiceMemberJob;
 use App\Jobs\ServiceNowDeleteAllJob;
 use App\Models\Audit;
@@ -98,7 +97,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $this->assertEquals('Extend Firewall-Rule', $rule->audits->last()->activity);
         $this->assertEquals($user->email, $rule->audits->last()->actor);
         $this->assertEquals('Success', $rule->audits->last()->status);
-        $this->assertDatabaseCount(Audit::class, 6);
+        $this->assertDatabaseCount(Audit::class, 7);
     }
 
     /** @test */
@@ -113,10 +112,13 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
             'size' => 8,
             'pci_dss' => Carbon::now(),
         ])->create();
-        Queue::fake([
-            ImportBusinessServiceMemberJob::class,
-            CreateFirewallRequestJob::class
+
+        Http::fake([config('servicenow.uri') . '/*' =>
+            Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true))
         ]);
+
+        Queue::fake([ImportBusinessServiceMemberJob::class]);
+
         $this->importOneFile();
         $rule = FirewallRule::query()->review()->first();
         $businessService = $rule->businessService;
@@ -135,9 +137,8 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
             ->assertSee('Confirm Decommission')
             ->call('delete')
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'deleteConfirm'])
-            ->assertDispatchedBrowserEvent('notify', ['message' => 'Rule has been flagged as decommissioned!', 'type' => 'success']);
+            ->assertDispatchedBrowserEvent('notify', ['message' => 'Saved...', 'type' => 'success']);
         $this->assertEquals('deleted', FirewallRule::find($key)->status);
-        Queue::assertPushed(CreateFirewallRequestJob::class);
     }
 
     /** @test */

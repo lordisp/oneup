@@ -151,7 +151,7 @@
                         </x-tabs.panel>
                         <x-tabs.panel name="History">
                             <div class="mt-2 sm:mt-0 p-2 sm:bg-gray-100 sm:dark:bg-gray-900 rounded overflow-hidden -mx-8 lg:-mx-8">
-                                <x-table tr-class="border-b border-x-gray-400 border-gray-200 dark:border-gray-500">
+                                <x-table sticky="false" tr-class="border-b border-x-gray-400 border-gray-200 dark:border-gray-500">
                                     <x-slot:head>
                                         <x-table.heading class="border-l-2 sm:border-0">Initiated by</x-table.heading>
                                         <x-table.heading class="hidden sm:table-cell">Activity</x-table.heading>
