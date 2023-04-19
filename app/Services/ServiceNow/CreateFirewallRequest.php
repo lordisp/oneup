@@ -46,9 +46,9 @@ class CreateFirewallRequest
             return $this;
         }
 
-        $status = FirewallRule::whereId($rule->id)->first()->status;
+        $audits = FirewallRule::whereId($rule->id)->first()->audits->last();
 
-        if ($status === 'deleted') {
+        if ($audits->activity === __('messages.rule_decommissioned')) {
             $this->container['response'] = response(__('messages.rule_previously_decommissioned'), 400);
             return $this;
         }
@@ -123,7 +123,7 @@ class CreateFirewallRequest
 
         if ($this->container['response']->status() >= 200 && $this->container['response']->status() < 300) {
             $audits = [
-                'message' => 'Successfully filed service-now request',
+                'message' => __('messages.rule_decommissioned'),
                 'status' => 'Success',
             ];
             Log::info(sprintf("%s %s", $audits['message'], $user->email), (array)$this->container['response']->json());

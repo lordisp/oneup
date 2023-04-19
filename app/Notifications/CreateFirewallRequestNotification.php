@@ -40,8 +40,8 @@ class CreateFirewallRequestNotification extends Notification implements ShouldQu
         if ($this->response->status() === 400 && $this->response->content() === __('messages.rule_previously_decommissioned')) {
             return (new MailMessage)
                 ->greeting("Hello {$notifiable->firstName}!")
-                ->line('Your request was saved in OneUp, but a request to Service-Now to forward the dismantling was already done by a co-worker. Therefore, it\'s no longer required to file another request.')
-                ->line('If you have any question, dont hesitate to contact us.');
+                ->line('Thank you for submitting your request, which has been successfully saved in OneUp. However, we wanted to inform you that a co-worker has already made a request to Service-Now to forward the dismantling, which means that there is no need to file another request.')
+                ->line('We appreciate your initiative and look forward to your continued engagement.');
         }
 
         if ($this->response->status() >= 500 || $this->response->status() >= 400 && $this->response->status() < 500) {
