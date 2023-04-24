@@ -1,4 +1,5 @@
-trigger: none
+pr:
+
 pool:
   name: LHG-WEUR-GIXI-DEVAGENT-VMSS-01-P
 variables:
