@@ -48,9 +48,9 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
                 $uri = 'https://management.azure.com/subscriptions/' . $this->subscriptionId . '/resourceGroups/' . $this->resourceGroup . '/providers/Microsoft.Network/privateDnsZones/' . $zoneName . '/' . $type . '/' . $record['name'] . '?api-version=2018-09-01';
 
-                Log::info("Update {$type} record {$record['name']} from {$spokeSubscriptionId} to {$this->subscriptionId}", $record['properties']);
+                $message = "Update {$type} record {$record['name']} from {$spokeSubscriptionId} to {$this->subscriptionId}";
 
-                UpdateRecordJob::dispatch($record, $uri, $this->hub, $this->spoke);
+                UpdateRecordJob::dispatch($record, $uri, $this->hub, $this->spoke, $message);
             }
         }
     }
