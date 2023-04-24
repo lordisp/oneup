@@ -4,13 +4,16 @@ namespace App\Jobs;
 
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
+use DateTime;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Queue\InteractsWithQueue;
+use Illuminate\Queue\Middleware\ThrottlesExceptions;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
@@ -39,6 +42,16 @@ class UpdateRecordJob implements ShouldQueue, ShouldBeUnique
     public function uniqueId(): string
     {
         return $this->record['etag'];
+    }
+
+    public function middleware(): array
+    {
+        return [new ThrottlesExceptions(10, 5)];
+    }
+
+    public function retryUntil(): DateTime
+    {
+        return now()->addMinutes(5);
     }
 
     public function handle(): void
@@ -120,6 +133,9 @@ class UpdateRecordJob implements ShouldQueue, ShouldBeUnique
         $uri = "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version={$apiVersion}";
 
         $response = Http::withToken(decrypt($this->token($this->spoke)))
+            ->retry(20, 10, function ($exception) {
+                return $exception instanceof ConnectionException;
+            })
             ->post($uri, ['query' => $query]);
 
         if ($response->successful()) {
