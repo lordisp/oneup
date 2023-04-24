@@ -11,12 +11,17 @@ use Illuminate\Support\Facades\Log;
 
 class Pdns
 {
-
     use Token;
 
     protected string $hub = 'lhg_arm', $spoke = 'lhg_arm', $subscriptionId, $resourceGroup;
 
-    protected array $recordType = ['A', 'AAAA', 'MX', 'PTR', 'SRV', 'TXT'], $zones = [], $withSubscriptions = [], $skippedSubscriptions = [];
+    protected array $recordType = ['A', 'AAAA', 'MX', 'PTR', 'SRV', 'TXT'];
+
+    protected array $zones = [];
+
+    protected array $withSubscriptions = [];
+
+    protected array $skippedSubscriptions = [];
 
     protected bool $isHub = false;
 
