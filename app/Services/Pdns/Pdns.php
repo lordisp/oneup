@@ -9,9 +9,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-/**
- * The crazy DNS Sync
- */
 class Pdns
 {
     use Token;
