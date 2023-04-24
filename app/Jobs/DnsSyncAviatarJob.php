@@ -2,7 +2,7 @@
 
 namespace App\Jobs;
 
-use App\Facades\DnsSync;
+use App\Facades\Pdns;
 use App\Traits\DeveloperNotification;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -10,26 +10,20 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class DnsSyncAviatarJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, DeveloperNotification;
 
-    public int $timeout = 900;
-
-    /**
-     * Execute the job.
-     *
-     * @return void
-     */
     public function handle(): void
     {
-        Log::info('Initiate DNS Sync for aviatar_arm');
-        DnsSync::withHub('lhg_arm', config('dnssync.subscription_id'), config('dnssync.resource_group'))
-            ->withSpoke('aviatar_arm')
+        $subscriptionId = config('dnssync.subscription_id');
+        $resourceGroup = config('dnssync.resource_group');
+
+        Pdns::withHub('lhg_arm', $subscriptionId, $resourceGroup)
             ->withRecordType(['A'])
-            ->start();
+            ->withSpoke('aviatar_arm')
+            ->sync();
     }
 
     public function fail($exception = null)

@@ -46,7 +46,8 @@ class Kernel extends ConsoleKernel
             ->onOneServer();
 
         $schedule->job(new DnsSyncAviatarJob())
-            ->everyTenMinutes();
+            ->everyTenMinutes()
+            ->onOneServer();
 
         $schedule->exec('sudo /usr/local/bin/updater.sh')
             ->daily();
