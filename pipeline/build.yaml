@@ -12,8 +12,7 @@ pool:
 
 stages:
 - stage: Build
-  dependsOn: Test
-  condition: and(succeeded(), eq(variables.isMain, 'true'))
+  condition: eq(variables.isMain, 'true')
   variables:
     - template: vars/production.yaml
     - template: vars/global.yaml
