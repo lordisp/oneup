@@ -31,8 +31,14 @@ class UpdateRecordJob implements ShouldQueue, ShouldBeUnique
         protected string $uri,
         protected string $hub,
         protected string $spoke,
+        protected string $message,
     )
     {
+    }
+
+    public function uniqueId(): string
+    {
+        return $this->record['etag'];
     }
 
     public function handle(): void
@@ -96,7 +102,7 @@ class UpdateRecordJob implements ShouldQueue, ShouldBeUnique
             Log::warning('Patch Failed' . json_encode($this->response->json()), $this->response->json());
             return;
         }
-        Log::debug('Patch Succeeded with', $this->response->json());
+        Log::info($this->message, $this->record['properties']);
     }
 
     private function recordHasResource(array $record): bool
