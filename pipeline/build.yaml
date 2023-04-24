@@ -1,5 +1,12 @@
-pr:
-
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    exclude:
+      - definitions/*
+      - pipeline/*
+      - README.md
 pool:
   name: LHG-WEUR-GIXI-DEVAGENT-VMSS-01-P
 variables:
