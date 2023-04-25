@@ -112,7 +112,7 @@ class UpdateRecordJob implements ShouldQueue
             ? " and subscriptionId == '{$subscriptionId}'"
             : null;
 
-        $query = "resources | where name == '{$record['name']}'{$withSubscription}";
+        $query = "resources | where name has '{$record['name']}'{$withSubscription}";
 
         $apiVersion = '2021-03-01';
 
