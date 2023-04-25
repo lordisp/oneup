@@ -120,9 +120,7 @@ class UpdateRecordJob implements ShouldQueue
         $uri = "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version={$apiVersion}";
 
         $response = Http::withToken(decrypt($this->token($this->spoke)))
-            ->retry(20, 10, function ($exception) {
-                return $exception instanceof ConnectionException;
-            })
+            ->retry(20, 200)
             ->post($uri, ['query' => $query]);
 
         if ($response->successful()) {
