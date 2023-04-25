@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Jobs;
+namespace App\Jobs\Pdns;
 
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
@@ -42,6 +42,16 @@ class UpdateRecordJob implements ShouldQueue, ShouldBeUnique
     public function uniqueId(): string
     {
         return $this->record['etag'];
+    }
+
+    public function middleware(): array
+    {
+        return [new ThrottlesExceptions(10, 5)];
+    }
+
+    public function retryUntil(): DateTime
+    {
+        return now()->addMinutes(5);
     }
 
     public function handle(): void
