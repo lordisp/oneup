@@ -82,8 +82,8 @@ class Pdns
         return Arr::flatten(
             Http::withToken(decrypt($this->token($this->tokenProvider())))
                 ->acceptJson()
-                ->retry(20, 10, function ($exception, $request): bool {
-                    $request->withToken(decrypt($this->token($this->tokenProvider())));
+                ->retry(10, 200, function ($exception, $request): bool {
+                    $request->withToken(decrypt($this->newToken($this->tokenProvider())));
                     return true;
                 })
                 ->post($uri, ["query" => $query])

@@ -7,7 +7,6 @@ use App\Traits\Token;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Queue\InteractsWithQueue;
@@ -89,8 +88,8 @@ class UpdateRecordJob implements ShouldQueue
     protected function updateRecord(): void
     {
         $this->response = Http::withToken(decrypt($this->token($this->hub)))
-            ->retry(20, 0, function ($exception, $request) {
-                $request->withToken(decrypt($this->token($this->hub)));
+            ->retry(10, 200, function ($exception, $request) {
+                $request->withToken(decrypt($this->newToken($this->hub)));
                 return true;
             }, throw: false)
             ->put($this->uri, Arr::only($this->request, ['etag', 'properties']));
@@ -113,14 +112,17 @@ class UpdateRecordJob implements ShouldQueue
             ? " and subscriptionId == '{$subscriptionId}'"
             : null;
 
-        $query = "resources | where name == '{$record['name']}'{$withSubscription}";
+        $query = "resources | where name has '{$record['name']}'{$withSubscription}";
 
         $apiVersion = '2021-03-01';
 
         $uri = "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version={$apiVersion}";
 
         $response = Http::withToken(decrypt($this->token($this->spoke)))
-            ->retry(20, 200)
+            ->retry(10, 200, function ($exception, $request) {
+                $request->withToken(decrypt($this->newToken($this->hub)));
+                return true;
+            }, throw: false)
             ->post($uri, ['query' => $query]);
 
         if ($response->successful()) {
