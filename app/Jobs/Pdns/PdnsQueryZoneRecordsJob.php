@@ -2,7 +2,6 @@
 
 namespace App\Jobs\Pdns;
 
-use App\Jobs\UpdateRecordJob;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
 use Illuminate\Bus\Queueable;
