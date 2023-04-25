@@ -4,24 +4,23 @@ namespace App\Jobs\Pdns;
 
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
-use DateTime;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Http\Client\Response;
 use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\Middleware\ThrottlesExceptions;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class UpdateRecordJob implements ShouldQueue, ShouldBeUnique
+class UpdateRecordJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token, DeveloperNotification;
+
+    public int $tries = 5;
 
     protected Response $response;
 
@@ -37,11 +36,6 @@ class UpdateRecordJob implements ShouldQueue, ShouldBeUnique
         protected string $message,
     )
     {
-    }
-
-    public function uniqueId(): string
-    {
-        return $this->record['etag'];
     }
 
     public function handle(): void
@@ -67,12 +61,15 @@ class UpdateRecordJob implements ShouldQueue, ShouldBeUnique
                 $request->withToken(decrypt($this->token($this->hub)));
                 return true;
             }, throw: false)
-            ->get($uri)
-            ->json();
+            ->get($uri);
+
+        if ($hubRecord->failed()) {
+            return;
+        }
 
         $this->request = Arr::exists($hubRecord, 'code')
             ? ['properties' => $spokeRecord['properties'], 'headers' => ['If-None-Match' => '*']]
-            : ['properties' => $spokeRecord['properties'], 'headers' => $this->skipIfEqual($hubRecord, $spokeRecord), 'etag' => $hubRecord['etag'],];
+            : ['properties' => $spokeRecord['properties'], 'headers' => $this->skipIfEqual($hubRecord->json(), $spokeRecord), 'etag' => $hubRecord->json()['etag'],];
     }
 
     protected function skipIfEqual($hubRecord, $spokeRecord): array
