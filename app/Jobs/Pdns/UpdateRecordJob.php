@@ -78,7 +78,7 @@ class UpdateRecordJob implements ShouldQueue
 
         if (json_encode($hubRecord['properties']) == json_encode($spokeRecord['properties'])) {
             Log::debug('Skip updating ' . $spokeRecord['properties']['fqdn']);
-            return ['Skip' => 'true'];
+            return ['skip' => true];
         }
 
         Log::debug('Continuing updating ' . $spokeRecord['properties']['fqdn']);
@@ -87,6 +87,9 @@ class UpdateRecordJob implements ShouldQueue
 
     protected function updateRecord(): void
     {
+        if (data_get($this->request, 'headers.skip')) {
+            return;
+        }
         $this->response = Http::withToken(decrypt($this->token($this->hub)))
             ->retry(10, 200, function ($exception, $request) {
                 $request->withToken(decrypt($this->newToken($this->hub)));
@@ -97,6 +100,9 @@ class UpdateRecordJob implements ShouldQueue
 
     protected function auditResponse()
     {
+        if (!isset($this->response)){
+            return;
+        }
         if ($this->response->failed()) {
             Log::warning('Patch Failed' . json_encode($this->response->json()), $this->response->json());
             return;
