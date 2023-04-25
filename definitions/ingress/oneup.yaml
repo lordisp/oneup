@@ -13,9 +13,6 @@ metadata:
       more_set_headers "X-Frame-Options: Deny";
       more_set_headers "Content-Security-Policy: policy";
       more_set_headers "X-Content-Type-Options: nosniff";
-      if ($http_user_agent ~* (Wappalyzer|Curl|feroxbuster|Guzzle)) {
-        return 404;
-      }
     nginx.ingress.kubernetes.io/enable-real-ip: "true"
     nginx.ingress.kubernetes.io/real-ip-header: "X-Real-IP"
     nginx.ingress.kubernetes.io/proxy-real-ip-path: "/proxy-real-ip"
@@ -24,7 +21,7 @@ spec:
   tls:
     - hosts:
         - oneup.az.lhgroup.de
-      secretName: oneup-tls-secret
+      secretName: oneup-tls-2023
   rules:
     - host: oneup.az.lhgroup.de
       http:

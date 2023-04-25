@@ -44,16 +44,6 @@ class UpdateRecordJob implements ShouldQueue, ShouldBeUnique
         return $this->record['etag'];
     }
 
-    public function middleware(): array
-    {
-        return [new ThrottlesExceptions(10, 5)];
-    }
-
-    public function retryUntil(): DateTime
-    {
-        return now()->addMinutes(5);
-    }
-
     public function handle(): void
     {
         if (!$this->recordHasResource($this->record)) {
