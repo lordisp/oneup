@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\Services\DnsSync;
+namespace Tests\Feature\Services\ServiceNow;
 
 use App\Services\ServiceNow\GroupMembers;
 use Tests\TestCase;

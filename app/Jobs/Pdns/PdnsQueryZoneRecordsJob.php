@@ -7,6 +7,7 @@ use App\Traits\Token;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
@@ -61,17 +62,17 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
     protected function getRecords(): array
     {
-        $response = Http::withToken(decrypt($this->token($this->spoke)))
-            ->retry(10, 200, function ($exception, $request) {
+        return Http::withToken(decrypt($this->token($this->spoke)))
+            ->retry(100, 200, function ($exception, $request) {
+                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                    return true;
+                }
                 $request->withToken(decrypt($this->token($this->spoke)));
                 return true;
             }, throw: false)
-            ->get('https://management.azure.com' . $this->zone . '/ALL?api-version=2018-09-01&$top=1000');
-
-        if ($response->failed()) {
-            return [];
-        }
-        return $response->json('value');
+            ->get('https://management.azure.com' . $this->zone . '/ALL?api-version=2018-09-01&$top=1000')
+            ->onError(fn() => [])
+            ->json('value');
     }
 
     protected function isRecordType($record): bool
