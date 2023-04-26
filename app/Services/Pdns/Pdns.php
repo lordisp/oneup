@@ -2,9 +2,11 @@
 
 namespace App\Services\Pdns;
 
+use App\Exceptions\DnsZonesException;
 use App\Jobs\Pdns\PdnsQueryZoneRecordsJob;
 use App\Models\DnsSyncZone;
 use App\Traits\Token;
+use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -32,6 +34,9 @@ class Pdns
     }
 
 
+    /**
+     * @throws DnsZonesException
+     */
     public function sync(): void
     {
         $zones = $this->getZones();
@@ -61,33 +66,28 @@ class Pdns
 
     protected function getZones(): array
     {
-        $uri = 'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01';
-
-        $withSubscriptionsQuery = !empty($this->withSubscriptions)
-            ? Normalize::withSubscriptionsQuery($this->withSubscriptions)
-            : null;
-
-        $skippedSubscriptionsQuery = !empty($this->skippedSubscriptions)
-            ? Normalize::skippedSubscriptionsQuery($this->skippedSubscriptions)
-            : null;
-
-        $query = sprintf(
-            "resources | project  zones = pack_array(%s) | mv-expand zones to typeof(string) | join kind = innerunique ( resources | where type == \"microsoft.network/privatednszones\" and subscriptionId  != \"%s\" %s %s| project name, id, subscriptionId) on \$left.zones == \$right.name | project id",
-            $this->toString($this->getReferenceZones()),
-            $this->subscriptionId,
-            $withSubscriptionsQuery,
-            $skippedSubscriptionsQuery
-        );
-
         return Arr::flatten(
             Http::withToken(decrypt($this->token($this->tokenProvider())))
-                ->acceptJson()
-                ->retry(10, 200, function ($exception, $request): bool {
-                    $request->withToken(decrypt($this->newToken($this->tokenProvider())));
+                ->retry(100, 200, function ($exception, $request): bool {
+                    if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                        return true;
+                    }
+                    $request->withToken(decrypt($this->newToken($this->hub)));
                     return true;
-                })
-                ->post($uri, ["query" => $query])
-                ->json('data'));
+                }, false)
+                ->post(
+                    'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01',
+                    ["query" => sprintf(
+                        "resources | project  zones = pack_array(%s) | mv-expand zones to typeof(string) | join kind = innerunique ( resources | where type == \"microsoft.network/privatednszones\" and subscriptionId  != \"%s\" %s %s| project name, id, subscriptionId) on \$left.zones == \$right.name | project id",
+                        $this->toString($this->getReferenceZones()),
+                        $this->subscriptionId,
+                        $this->getWithSubscriptionsQuery(),
+                        $this->getSkippedSubscriptionsQuery()
+                    )]
+                )
+                ->onError(fn($exception) => throw new DnsZonesException($exception->reason(), $exception->status()))
+                ->json('data')
+        );
     }
 
     public function withHub(string $provider, string $subscriptionId, string $resourceGroup): static
@@ -136,5 +136,19 @@ class Pdns
     protected function tokenProvider(): string
     {
         return $this->isHub ? $this->hub : $this->spoke;
+    }
+
+    protected function getWithSubscriptionsQuery(): ?string
+    {
+        return !empty($this->withSubscriptions)
+            ? Normalize::withSubscriptionsQuery($this->withSubscriptions)
+            : null;
+    }
+
+    protected function getSkippedSubscriptionsQuery(): ?string
+    {
+        return !empty($this->skippedSubscriptions)
+            ? Normalize::skippedSubscriptionsQuery($this->skippedSubscriptions)
+            : null;
     }
 }

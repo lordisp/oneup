@@ -19,7 +19,7 @@ class UpdateRecordJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token, DeveloperNotification;
 
-    public int $tries = 5;
+    public int $tries = 10;
 
     protected Response $response;
 
@@ -57,6 +57,9 @@ class UpdateRecordJob implements ShouldQueue
                 if ($exception instanceof RequestException && $exception->getCode() === 404) {
                     return false;
                 }
+                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                    return true;
+                }
                 $request->withToken(decrypt($this->token($this->hub)));
                 return true;
             }, throw: false)
@@ -73,15 +76,13 @@ class UpdateRecordJob implements ShouldQueue
 
     protected function skipIfEqual($hubRecord, $spokeRecord): array
     {
-        Arr::forget($hubRecord['properties'], ['metadata', 'ttl', 'isAutoRegistered']);
-        Arr::forget($spokeRecord['properties'], ['metadata', 'ttl', 'isAutoRegistered']);
+        $hubRecord = $this->normalizeRecord($hubRecord);
+        $spokeRecord = $this->normalizeRecord($spokeRecord);
 
         if (json_encode($hubRecord['properties']) == json_encode($spokeRecord['properties'])) {
-            Log::debug('Skip updating ' . $spokeRecord['properties']['fqdn']);
             return ['skip' => true];
         }
 
-        Log::debug('Continuing updating ' . $spokeRecord['properties']['fqdn']);
         return ['If-Match' => $hubRecord['etag']];
     }
 
@@ -92,6 +93,9 @@ class UpdateRecordJob implements ShouldQueue
         }
         $this->response = Http::withToken(decrypt($this->token($this->hub)))
             ->retry(10, 200, function ($exception, $request) {
+                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                    return true;
+                }
                 $request->withToken(decrypt($this->newToken($this->hub)));
                 return true;
             }, throw: false)
@@ -100,7 +104,7 @@ class UpdateRecordJob implements ShouldQueue
 
     protected function auditResponse()
     {
-        if (!isset($this->response)){
+        if (!isset($this->response)) {
             return;
         }
         if ($this->response->failed()) {
@@ -124,17 +128,32 @@ class UpdateRecordJob implements ShouldQueue
 
         $uri = "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version={$apiVersion}";
 
-        $response = Http::withToken(decrypt($this->token($this->spoke)))
-            ->retry(10, 200, function ($exception, $request) {
-                $request->withToken(decrypt($this->newToken($this->hub)));
-                return true;
-            }, throw: false)
-            ->post($uri, ['query' => $query]);
+        $response = cache()->remember(md5($query), now()->addMinutes(30), function () use ($query, $uri) {
+            return Http::withToken(decrypt($this->token($this->spoke)))
+                ->retry(10, 200, function ($exception, $request) {
+                    if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                        return true;
+                    }
 
-        if ($response->successful()) {
-            return $response->json('totalRecords') > 0;
+                    $request->withToken(decrypt($this->newToken($this->hub)));
+
+                    return true;
+
+                }, throw: false)
+                ->post($uri, ['query' => $query]);
+        });
+
+        if ($response->failed()) {
+            return false;
         }
-        return false;
+
+        return $response->json('totalRecords') > 0;
+    }
+
+    protected function normalizeRecord($record)
+    {
+        Arr::forget($record['properties'], ['metadata', 'ttl', 'isAutoRegistered']);
+        return $record;
     }
 
     public function fail($exception = null)

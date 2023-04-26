@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Services\DnsSync;
 
+use App\Exceptions\DnsZonesException;
 use App\Facades\Pdns;
 use Database\Seeders\DnsSyncZoneSeeder;
 use Database\Seeders\TokenCacheProviderSeeder;
@@ -22,7 +23,9 @@ class PdnsTest extends TestCase
         ]);
     }
 
-    /** @test */
+    /** @test
+     * @throws DnsZonesException
+     */
     public function can_sync_with_hub_with_spoke_with_record_type()
     {
         $subscriptionId = config('dnssync.subscription_id');
