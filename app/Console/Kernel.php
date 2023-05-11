@@ -2,8 +2,7 @@
 
 namespace App\Console;
 
-use App\Jobs\DnsSyncAviatarJob;
-use App\Jobs\DnsSyncJob;
+use App\Jobs\PdnsSyncBatchingJob;
 use App\Jobs\Scim\ScheduledUserImportJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -12,7 +11,7 @@ use Laravel\Passport\Http\Middleware\CheckClientCredentials;
 class Kernel extends ConsoleKernel
 {
 
-    protected $routeMiddleware = [
+    protected array $routeMiddleware = [
         'client' => CheckClientCredentials::class,
     ];
 
@@ -22,7 +21,7 @@ class Kernel extends ConsoleKernel
      * @param \Illuminate\Console\Scheduling\Schedule $schedule
      * @return void
      */
-    protected function schedule(Schedule $schedule)
+    protected function schedule(Schedule $schedule): void
     {
         $schedule->command('passport:purge')->hourly();
 
@@ -41,12 +40,8 @@ class Kernel extends ConsoleKernel
             ->onOneServer()
             ->runInBackground();
 
-        $schedule->job(new DnsSyncJob())
-            ->everyTenMinutes()
-            ->onOneServer();
-
-        $schedule->job(new DnsSyncAviatarJob())
-            ->everyTenMinutes()
+        $schedule->job(new PdnsSyncBatchingJob)
+            ->everyFiveMinutes()
             ->onOneServer();
 
         $schedule->exec('sudo /usr/local/bin/updater.sh')
@@ -55,8 +50,6 @@ class Kernel extends ConsoleKernel
         $schedule->job(new ScheduledUserImportJob())
             ->everyFifteenMinutes()
             ->onOneServer();
-
-
     }
 
     /**
@@ -64,7 +57,7 @@ class Kernel extends ConsoleKernel
      *
      * @return void
      */
-    protected function commands()
+    protected function commands(): void
     {
         $this->load(__DIR__ . '/Commands');
 

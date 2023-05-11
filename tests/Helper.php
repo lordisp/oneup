@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Testing\TestResponse;
 use Laravel\Passport\Passport;
@@ -151,5 +152,12 @@ trait Helper
             ->set('attachments', $files)
             ->assertHasNoErrors()
             ->call('save');
+    }
+
+    protected function getFakeToken(): array
+    {
+        return [
+            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/Feature/Services/stubs/provider_lhg_arm_token_response.json'), true))
+        ];
     }
 }

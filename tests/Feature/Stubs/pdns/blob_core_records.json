@@ -1,0 +1,40 @@
+{
+  "value": [
+    {
+      "id": "\/subscriptions\/636529f0-5874-4a7f-9641-054746c3e250\/resourceGroups\/rg_lhg_private_links_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.blob.core.windows.net\/SOA\/@",
+      "name": "@",
+      "type": "Microsoft.Network\/privateDnsZones\/SOA",
+      "etag": "ff36aa44-ff2a-4720-aa6e-c9f74e894aae",
+      "properties": {
+        "fqdn": "privatelink.blob.core.windows.net.",
+        "ttl": 3600,
+        "soaRecord": {
+          "email": "azureprivatedns-host.microsoft.com",
+          "expireTime": 2419200,
+          "host": "azureprivatedns.net",
+          "minimumTtl": 10,
+          "refreshTime": 3600,
+          "retryTime": 300,
+          "serialNumber": 1
+        },
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/636529f0-5874-4a7f-9641-054746c3e250\/resourceGroups\/rg_lhg_private_links_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.blob.core.windows.net\/A\/salhgsmgixishared01p",
+      "name": "salhgsmgixishared01p",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "aef47dfa-78b0-40cf-ac83-8db0fd2e0225",
+      "properties": {
+        "fqdn": "salhgsmgixishared01p.privatelink.blob.core.windows.net.",
+        "ttl": 3600,
+        "aRecords": [
+          {
+            "ipv4Address": "10.253.87.75"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    }
+  ]
+}

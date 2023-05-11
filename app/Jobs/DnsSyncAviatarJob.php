@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\DnsZonesException;
 use App\Facades\Pdns;
 use App\Traits\DeveloperNotification;
 use Illuminate\Bus\Queueable;
@@ -15,18 +16,21 @@ class DnsSyncAviatarJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, DeveloperNotification;
 
+    /**
+     * @throws DnsZonesException
+     */
     public function handle(): void
     {
         $subscriptionId = config('dnssync.subscription_id');
         $resourceGroup = config('dnssync.resource_group');
 
         Pdns::withHub('lhg_arm', $subscriptionId, $resourceGroup)
-            ->withRecordType(['A'])
+            ->withRecordType(['A','CNAME'])
             ->withSpoke('aviatar_arm')
             ->sync();
     }
 
-    public function fail($exception = null)
+    public function failed($exception = null)
     {
         $this->sendDeveloperNotification($exception);
     }

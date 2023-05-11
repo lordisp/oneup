@@ -1,0 +1,19 @@
+{
+  "id": "\/subscriptions\/18d6c26e-6e4c-4d49-9849-e8d15fb21b08\/resourceGroups\/rg_lhg_ams_pldnszones_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lhg-giti-p",
+  "name": "acfr-lhg-giti-p",
+  "type": "Microsoft.Network\/privateDnsZones\/A",
+  "etag": "128977af-5951-44c2-b2de-d6fc0e338eb3",
+  "properties": {
+    "metadata": {
+      "environment": "P"
+    },
+    "fqdn": "acfr-lhg-giti-p.privatelink.redis.cache.windows.net.",
+    "ttl": 200,
+    "aRecords": [
+      {
+        "ipv4Address": "10.253.87.76"
+      }
+    ],
+    "isAutoRegistered": false
+  }
+}
