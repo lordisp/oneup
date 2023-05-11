@@ -41,7 +41,7 @@ class Kernel extends ConsoleKernel
             ->runInBackground();
 
         $schedule->job(new PdnsSyncBatchingJob)
-            ->everyFiveMinutes()
+            ->everyTenMinutes()
             ->onOneServer();
 
         $schedule->exec('sudo /usr/local/bin/updater.sh')

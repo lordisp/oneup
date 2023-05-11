@@ -72,8 +72,6 @@ class ResourceGraphTest extends TestCase
             ->project('name, ipConfigurations')
             ->get();
 
-        var_dump($results);
-
         $this->assertCount(1, $results);
     }
 
