@@ -19,7 +19,7 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
     use Token;
 
-    protected string $token;
+    protected string $token = '';
 
     public function __construct(
         protected string $zone,
