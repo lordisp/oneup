@@ -2,6 +2,8 @@
 
 namespace App\Jobs\Pdns;
 
+use App\Exceptions\UpdateRecordJobException;
+use App\Jobs\RecordHasResourceJob;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
 use Illuminate\Bus\Queueable;
@@ -14,10 +16,13 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Throwable;
 
 class UpdateRecordJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token, DeveloperNotification;
+
+    const TAG = 'resourcegraph';
 
     public int $tries = 10;
 
@@ -37,6 +42,9 @@ class UpdateRecordJob implements ShouldQueue
     {
     }
 
+    /**
+     * @throws UpdateRecordJobException
+     */
     public function handle(): void
     {
         if (!$this->recordHasResource($this->record)) {
@@ -71,7 +79,9 @@ class UpdateRecordJob implements ShouldQueue
 
         $this->request = Arr::exists($hubRecord, 'code')
             ? ['properties' => $spokeRecord['properties'], 'headers' => ['If-None-Match' => '*']]
-            : ['properties' => $spokeRecord['properties'], 'headers' => $this->skipIfEqual($hubRecord->json(), $spokeRecord), 'etag' => $hubRecord->json()['etag'],];
+            : ['properties' => $spokeRecord['properties'], 'headers' => $this->skipIfEqual($hubRecord->json(), $spokeRecord), 'etag' => $hubRecord->json()['etag']];
+
+        unset($hubRecord, $spokeRecord);
     }
 
     protected function skipIfEqual($hubRecord, $spokeRecord): array
@@ -114,49 +124,30 @@ class UpdateRecordJob implements ShouldQueue
         Log::info($this->message, $this->record['properties']);
     }
 
+    /**
+     * @throws UpdateRecordJobException
+     */
     private function recordHasResource(array $record): bool
     {
-        $subscriptionId = explode('/', $record['id'])[2];
+        $tag = self::TAG . '_' . $this->spoke;
 
-        $withSubscription = $this->withSubscription
-            ? " and subscriptionId == '{$subscriptionId}'"
-            : null;
+        $resources = cache()->tags([$tag])->get($tag) ?: [];
 
-        $query = "resources | where name has '{$record['name']}'{$withSubscription}";
-
-        $apiVersion = '2021-03-01';
-
-        $uri = "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version={$apiVersion}";
-
-        $response = cache()->remember(md5($query), now()->addMinutes(30), function () use ($query, $uri) {
-            return Http::withToken(decrypt($this->token($this->spoke)))
-                ->retry(10, 200, function ($exception, $request) {
-                    if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
-                        return true;
-                    }
-
-                    $request->withToken(decrypt($this->newToken($this->hub)));
-
-                    return true;
-
-                }, throw: false)
-                ->post($uri, ['query' => $query]);
-        });
-
-        if ($response->failed()) {
-            return false;
+        if (empty($resources)) {
+            throw new UpdateRecordJobException('No resources in cache!');
         }
 
-        return $response->json('totalRecords') > 0;
+        return (new RecordHasResourceJob(basename($record['type']), $record, $resources))
+            ->handle();
     }
 
     protected function normalizeRecord($record)
     {
-        Arr::forget($record['properties'], ['metadata', 'ttl', 'isAutoRegistered']);
+        Arr::forget($record['properties'], ['metadata', 'isAutoRegistered']);
         return $record;
     }
 
-    public function fail($exception = null)
+    public function failed(Throwable $exception)
     {
         $this->sendDeveloperNotification($exception);
     }

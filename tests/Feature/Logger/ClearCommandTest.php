@@ -52,7 +52,7 @@ class ClearCommandTest extends TestCase
         $this->assertDatabaseCount(LogMessage::class, 0);
     }
 
-    /** @test */
+
     public function it_can_clear_logs_from_database()
     {
         LogMessage::factory()->deleted()->level(400)->count(10)->create();

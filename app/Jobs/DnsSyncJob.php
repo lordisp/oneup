@@ -2,16 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Exceptions\DnsZonesException;
 use App\Facades\Pdns;
 use App\Traits\DeveloperNotification;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class DnsSyncJob implements ShouldQueue, ShouldBeUnique
+class DnsSyncJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, DeveloperNotification;
 
@@ -20,6 +20,9 @@ class DnsSyncJob implements ShouldQueue, ShouldBeUnique
         '10006206-6ed9-41cf-b446-c783f3d71483', // LHG_MSP_PELE_N
     ];
 
+    /**
+     * @throws DnsZonesException
+     */
     public function handle(): void
     {
         $subscriptionId = config('dnssync.subscription_id');
@@ -32,7 +35,7 @@ class DnsSyncJob implements ShouldQueue, ShouldBeUnique
             ->sync();
     }
 
-    public function fail($exception = null)
+    public function failed($exception = null)
     {
         $this->sendDeveloperNotification($exception);
     }

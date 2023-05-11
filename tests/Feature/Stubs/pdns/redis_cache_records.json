@@ -1,0 +1,89 @@
+{
+  "value": [
+    {
+      "id": "\/subscriptions\/636529f0-5874-4a7f-9641-054746c3e250\/resourceGroups\/rg_lhg_private_links_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/SOA\/@",
+      "name": "@",
+      "type": "Microsoft.Network\/privateDnsZones\/SOA",
+      "etag": "ce54af1d-0908-4120-9b9e-a095b5cb22d5",
+      "properties": {
+        "metadata": [],
+        "fqdn": "privatelink.redis.cache.windows.net.",
+        "ttl": 3600,
+        "soaRecord": {
+          "email": "azureprivatedns-host.microsoft.com",
+          "expireTime": 2419200,
+          "host": "azureprivatedns.net",
+          "minimumTtl": 10,
+          "refreshTime": 3600,
+          "retryTime": 300,
+          "serialNumber": 1
+        },
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/636529f0-5874-4a7f-9641-054746c3e250\/resourceGroups\/rg_lhg_private_links_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/acfr-lhg-giti-p",
+      "name": "acfr-lhg-giti-p",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "d14b56a9-806c-431a-acac-705b0fe3c42d",
+      "properties": {
+        "metadata": {
+          "application": "LHG_SHARED_AKS_CLUSTER",
+          "business_service": "LHG_GAC_P",
+          "business_unit": "LHG",
+          "change_contacts": "rafael.camison@austrian.com, bernd.zeinar@dlh.de",
+          "cost_center": "068111",
+          "department": "FRA GITI",
+          "dp_class": "high",
+          "environment": "P",
+          "incident_contacts": "rafael.camison@austrian.com, bernd.zeinar@dlh.de",
+          "msp_sla": "GITI",
+          "owners": "rafael.camison@austrian.com, stephan.abel@dlh.de, joerg.peise@dlh.de",
+          "resource_role": "AKS Cluster",
+          "security_contact": "nico.lincke@dlh.de",
+          "sw_license_contact": "rafael.camison@austrian.com, stephan.abel@dlh.de, joerg.peise@dlh.de"
+        },
+        "fqdn": "acfr-lhg-giti-p.privatelink.redis.cache.windows.net.",
+        "ttl": 300,
+        "aRecords": [
+          {
+            "ipv4Address": "10.253.87.76"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/636529f0-5874-4a7f-9641-054746c3e250\/resourceGroups\/rg_lhg_private_links_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/bar",
+      "name": "bar",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "28561521-466c-4b6d-83e1-9997e8f73969",
+      "properties": {
+        "fqdn": "bar.privatelink.redis.cache.windows.net.",
+        "ttl": 3600,
+        "aRecords": [
+          {
+            "ipv4Address": "10.0.0.55"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    },
+    {
+      "id": "\/subscriptions\/636529f0-5874-4a7f-9641-054746c3e250\/resourceGroups\/rg_lhg_private_links_p\/providers\/Microsoft.Network\/privateDnsZones\/privatelink.redis.cache.windows.net\/A\/foo",
+      "name": "foo",
+      "type": "Microsoft.Network\/privateDnsZones\/A",
+      "etag": "8b34a2f4-d8cc-4952-9c5d-66f7d5308490",
+      "properties": {
+        "fqdn": "foo.privatelink.redis.cache.windows.net.",
+        "ttl": 3600,
+        "aRecords": [
+          {
+            "ipv4Address": "10.0.0.3"
+          }
+        ],
+        "isAutoRegistered": false
+      }
+    }
+  ]
+}
