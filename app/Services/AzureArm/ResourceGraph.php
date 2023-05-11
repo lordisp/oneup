@@ -167,26 +167,47 @@ class ResourceGraph
             ->json();
     }
 
+    /**
+     * @throws ResourceGraphException
+     */
     protected function toCache($results)
     {
         $tag = self::TAG . '_' . $this->provider;
 
+        try {
+            $cached = cache()->tags([$tag])->get($tag) ?: [];
+        } catch (\Exception $exception) {
+            throw new ResourceGraphException($exception->getMessage());
+        }
+
         $unique = array_unique(array_merge(
             data_get($results, 'data.*.name') ?: [],
 
-            cache()->tags([$tag])->get($tag) ?: []
+            $cached
         ));
 
-        cache()->tags([$tag])->put($tag, $unique);
+        try {
+            cache()->tags([$tag])->put($tag, $unique);
+        } catch (\Exception $exception) {
+            throw new ResourceGraphException($exception->getMessage());
+        }
 
         return data_get($results, '$skipToken');
     }
 
+    /**
+     * @throws ResourceGraphException
+     */
     public static function fromCache(string $provider = 'lhg_arm'): array
     {
         $tag = self::TAG . '_' . $provider;
 
-        return cache()->tags([$tag])->get($tag) ?: [];
+        try {
+            return cache()->tags([$tag])->get($tag) ?: [];
+        } catch (\Exception $exception) {
+            throw new ResourceGraphException($exception->getMessage());
+        }
+
     }
 
     protected function queryBuilder(): string
