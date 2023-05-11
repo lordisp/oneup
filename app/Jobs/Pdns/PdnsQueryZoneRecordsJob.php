@@ -19,6 +19,8 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
     use Token;
 
+    protected string $token;
+
     public function __construct(
         protected string $zone,
         protected string $hub,
@@ -28,6 +30,7 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
         protected string $resourceGroup
     )
     {
+        $this->token = $this->token($this->hub);
     }
 
     public function handle(): void
@@ -50,7 +53,7 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
                 $message = "Update {$type} record {$record['name']} from {$spokeSubscriptionId} to {$this->subscriptionId}";
 
-                UpdateRecordJob::dispatch($record, $uri, $this->hub, $this->spoke, $message);
+                UpdateRecordJob::dispatch($this->token, $record, $uri, $this->hub, $this->spoke, $message);
             }
         }
     }

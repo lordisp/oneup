@@ -3,6 +3,7 @@
 namespace App\Jobs\Pdns;
 
 use App\Exceptions\UpdateRecordJobException;
+use App\Facades\AzureArm\ResourceGraph;
 use App\Jobs\RecordHasResourceJob;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
@@ -33,6 +34,7 @@ class UpdateRecordJob implements ShouldQueue
     protected bool $withSubscription = false;
 
     public function __construct(
+        protected string $token,
         protected array  $record,
         protected string $uri,
         protected string $hub,
@@ -60,7 +62,7 @@ class UpdateRecordJob implements ShouldQueue
 
     protected function getEtagFromHubOrCreateNewRequest($uri, $spokeRecord): void
     {
-        $hubRecord = Http::withToken(decrypt($this->token($this->hub)))
+        $hubRecord = Http::withToken(decrypt($this->token))
             ->retry(20, 0, function ($exception, $request): bool {
                 if ($exception instanceof RequestException && $exception->getCode() === 404) {
                     return false;
@@ -68,7 +70,7 @@ class UpdateRecordJob implements ShouldQueue
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
                 }
-                $request->withToken(decrypt($this->token($this->hub)));
+                $request->withToken(decrypt($this->newToken($this->hub)));
                 return true;
             }, throw: false)
             ->get($uri);
@@ -101,7 +103,7 @@ class UpdateRecordJob implements ShouldQueue
         if (data_get($this->request, 'headers.skip')) {
             return;
         }
-        $this->response = Http::withToken(decrypt($this->token($this->hub)))
+        $this->response = Http::withToken(decrypt($this->token))
             ->retry(10, 200, function ($exception, $request) {
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
@@ -129,9 +131,7 @@ class UpdateRecordJob implements ShouldQueue
      */
     private function recordHasResource(array $record): bool
     {
-        $tag = self::TAG . '_' . $this->spoke;
-
-        $resources = cache()->tags([$tag])->get($tag) ?: [];
+        $resources = ResourceGraph::fromCache($this->spoke);
 
         if (empty($resources)) {
             throw new UpdateRecordJobException('No resources in cache!');
