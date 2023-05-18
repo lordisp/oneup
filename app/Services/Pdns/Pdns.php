@@ -27,6 +27,8 @@ class Pdns
 
     protected bool $isHub = false;
 
+    protected array $skippedZonesForValidation = [];
+
     public function __construct()
     {
         $this->subscriptionId = config('dnssync.subscription_id');
@@ -37,20 +39,23 @@ class Pdns
     /**
      * @throws DnsZonesException
      */
-    public function sync(): void
+    public function sync($resources): void
     {
         $zones = $this->getZones();
 
         Log::debug(sprintf("Processing %s Zones", count($zones)));
 
         foreach ($zones as $zone) {
-            PdnsQueryZoneRecordsJob::dispatch(
-                $zone,
-                $this->hub,
-                $this->spoke,
-                $this->recordType,
-                $this->subscriptionId,
-                $this->resourceGroup
+            PdnsQueryZoneRecordsJob::dispatch([
+                    'zone' => $zone,
+                    'hub' => $this->hub,
+                    'spoke' => $this->spoke,
+                    'recordType' => $this->recordType,
+                    'subscriptionId' => $this->subscriptionId,
+                    'resourceGroup' => $this->resourceGroup,
+                    'resources' => $resources,
+                    'skippedZonesForValidation' => $this->skippedZonesForValidation,
+                    ]
             );
         }
     }
@@ -125,6 +130,12 @@ class Pdns
     public function skipSubscriptions(string|array $subscriptionIds): static
     {
         $this->skippedSubscriptions = is_array($subscriptionIds) ? $subscriptionIds : [$subscriptionIds];
+        return $this;
+    }
+
+    public function skipZonesForValidation(string|array $zones): static
+    {
+        $this->skippedZonesForValidation = is_array($zones) ? $zones : [$zones];
         return $this;
     }
 

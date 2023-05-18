@@ -23,10 +23,8 @@ class TokenCacheProvider extends Model
         'auth_endpoint',
         'client',
     ];
+
     protected $casts = [
         'client' => 'json'
     ];
-
-    //protected $appends = ['client'];
-
 }

@@ -33,14 +33,12 @@ class ResourceGraphTest extends TestCase
     {
         $subscriptionId = '636529f0-5874-4a7f-9641-054746c3e250';
 
-        ResourceGraph::withSubscription($subscriptionId)->cache();
+        $resources = ResourceGraph::withSubscription($subscriptionId)->get();
 
         $resourceName = 'vltlhgsmgixi01p';
 
-        $resources = ResourceGraph::fromCache();
-
         $resourceMatch = array_sum(
-            array_map(fn($key) => Str::contains($key, $resourceName), $resources)
+            array_map(fn($key) => Str::contains($key['name'], $resourceName), $resources)
         );
 
         $this->assertGreaterThan(0, $resourceMatch);
@@ -50,12 +48,10 @@ class ResourceGraphTest extends TestCase
     /** @test */
     public function it_cache_more_than_1000_but_less_than_15000_resources()
     {
-        ResourceGraph::type('microsoft.network/networkinterfaces')
+        $cached = ResourceGraph::type('microsoft.network/networkinterfaces')
             ->extend('name', 'tostring(properties.ipConfigurations)')
             ->project('name')
-            ->cache();
-
-        $cached = ResourceGraph::fromCache();
+            ->get();
 
         $this->assertLessThan(15000, count($cached));
 

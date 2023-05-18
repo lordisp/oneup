@@ -179,7 +179,6 @@ return [
         \Barryvdh\Debugbar\ServiceProvider::class,
         App\Providers\TokenCacheServiceProvider::class,
         App\Providers\AzureAD\UserServiceProvider::class,
-        \App\Providers\PdnsServiceProvider::class,
         App\Providers\AzureArm\ResourceGraphServiceProvider::class,
     ],
 
@@ -198,8 +197,8 @@ return [
         // 'ExampleClass' => App\Example\ExampleClass::class,
         'TokenCache' => App\Facades\TokenCache::class,
         'User' => App\Facades\AzureAD\User::class,
-        'Pdns' => App\Facades\Pdns::class,
-        'resourcegraph' => App\Facades\AzureArm\ResourceGraph::class
+        'resourcegraph' => App\Facades\AzureArm\ResourceGraph::class,
+        'Redis' => Illuminate\Support\Facades\Redis::class,
     ])->toArray(),
 
 ];
