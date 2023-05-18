@@ -3,7 +3,6 @@
 namespace App\Jobs\Pdns;
 
 use App\Exceptions\UpdateRecordJobException;
-use App\Facades\AzureArm\ResourceGraph;
 use App\Jobs\RecordHasResourceJob;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
@@ -23,8 +22,6 @@ class UpdateRecordJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token, DeveloperNotification;
 
-    const TAG = 'resourcegraph';
-
     public int $tries = 10;
 
     protected Response $response;
@@ -33,14 +30,7 @@ class UpdateRecordJob implements ShouldQueue
 
     protected bool $withSubscription = false;
 
-    public function __construct(
-        protected string $token,
-        protected array  $record,
-        protected string $uri,
-        protected string $hub,
-        protected string $spoke,
-        protected string $message,
-    )
+    public function __construct(protected array $attributes)
     {
     }
 
@@ -49,11 +39,11 @@ class UpdateRecordJob implements ShouldQueue
      */
     public function handle(): void
     {
-        if (!$this->recordHasResource($this->record)) {
+        if (!$this->recordHasResource($this->attributes['record'])) {
             return;
         }
 
-        $this->getEtagFromHubOrCreateNewRequest($this->uri, $this->record);
+        $this->getEtagFromHubOrCreateNewRequest($this->attributes['uri'], $this->attributes['record']);
 
         $this->updateRecord();
 
@@ -62,7 +52,7 @@ class UpdateRecordJob implements ShouldQueue
 
     protected function getEtagFromHubOrCreateNewRequest($uri, $spokeRecord): void
     {
-        $hubRecord = Http::withToken(decrypt($this->token))
+        $hubRecord = Http::withToken(decrypt($this->attributes['token']))
             ->retry(20, 0, function ($exception, $request): bool {
                 if ($exception instanceof RequestException && $exception->getCode() === 404) {
                     return false;
@@ -70,7 +60,7 @@ class UpdateRecordJob implements ShouldQueue
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
                 }
-                $request->withToken(decrypt($this->newToken($this->hub)));
+                $request->withToken(decrypt($this->newToken($this->attributes['hub'])));
                 return true;
             }, throw: false)
             ->get($uri);
@@ -103,15 +93,15 @@ class UpdateRecordJob implements ShouldQueue
         if (data_get($this->request, 'headers.skip')) {
             return;
         }
-        $this->response = Http::withToken(decrypt($this->token))
+        $this->response = Http::withToken(decrypt($this->attributes['token']))
             ->retry(10, 200, function ($exception, $request) {
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
                 }
-                $request->withToken(decrypt($this->newToken($this->hub)));
+                $request->withToken(decrypt($this->newToken($this->attributes['hub'])));
                 return true;
             }, throw: false)
-            ->put($this->uri, Arr::only($this->request, ['etag', 'properties']));
+            ->put($this->attributes['uri'], Arr::only($this->request, ['etag', 'properties']));
     }
 
     protected function auditResponse()
@@ -123,7 +113,7 @@ class UpdateRecordJob implements ShouldQueue
             Log::warning('Patch Failed' . json_encode($this->response->json()), $this->response->json());
             return;
         }
-        Log::info($this->message, $this->record['properties']);
+        Log::info($this->attributes['message'], $this->attributes['record']['properties']);
     }
 
     /**
@@ -131,14 +121,21 @@ class UpdateRecordJob implements ShouldQueue
      */
     private function recordHasResource(array $record): bool
     {
-        $resources = ResourceGraph::fromCache($this->spoke);
+        if ($this->skipZoneForValidation($record)) {
+            return true;
+        }
+
+        $resources = data_get($this->attributes, 'resources');
 
         if (empty($resources)) {
             throw new UpdateRecordJobException('No resources in cache!');
         }
 
-        return (new RecordHasResourceJob(basename($record['type']), $record, $resources))
-            ->handle();
+        return (new RecordHasResourceJob(
+            basename($record['type']),
+            $record,
+            $resources)
+        )->handle();
     }
 
     protected function normalizeRecord($record)
@@ -150,5 +147,12 @@ class UpdateRecordJob implements ShouldQueue
     public function failed(Throwable $exception)
     {
         $this->sendDeveloperNotification($exception);
+    }
+
+    protected function skipZoneForValidation(array $record): bool
+    {
+        preg_match('/privatelink\.([a-zA-Z0-9.-]+)/', $record['id'], $match);
+
+        return in_array($match[0], $this->attributes['skippedZonesForValidation']);
     }
 }

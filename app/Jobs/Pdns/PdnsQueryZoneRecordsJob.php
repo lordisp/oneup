@@ -12,6 +12,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Validator;
 
 class PdnsQueryZoneRecordsJob implements ShouldQueue
 {
@@ -19,25 +20,29 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
     use Token;
 
-    protected string $token = '';
+    protected array $attributes;
 
-    public function __construct(
-        protected string $zone,
-        protected string $hub,
-        protected string $spoke,
-        protected array  $recordType,
-        protected string $subscriptionId,
-        protected string $resourceGroup
-    )
+    public function __construct(array $attributes)
     {
-        $this->token = $this->token($this->hub);
+        $this->attributes = Validator::validate($attributes, [
+            'zone' => 'required',
+            'hub' => 'required',
+            'spoke' => 'required',
+            'recordType' => 'required',
+            'subscriptionId' => 'required',
+            'resourceGroup' => 'required',
+            'resources' => 'required',
+            'skippedZonesForValidation' => 'array',
+        ]);
+
+        $this->attributes['token'] = $this->token($attributes['hub']);
     }
 
     public function handle(): void
     {
         $records = $this->getRecords();
 
-        $zoneName = basename($this->zone);
+        $zoneName = basename($this->attributes['zone']);
 
         $spokeSubscriptionId = $this->spokeSubscriptionId();
 
@@ -49,41 +54,43 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
                 $type = basename($record['type']);
 
-                $uri = 'https://management.azure.com/subscriptions/' . $this->subscriptionId . '/resourceGroups/' . $this->resourceGroup . '/providers/Microsoft.Network/privateDnsZones/' . $zoneName . '/' . $type . '/' . $record['name'] . '?api-version=2018-09-01';
+                $this->attributes['uri'] = 'https://management.azure.com/subscriptions/' . $this->attributes['subscriptionId'] . '/resourceGroups/' . $this->attributes['resourceGroup'] . '/providers/Microsoft.Network/privateDnsZones/' . $zoneName . '/' . $type . '/' . $record['name'] . '?api-version=2018-09-01';
 
-                $message = "Update {$type} record {$record['name']} from {$spokeSubscriptionId} to {$this->subscriptionId}";
+                $this->attributes['message'] = "Update {$type} record {$record['name']} from {$spokeSubscriptionId} to {$this->attributes['subscriptionId']}";
 
-                UpdateRecordJob::dispatch($this->token, $record, $uri, $this->hub, $this->spoke, $message);
+                $this->attributes['record'] = $record;
+
+                UpdateRecordJob::dispatch($this->attributes);
             }
         }
     }
 
     protected function spokeSubscriptionId(): string
     {
-        return explode('/', $this->zone)[2];
+        return explode('/', $this->attributes['zone'])[2];
     }
 
     protected function getRecords(): array
     {
-        return Http::withToken(decrypt($this->token($this->spoke)))
+        return Http::withToken(decrypt($this->token($this->attributes['spoke'])))
             ->retry(100, 200, function ($exception, $request) {
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
                 }
-                $request->withToken(decrypt($this->token($this->spoke)));
+                $request->withToken(decrypt($this->token($this->attributes['spoke'])));
                 return true;
             }, throw: false)
-            ->get('https://management.azure.com' . $this->zone . '/ALL?api-version=2018-09-01&$top=1000')
+            ->get('https://management.azure.com' . $this->attributes['zone'] . '/ALL?api-version=2018-09-01&$top=1000')
             ->onError(fn() => [])
             ->json('value');
     }
 
     protected function isRecordType($record): bool
     {
-        return in_array(basename(data_get($record, 'type')), $this->recordType);
+        return in_array(basename(data_get($record, 'type')), $this->attributes['recordType']);
     }
 
-    public function fail($exception = null)
+    public function failed($exception = null)
     {
         $this->sendDeveloperNotification($exception);
     }

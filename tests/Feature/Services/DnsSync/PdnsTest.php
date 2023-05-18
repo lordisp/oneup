@@ -2,17 +2,16 @@
 
 namespace Tests\Feature\Services\DnsSync;
 
-use App\Exceptions\DnsZonesException;
-use App\Exceptions\UpdateRecordJobException;
-use App\Facades\AzureArm\ResourceGraph;
-use App\Facades\Pdns;
-use App\Jobs\Pdns\PdnsQueryZoneRecordsJob;
-use App\Jobs\Pdns\UpdateRecordJob;
+use App\Events\PdnsSyncEvent;
+use App\Events\StartNewPdnsSynchronization;
+use App\Jobs\PdnsSyncBatchingJob;
+use App\Listeners\RequestNetworkInterfaces;
+use App\Models\TokenCacheProvider;
 use Database\Seeders\DnsSyncAllZonesSeeder;
 use Database\Seeders\TokenCacheProviderSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Validation\ValidationException;
 use Tests\Helper;
 use Tests\TestCase;
 
@@ -30,203 +29,65 @@ class PdnsTest extends TestCase
         ]);
     }
 
-    /** @test
-     * @throws DnsZonesException
-     */
-    public function can_sync_with_hub_with_spoke_with_record_type()
+    /** @test */
+    public function event_throws_exception_with_invalid_data()
     {
-        $subscriptionId = config('dnssync.subscription_id');
-        $resourceGroup = config('dnssync.resource_group');
-        $this->cacheResources();
+        $this->expectException(ValidationException::class);
 
-        Pdns::withHub('lhg_arm', $subscriptionId, $resourceGroup)
-            ->withZones(['privatelink.redis.cache.windows.net'])
-            ->withRecordType('A')
-            ->withSpoke('lhg_arm')
-            ->withSubscriptions(['636529f0-5874-4a7f-9641-054746c3e250'])
-            ->sync();
-        $this->assertTrue(true);
+        event(new StartNewPdnsSynchronization(['foo']));
     }
 
     /** @test */
-    public function it_gets_all_zones()
+    public function a_start_new_pdns_synchronization_event_will_be_triggered()
     {
-        Queue::fake();
+        Event::fake();
 
-        $subscriptionId = config('dnssync.subscription_id');
-        $resourceGroup = config('dnssync.resource_group');
+        event(new StartNewPdnsSynchronization([
+            'hub' => 'lhg_arm',
+            'spoke' => 'lhg_arm',
+            'recordType' => ['A'],
+        ]));
 
-        Pdns::withHub('lhg_arm', $subscriptionId, $resourceGroup)
-            ->withZones(['privatelink.redis.cache.windows.net'])
-            ->withRecordType('A')
-            ->withSpoke('lhg_arm')
-            ->withSubscriptions(['636529f0-5874-4a7f-9641-054746c3e250'])
-            ->sync();
+        Event::assertDispatched(StartNewPdnsSynchronization::class, 1);
 
+        Event::assertListening(StartNewPdnsSynchronization::class, RequestNetworkInterfaces::class);
 
-        Queue::assertPushed(PdnsQueryZoneRecordsJob::class, 1);
     }
 
     /** @test */
-    public function can_call_fluent_interfaces()
+    public function run_a_full_private_dns_synchronization_on_one_subscription()
     {
-        $subscriptionId = config('dnssync.subscription_id');
-        $resourceGroup = config('dnssync.resource_group');
-
-        Pdns::shouldReceive('sync')
-            ->andReturnSelf();
-        Pdns::shouldReceive('withHub')
-            ->with('lhg_arm', $subscriptionId, $resourceGroup)
-            ->andReturnSelf();
-        Pdns::shouldReceive('withZones')
-            ->with(['privatelink.redis.cache.windows.net'])
-            ->andReturnSelf();
-        Pdns::shouldReceive('withRecordType')
-            ->with('A')
-            ->andReturnSelf();
-        Pdns::shouldReceive('withSpoke')
-            ->with('lhg_arm')
-            ->andReturnSelf();
-        Pdns::shouldReceive('withSubscriptions')
-            ->with(['636529f0-5874-4a7f-9641-054746c3e250'])
-            ->andReturnSelf();
-
-        $this->runSingleTenantSync();
+        event(new StartNewPdnsSynchronization([
+            'hub' => 'lhg_arm',
+            'spoke' => 'lhg_arm',
+            'withSubscriptions' => [
+                '636529f0-5874-4a7f-9641-054746c3e250',
+            ],
+            'recordType' => ['A'],
+            'skipZonesForValidation' => [
+                'privatelink.postgres.database.azure.com',
+                'privatelink.api.azureml.ms',
+            ],
+        ]));
 
         $this->assertTrue(true);
     }
 
     /** @test */
-    public function it_throws_an_dns_zones_exception_after_100_failed_zone_requests()
+    public function sync_batch_triggers_two_sync_events()
     {
-        $this->expectException(DnsZonesException::class);
+        TokenCacheProvider::factory()->state([
+            'name' => 'aviatar_arm',
+            'auth_endpoint' => 'foo',
+            'client' => 'bar',
+        ])->create();
 
-        $responses = array_fill(0, 99, Http::response(status: 429));
-        $responses[] = Http::response(status: 500);
+        Event::fake();
 
-        Http::fake($this->getFakeToken());
-        Http::fake(['https://management.azure.com/*' => Http::sequence($responses)]);
+        PdnsSyncBatchingJob::dispatch();
 
-        Pdns::sync();
-    }
-
-    /** @test */
-    public function it_queues_as_much_pdns_query_zone_records_jobs_as_zones()
-    {
-        Queue::fake();
-
-        Http::fake($this->getFakeToken());
-
-        Http::fake(['https://management.azure.com/*' => Http::response(
-            json_decode(file_get_contents('./tests/Feature/Stubs/pdns/two_zones.json'), true)
-        )]);
-
-        $this->runSingleTenantSync();
-
-        Queue::assertPushed(PdnsQueryZoneRecordsJob::class, 1);
-
-    }
-
-    /** @test */
-    public function it_queues_as_much_pdns_update_record_jobs_as_records_found()
-    {
-        Queue::fake(UpdateRecordJob::class);
-
-        Http::fake($this->getFakeToken());
-
-        Http::fake(['https://management.azure.com/providers/Microsoft.ResourceGraph/resources*' => Http::sequence()
-            ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/two_zones.json'), true))
-        ]);
-
-        Http::fake([
-            'https://management.azure.com/*/ALL?api-version=2018-09-01&$top=1000' => Http::sequence()
-                ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/redis_cache_records.json'), true))
-                ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/blob_core_records.json'), true))
-        ]);
-
-        $this->runSingleTenantSync();
-
-        Queue::assertPushed(UpdateRecordJob::class, 3);
+        Event::assertDispatched(StartNewPdnsSynchronization::class, 2);
 
 
-    }
-
-    /** @test */
-    public function it_caches_resources_by_record_name()
-    {
-        Queue::fake(UpdateRecordJob::class);
-
-        Http::fake($this->getFakeToken());
-
-        Http::fake(['https://management.azure.com/providers/Microsoft.ResourceGraph/resources*' => Http::sequence()
-            ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/two_zones.json'), true))
-            ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/record_resources.json'), true))
-        ]);
-
-        Http::fake([
-            'https://management.azure.com/*/ALL?api-version=2018-09-01&$top=1000' => Http::sequence()
-                ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/redis_cache_records.json'), true))
-                ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/blob_core_records.json'), true))
-        ]);
-
-        Http::fake([
-            'https://management.azure.com/subscriptions/18d6c26e-6e4c-4d49-9849-e8d15fb21b08/resourceGroups/rg_lhg_ams_pldnszones_p/providers/Microsoft.Network/privateDnsZones/privatelink.redis.cache.windows.net/A/*?api-version=2018-09-01' => Http::sequence()
-                ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/etag-acfr-lhg-giti-p.json'), true))
-                ->push(status: 201)
-                ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/etag-acfr-lhg-giti-p.json'), true))
-                ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/etag-acfr-lhg-giti-p.json'), true))
-            //->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/blob_core_records.json'), true))
-        ]);
-
-        $this->runSingleTenantSync();
-
-        Queue::assertPushed(UpdateRecordJob::class, 3);
-
-    }
-
-    /** @test */
-    public function can_run_a_full_sync()
-    {
-        $this->cacheResources();
-
-        $this->runSingleTenantSync();
-
-        $this->assertTrue(true);
-    }
-
-    /** @test */
-    public function an_exception_will_be_thrown_if_cache_is_empty()
-    {
-        Http::fake($this->getFakeToken());
-        Http::fake(['https://management.azure.com/*' => Http::sequence()
-            ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/two_zones.json'), true))
-            ->push(json_decode(file_get_contents('./tests/Feature/Stubs/pdns/redis_cache_records.json'), true))
-        ]);
-
-        $this->expectException(UpdateRecordJobException::class);
-
-        $this->runSingleTenantSync();
-    }
-
-    protected function runSingleTenantSync()
-    {
-        $subscriptionId = config('dnssync.subscription_id');
-        $resourceGroup = config('dnssync.resource_group');
-
-        Pdns::withHub('lhg_arm', $subscriptionId, $resourceGroup)
-            ->withZones(['privatelink.redis.cache.windows.net'])
-            ->withRecordType('A')
-            ->withSpoke('lhg_arm')
-            ->withSubscriptions(['636529f0-5874-4a7f-9641-054746c3e250'])
-            ->sync();
-    }
-
-    protected function cacheResources($provider = 'lhg_arm')
-    {
-        ResourceGraph::withProvider($provider)
-            ->type('microsoft.network/networkinterfaces')
-            ->extend('name', 'tostring(properties.ipConfigurations)')
-            ->project('name')
-            ->cache();
     }
 }

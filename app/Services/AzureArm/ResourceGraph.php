@@ -15,7 +15,6 @@ class ResourceGraph
 
     const VERSION = '2021-03-01';
     const URI = "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=" . self::VERSION;
-    const TAG = 'resourcegraph';
 
     protected string $provider = 'lhg_arm';
     protected string $withSubscription;
@@ -24,22 +23,7 @@ class ResourceGraph
     protected array $extend;
     protected array $where;
     protected array $project;
-
-    /**
-     * @throws ResourceGraphException
-     */
-    public function cache(): void
-    {
-        $results = $this->call();
-
-        $skipToken = $this->toCache($results);
-
-        while (!empty($skipToken)) {
-            $results = $this->call($skipToken);
-
-            $skipToken = $this->toCache($results);
-        }
-    }
+    protected string $token = '';
 
     /**
      * @throws ResourceGraphException
@@ -75,7 +59,6 @@ class ResourceGraph
         $this->provider = $provider;
         return $this;
     }
-
 
     /**
      * @throws ResourceGraphException
@@ -140,6 +123,12 @@ class ResourceGraph
         return $this;
     }
 
+    public function withToken($token): static
+    {
+        $this->token = $token;
+        return $this;
+    }
+
     protected function call($skipToken = null)
     {
         if ($skipToken) {
@@ -148,10 +137,12 @@ class ResourceGraph
 
         $body['query'] = $this->queryBuilder();
 
-        return Http::withToken(decrypt($this->token($this->provider)))
+        $token = !empty($this->token) ? $this->token : $this->token($this->provider);
+
+        return Http::withToken(decrypt($token))
             ->retry(200, 0, function ($exception, $request) {
 
-                Log::debug("Retry because {$exception->getMessage()}");
+                Log::debug("Retry because {$exception->getMessage()}", (array)$exception);
 
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
@@ -165,49 +156,6 @@ class ResourceGraph
             ->post(self::URI, $body)
             ->onError(fn($exception) => throw new ResourceGraphException($exception->reason(), $exception->status()))
             ->json();
-    }
-
-    /**
-     * @throws ResourceGraphException
-     */
-    protected function toCache($results)
-    {
-        $tag = self::TAG . '_' . $this->provider;
-
-        try {
-            $cached = cache()->tags([$tag])->get($tag) ?: [];
-        } catch (\Exception $exception) {
-            throw new ResourceGraphException($exception->getMessage());
-        }
-
-        $unique = array_unique(array_merge(
-            data_get($results, 'data.*.name') ?: [],
-
-            $cached
-        ));
-
-        try {
-            cache()->tags([$tag])->put($tag, $unique);
-        } catch (\Exception $exception) {
-            throw new ResourceGraphException($exception->getMessage());
-        }
-
-        return data_get($results, '$skipToken');
-    }
-
-    /**
-     * @throws ResourceGraphException
-     */
-    public static function fromCache(string $provider = 'lhg_arm'): array
-    {
-        $tag = self::TAG . '_' . $provider;
-
-        try {
-            return cache()->tags([$tag])->get($tag) ?: [];
-        } catch (\Exception $exception) {
-            throw new ResourceGraphException($exception->getMessage());
-        }
-
     }
 
     protected function queryBuilder(): string

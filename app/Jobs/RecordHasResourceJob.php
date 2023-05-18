@@ -29,7 +29,7 @@ class RecordHasResourceJob
 
         $resourceMatch = array_sum(
             array_map(function ($key) use ($ptrRecords) {
-                $resource = json_decode($key, true);
+                $resource = json_decode($key['name'], true);
                 $fqdns = Arr::flatten(data_get($resource, '*.properties.privateLinkConnectionProperties.fqdns')) ?: [];
                 return count(array_intersect($ptrRecords, $fqdns));
             }, $this->resources)
@@ -44,7 +44,7 @@ class RecordHasResourceJob
 
         $resourceMatch = array_sum(
             array_map(function ($key) use ($ipv4Address) {
-                $resourceIPAddress = data_get(json_decode($key, true), '*.properties.privateIPAddress') ?: [];
+                $resourceIPAddress = data_get(json_decode($key['name'], true), '*.properties.privateIPAddress') ?: [];
                 return count(array_intersect($ipv4Address, $resourceIPAddress));
             }, $this->resources)
         );
