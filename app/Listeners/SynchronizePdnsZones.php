@@ -6,6 +6,7 @@ use App\Events\ReceivedNetworkInterfaces;
 use App\Exceptions\DnsZonesException;
 use App\Services\Pdns\Pdns;
 use App\Validators\PdnsValidate;
+use DateTime;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class SynchronizePdnsZones implements ShouldQueue
@@ -16,6 +17,11 @@ class SynchronizePdnsZones implements ShouldQueue
     public function viaConnection(): string
     {
         return config('app.env') === 'testing' ? 'sync' : 'redis';
+    }
+
+    public function retryUntil(): DateTime
+    {
+        return now()->addMinutes(5);
     }
 
     public function __construct()

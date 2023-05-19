@@ -6,6 +6,7 @@ use App\Events\ReceivedNetworkInterfaces;
 use App\Events\StartNewPdnsSynchronization;
 use App\Facades\AzureArm\ResourceGraph;
 use App\Traits\Token;
+use DateTime;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class RequestNetworkInterfaces implements ShouldQueue
@@ -15,6 +16,11 @@ class RequestNetworkInterfaces implements ShouldQueue
     public function viaConnection(): string
     {
         return config('app.env') === 'testing' ? 'sync' : 'redis';
+    }
+
+    public function retryUntil(): DateTime
+    {
+        return now()->addMinutes(5);
     }
 
     public function handle(StartNewPdnsSynchronization $event)
