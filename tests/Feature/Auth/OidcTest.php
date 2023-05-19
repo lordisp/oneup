@@ -39,7 +39,7 @@ class OidcTest extends TestCase
             json_decode(file_get_contents(base_path('/tests/Feature/Stubs/oidc_access_token.json')), true)
         )]);
 
-        TokenCache::provider(self::provider)->authCode()->getTargetUrl();
+        TokenCache::provider(self::provider)->authCode();
 
         $state = session()->get('authState');
 
