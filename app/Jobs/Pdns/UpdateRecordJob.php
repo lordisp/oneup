@@ -30,7 +30,7 @@ class UpdateRecordJob implements ShouldQueue
 
     protected bool $withSubscription = false;
 
-    public function __construct(protected array $attributes)
+    public function __construct(protected array $attributes = [])
     {
     }
 
