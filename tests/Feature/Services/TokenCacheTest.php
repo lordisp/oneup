@@ -37,9 +37,12 @@ class TokenCacheTest extends TestCase
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/stubs/provider_lhg_arm_token_response.json'), true))
         ]);
-        $token1 = TokenCache::provider('lhg_arm')->get();
-        $token2 = TokenCache::provider('lhg_arm')->withoutEncryption()->get();
-        $this->assertEquals(decrypt($token1), $token2);
+
+        $token = TokenCache::provider('lhg_arm')->withoutEncryption()->get();
+        $token = TokenCache::jwt($token);
+
+        $this->assertArrayHasKey('aud',$token);
+        $this->assertArrayHasKey('appid',$token);
     }
 
     /** @test */

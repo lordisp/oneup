@@ -41,7 +41,7 @@ class TokenCache
         return $this;
     }
 
-    public function authCode(): RedirectResponse
+    public function authCode(): string
     {
         $url = sprintf(
             "https://login.microsoftonline.com/%s%s?",
@@ -161,12 +161,14 @@ class TokenCache
      */
     protected function makeRequest()
     {
-        $url = $this->getTokenUrl();
         $this->setRequestBody();
+
         $body = $this->client;
         $body['client_secret'] = decrypt($this->client['client_secret']);
-        return Http::asForm()->retry(20, 200)->post($url, $body)->json();
 
+        return Http::asForm()->retry(200,throw: false)
+            ->post($this->getTokenUrl(), $body)
+            ->json('access_token');
     }
 
     protected function getKey()
@@ -205,24 +207,12 @@ class TokenCache
 
     protected function getToken(): static
     {
-        $key = $this->getKey();
+        $this->token = cache()->tags($this->provider)
+            ->remember($this->getKey(), now()->addMinutes(30), fn() => $this->config['encrypt']
+                ? encrypt($this->makeRequest())
+                : $this->makeRequest());
 
-        $cached = cache()->tags([$this->provider])->get($key);
-
-        $token = $cached && $this->cache
-            ? $cached
-            : $this->setToken($key);
-        $this->token = $this->config['encrypt'] ? $token : decrypt($token);
         return $this;
-    }
-
-    protected function setToken($key): string
-    {
-        $keys = $this->makeRequest();
-        $token = encrypt($keys['access_token']);
-        cache()->tags([$this->provider])->add($key, $token, $keys['expires_in']);
-
-        return $token;
     }
 
     public function __toString(): string
