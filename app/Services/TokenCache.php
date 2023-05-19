@@ -121,7 +121,7 @@ class TokenCache
         $expire = time() + $response['expires_in'];
         $token = Arr::only($response, ['access_token', 'refresh_token']);
 
-        $cached = Cache::tags(self::jwt($response['access_token'])['oid'])
+        $cached = cache()->tags(self::jwt($response['access_token'])['oid'])
             ->put('access_token', encrypt(Arr::add($token, 'expire', $expire)), $expire);
 
         return $cached
@@ -206,8 +206,11 @@ class TokenCache
     protected function getToken(): static
     {
         $key = $this->getKey();
-        $token = Cache::tags([$this->provider])->get($key) && $this->cache
-            ? Cache::tags([$this->provider])->get($key)
+
+        $cached = cache()->tags([$this->provider])->get($key);
+
+        $token = $cached && $this->cache
+            ? $cached
             : $this->setToken($key);
         $this->token = $this->config['encrypt'] ? $token : decrypt($token);
         return $this;
@@ -217,7 +220,8 @@ class TokenCache
     {
         $keys = $this->makeRequest();
         $token = encrypt($keys['access_token']);
-        Cache::tags([$this->provider])->put($key, $token, $keys['expires_in']);
+        cache()->tags([$this->provider])->add($key, $token, $keys['expires_in']);
+
         return $token;
     }
 
