@@ -21,10 +21,7 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
     use Token;
 
-    public function retryUntil(): DateTime
-    {
-        return now()->addMinutes(5);
-    }
+    public int $timeout = 300;
 
     protected array $attributes;
 
