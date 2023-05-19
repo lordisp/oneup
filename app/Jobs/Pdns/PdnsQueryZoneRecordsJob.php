@@ -4,6 +4,7 @@ namespace App\Jobs\Pdns;
 
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
+use DateTime;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -19,6 +20,11 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, DeveloperNotification;
 
     use Token;
+
+    public function retryUntil(): DateTime
+    {
+        return now()->addMinutes(5);
+    }
 
     protected array $attributes;
 
