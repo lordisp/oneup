@@ -62,11 +62,11 @@ class TokenCache
             'code_challenge' => $state,
         ];
 
-        $url .= Arr::query($params);
-
         session(['authState' => $state]);
 
-        return redirect()->away($url);
+        $url .= Arr::query($params);
+
+        return $url;
     }
 
     public function accessToken(array $params = []): string|RedirectResponse

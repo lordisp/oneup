@@ -21,7 +21,9 @@ class AuthenticatedOidcController extends Controller
 
         auth()->logout();
 
-        return TokenCache::provider(self::provider)->authCode();
+        $url = TokenCache::provider(self::provider)->authCode();
+
+        return redirect()->away($url);
     }
 
     public function callback(Request $request)
