@@ -39,6 +39,7 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
         ]);
 
         $this->attributes['token'] = $this->token($attributes['hub']);
+        $this->attributes['spoke_token'] = $this->token($attributes['spoke']);
     }
 
     public function handle(): void
@@ -75,8 +76,8 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
     protected function getRecords(): array
     {
-        return Http::withToken(decrypt($this->token($this->attributes['spoke'])))
-            ->retry(100, 200, function ($exception, $request) {
+        return Http::withToken(decrypt($this->attributes['spoke_token']))
+            ->retry(100, 10, function ($exception, $request) {
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
                 }

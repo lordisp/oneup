@@ -2,14 +2,13 @@
 
 namespace App\Listeners;
 
-use App\Events\ReceivedNetworkInterfaces;
 use App\Events\StartNewPdnsSynchronization;
-use App\Facades\AzureArm\ResourceGraph;
+use App\Jobs\RequestNetworkInterfacesJob;
 use App\Traits\Token;
-use DateTime;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class RequestNetworkInterfaces implements ShouldQueue
+class RequestNetworkInterfaces implements ShouldQueue, ShouldBeUnique
 {
     use Token;
 
@@ -18,21 +17,8 @@ class RequestNetworkInterfaces implements ShouldQueue
         return config('app.env') === 'testing' ? 'sync' : 'redis';
     }
 
-    public function retryUntil(): DateTime
-    {
-        return now()->addMinutes(5);
-    }
-
     public function handle(StartNewPdnsSynchronization $event)
     {
-        $attributes = $event->getAttributes();
-
-        $attributes['resources'] = ResourceGraph::withProvider($attributes['spoke'])
-            ->type('microsoft.network/networkinterfaces')
-            ->extend('name', 'tostring(properties.ipConfigurations)')
-            ->project('name')
-            ->get();
-
-        event(new ReceivedNetworkInterfaces($attributes));
+        RequestNetworkInterfacesJob::dispatch($event);
     }
 }
