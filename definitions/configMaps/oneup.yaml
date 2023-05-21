@@ -21,14 +21,15 @@ data:
   DB_PORT: "3306"
   DB_DATABASE: "oneup_prod"
   DB_USERNAME: "oneup_admin"
+  SESSION_CONNECTION: "default"
   BROADCAST_DRIVER: "redis"
   CACHE_DRIVER: "redis"
-  REDIS_HOST: "acfr-lhg-giti-p.redis.cache.windows.net"
+  REDIS_HOST: "tls://acfr-lhg-giti-p.redis.cache.windows.net"
   REDIS_PORT: "6380"
-  REDIS_SCHEME: "tls"
   REDIS_READ_TIMEOUT: "60"
   REDIS_TIMEOUT: "60"
-  REDIS_RETRY_INTERVAL: "300"
+  REDIS_RETRY_INTERVAL: "120"
+  REDIS_CLUSTER: "redis"
   REDIS_DB: "0"
   REDIS_CACHE_DB: "1"
   QUEUE_CONNECTION: "redis"
@@ -47,7 +48,7 @@ data:
   SNOW_CLIENT_ID: "pcifirewall.interface"
   APACHE_RUN_USER: "www-data"
   APACHE_RUN_GROUP: "www-data"
-  apache : |
+  apache: |
     <VirtualHost *:8000>
       DocumentRoot /var/www/html/public
 
