@@ -128,18 +128,22 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'oneup'), '_') . '_database_'),
         ],
 
-        'default' => [
-            'url' => env('REDIS_URL'),
-            'host' => env('REDIS_HOST', '127.0.0.1'),
-            'username' => env('REDIS_USERNAME'),
-            'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
-            'database' => env('REDIS_DB', '0'),
-            'read_timeout' => env('REDIS_READ_TIMEOUT', 60),
-            'retry_interval' => env('REDIS_RETRY_INTERVAL', 60),
+        'clusters' => [
+            'default' => [
+                'url' => env('REDIS_URL'),
+                'host' => env('REDIS_HOST', '127.0.0.1'),
+                'username' => env('REDIS_USERNAME'),
+                'password' => env('REDIS_PASSWORD'),
+                'port' => env('REDIS_PORT', '6380'),
+                'database' => env('REDIS_DB', '0'),
+                'scheme' => env('REDIS_SCHEME', 'tls'),
+                'timeout' => env('REDIS_READ_TIMEOUT', 60),
+                'read_timeout' => env('REDIS_TIMEOUT', 60),
+                'retry_interval' => env('REDIS_RETRY_INTERVAL', 300),
+            ],
         ],
 
         'cache' => [
@@ -147,8 +151,9 @@ return [
             'host' => env('REDIS_HOST', '127.0.0.1'),
             'username' => env('REDIS_USERNAME'),
             'password' => env('REDIS_PASSWORD'),
-            'port' => env('REDIS_PORT', '6379'),
+            'port' => env('REDIS_PORT', '6380'),
             'database' => env('REDIS_CACHE_DB', '1'),
+            'scheme' => env('REDIS_SCHEME', 'tls'),
         ],
 
     ],
