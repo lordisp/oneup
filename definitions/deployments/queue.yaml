@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+  namespace: oneup
+spec:
+  minReadySeconds: 5
+  progressDeadlineSeconds: 300
+  replicas: 50
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: queue
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 10
+      maxSurge: 5
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: agentpool
+                    operator: In
+                    values:
+                      - userpool
+      containers:
+        - command:
+            - /bin/sh
+            - -c
+            - |
+              php artisan config:cache; php artisan migrate --force; php artisan queue:work --memory=960 --timeout=1800;
+          env:
+            - name: BUILD
+              value: "20230520.1"
+          envFrom:
+            - secretRef:
+                name: oneup-env
+            - configMapRef:
+                name: oneup-env
+          image: acrlhggixiservicesp.azurecr.io/oneup:latest
+          imagePullPolicy: Always
+          name: queue
+          ports:
+            - containerPort: 8000
+              name: oneup
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 400m
+              memory: 1088Mi
+            limits:
+              cpu: 400m
+              memory: 1536Mi
+          volumeMounts:
+            - mountPath: /etc/apache2/sites-available/
+              name: apache-config
+              readOnly: true
+            - mountPath: /var/www/html/storage/app/
+              name: oneup-storage
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            defaultMode: 420
+            items:
+              - key: apache
+                path: 000-default.conf
+            name: oneup-env
+          name: apache-config
+        - name: oneup-storage
+          persistentVolumeClaim:
+            claimName: oneup-storage
