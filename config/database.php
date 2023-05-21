@@ -131,7 +131,7 @@ return [
             'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'oneup'), '_') . '_database_'),
         ],
 
-        'clusters' => [
+        //'clusters' => [
             'default' => [
                 'url' => env('REDIS_URL'),
                 'host' => env('REDIS_HOST', '127.0.0.1'),
@@ -143,7 +143,7 @@ return [
                 'retry_interval' => env('REDIS_RETRY_INTERVAL', 300),
                 'timeout' => env('REDIS_TIMEOUT', 30),
             ],
-        ],
+        //],
 
         'cache' => [
             'url' => env('REDIS_URL'),
