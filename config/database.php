@@ -130,6 +130,9 @@ return [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
             'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'oneup'), '_') . '_database_'),
             'persistent' => env('REDIS_PERSISTENT', true),
+            'read_timeout' => env('REDIS_READ_TIMEOUT', 10),
+            'retry_interval' => env('REDIS_RETRY_INTERVAL', 100),
+            'timeout' => env('REDIS_TIMEOUT', 5),
         ],
 
         //'clusters' => [
@@ -140,9 +143,6 @@ return [
                 'password' => env('REDIS_PASSWORD'),
                 'port' => env('REDIS_PORT', '6380'),
                 'database' => env('REDIS_DB', '0'),
-                'read_timeout' => env('REDIS_READ_TIMEOUT', 60),
-                'retry_interval' => env('REDIS_RETRY_INTERVAL', 300),
-                'timeout' => env('REDIS_TIMEOUT', 30),
             ],
         //],
 
