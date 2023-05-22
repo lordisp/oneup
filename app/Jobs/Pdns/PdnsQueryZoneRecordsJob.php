@@ -2,9 +2,9 @@
 
 namespace App\Jobs\Pdns;
 
+use App\Providers\App\Events\UpdateRecordEvent;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
-use DateTime;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -62,7 +62,7 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
                 $this->attributes['record'] = $record;
 
-                UpdateRecordJob::dispatch($this->attributes);
+                event(new UpdateRecordEvent($this->attributes));
             }
         }
     }

@@ -43,6 +43,9 @@ class EventServiceProvider extends ServiceProvider
         ReceivedNetworkInterfaces::class => [
             SynchronizePdnsZones::class
         ],
+        App\Events\UpdateRecordEvent::class => [
+            App\Listeners\UpdateRecord::class
+        ]
     ];
 
     /**

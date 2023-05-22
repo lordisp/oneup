@@ -2,7 +2,6 @@
 
 namespace Tests\Feature\Services\DnsSync;
 
-use App\Events\PdnsSyncEvent;
 use App\Events\StartNewPdnsSynchronization;
 use App\Jobs\PdnsSync;
 use App\Listeners\RequestNetworkInterfaces;
