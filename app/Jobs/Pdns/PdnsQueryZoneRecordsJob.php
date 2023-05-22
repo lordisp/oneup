@@ -21,8 +21,6 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
     use Token;
 
-    public int $timeout = 300;
-
     protected array $attributes;
 
     public function __construct(array $attributes)
