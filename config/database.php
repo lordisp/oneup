@@ -142,6 +142,7 @@ return [
                 'read_timeout' => env('REDIS_READ_TIMEOUT', 60),
                 'retry_interval' => env('REDIS_RETRY_INTERVAL', 300),
                 'timeout' => env('REDIS_TIMEOUT', 30),
+                'persistent' => env('REDIS_PERSISTENT', 1),
             ],
         //],
 
