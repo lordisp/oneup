@@ -4,7 +4,7 @@ namespace Tests\Feature\Services\DnsSync;
 
 use App\Events\PdnsSyncEvent;
 use App\Events\StartNewPdnsSynchronization;
-use App\Jobs\PdnsSyncBatchingJob;
+use App\Jobs\PdnsSync;
 use App\Listeners\RequestNetworkInterfaces;
 use App\Models\TokenCacheProvider;
 use Database\Seeders\DnsSyncAllZonesSeeder;
@@ -84,7 +84,7 @@ class PdnsTest extends TestCase
 
         Event::fake();
 
-        PdnsSyncBatchingJob::dispatch();
+        PdnsSync::dispatch();
 
         Event::assertDispatched(StartNewPdnsSynchronization::class, 2);
 
