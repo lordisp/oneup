@@ -2,7 +2,7 @@
 
 namespace App\Console;
 
-use App\Jobs\PdnsSyncBatchingJob;
+use App\Jobs\PdnsSync;
 use App\Jobs\Scim\ScheduledUserImportJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -40,8 +40,8 @@ class Kernel extends ConsoleKernel
             ->onOneServer()
             ->runInBackground();
 
-        $schedule->job(new PdnsSyncBatchingJob)
-            ->everyFiveMinutes()
+        $schedule->job(new PdnsSync())
+            ->everyTenMinutes()
             ->onOneServer();
 
         $schedule->exec('sudo /usr/local/bin/updater.sh')

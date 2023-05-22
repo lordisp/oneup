@@ -47,7 +47,7 @@ return [
             'connection' => 'default',
             'queue' => env('REDIS_QUEUE', 'default'),
             'retry_after' => 1800,
-            'block_for' => null,
+            'block_for' => 5,
             'after_commit' => false,
         ],
 
