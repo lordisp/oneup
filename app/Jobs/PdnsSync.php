@@ -35,6 +35,10 @@ class PdnsSync implements ShouldQueue, ShouldBeUnique
             'spoke' => 'lhg_arm',
             'recordType' => ['A', 'AAAA', 'MX', 'PTR', 'SRV', 'TXT', 'CNAME'],
             'skipZonesForValidation' => $this->skipZonesForValidation,
+            'skipSubscriptions' => [
+                '534fed2b-6945-40c2-bd1b-9bbba36a2f29',
+                '10006206-6ed9-41cf-b446-c783f3d71483',
+            ]
         ];
         event(new StartNewPdnsSynchronization($attributes));
     }
