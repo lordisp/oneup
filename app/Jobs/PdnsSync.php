@@ -14,6 +14,14 @@ class PdnsSync implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    const HUB = 'lhg_arm';
+
+    protected array $skipZonesForValidation = [
+        'privatelink.postgres.database.azure.com',
+        'privatelink.westeurope.azmk8s.io',
+        'privatelink.api.azureml.ms',
+    ];
+
     public function handle(): void
     {
         $this->lhg();
@@ -23,13 +31,10 @@ class PdnsSync implements ShouldQueue, ShouldBeUnique
     protected function lhg(): void
     {
         $attributes = [
-            'hub' => 'lhg_arm',
+            'hub' => self::HUB,
             'spoke' => 'lhg_arm',
             'recordType' => ['A', 'AAAA', 'MX', 'PTR', 'SRV', 'TXT', 'CNAME'],
-            'skipZonesForValidation' => [
-                'privatelink.postgres.database.azure.com',
-                'privatelink.api.azureml.ms',
-            ],
+            'skipZonesForValidation' => $this->skipZonesForValidation,
         ];
         event(new StartNewPdnsSynchronization($attributes));
     }
@@ -37,13 +42,10 @@ class PdnsSync implements ShouldQueue, ShouldBeUnique
     protected function aviatar()
     {
         $attributes = [
-            'hub' => 'lhg_arm',
+            'hub' => self::HUB,
             'spoke' => 'aviatar_arm',
             'recordType' => ['A', 'CNAME'],
-            'skipZonesForValidation' => [
-                'privatelink.postgres.database.azure.com',
-                'privatelink.api.azureml.ms',
-            ],
+            'skipZonesForValidation' => $this->skipZonesForValidation,
         ];
         event(new StartNewPdnsSynchronization($attributes));
     }
