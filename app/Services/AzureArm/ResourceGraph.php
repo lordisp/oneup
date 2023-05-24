@@ -3,8 +3,10 @@
 namespace App\Services\AzureArm;
 
 use App\Exceptions\AzureArm\ResourceGraphException;
+use App\Facades\Redis;
 use App\Traits\Token;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -43,6 +45,59 @@ class ResourceGraph
         }
 
         return data_get($results, 'data') ?: [];
+
+    }
+
+    /**
+     * @throws ResourceGraphException
+     */
+    public function toCache(string $name): bool
+    {
+        $id = 0;
+
+        $results = $this->call();
+
+        $array_map = [];
+
+        $name = Str::lower($name);
+
+        foreach (Arr::flatten(data_get($results, 'data')) as $key => $value) {
+            $keyString = (string)$id;
+            $array_map[$key] = Redis::hSet($name, "{$name}:{$keyString}", $value);
+            $id++;
+        }
+
+        $skipToken = data_get($results, '$skipToken');
+
+        while (!empty($skipToken)) {
+            $results = $this->call($skipToken);
+
+            foreach (Arr::flatten(data_get($results, 'data')) as $key => $value) {
+                $keyString = (string)$id;
+                $array_map[$key] = Redis::hSet($name, "{$name}:{$keyString}", $value);
+                $id++;
+            }
+
+            $skipToken = data_get($results, '$skipToken');
+        }
+
+        return array_sum($array_map) > 0;
+    }
+
+    public function deleteCache($name): bool
+    {
+        $name = Str::lower($name);
+
+        foreach (Redis::hKeys($name) as $hKey) {
+            $map[] = Redis::hDel($name, $hKey);
+        }
+
+        return isset($map) && array_sum($map) > 0;
+    }
+
+    public function fromCache($name)
+    {
+        return Redis::hGetAll(Str::lower($name));
     }
 
     /**
@@ -109,12 +164,8 @@ class ResourceGraph
     /**
      * @throws ResourceGraphException
      */
-    public function withSubscription(string $subscriptionId = null, string $operator = '=='): static
+    public function withSubscription(string $subscriptionId, string $operator = '=='): static
     {
-        if (!isset($subscriptionId)) {
-            return $this;
-        }
-
         if (!Str::isUuid($subscriptionId)) {
             throw new ResourceGraphException('The Subscription-Id is not a valid UUID!');
         }
