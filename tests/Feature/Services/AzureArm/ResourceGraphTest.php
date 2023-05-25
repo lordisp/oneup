@@ -51,14 +51,18 @@ class ResourceGraphTest extends TestCase
     {
         $this->mockRedis();
 
-        ResourceGraph::type('microsoft.network/networkinterfaces')
-            ->extend('name', 'tostring(properties.ipConfigurations)')
-            ->project('name')
-            ->toCache('someResources');
+        $cached = ResourceGraph::type('microsoft.network/networkinterfaces')
+            ->extend('key', 'id')
+            ->extend('value', 'tostring(properties.ipConfigurations)')
+            ->project('key', 'value')
+            ->toCache('someResources', 600);
 
-        $someResources = ResourceGraph::fromCache('someResources');
+        $this->assertGreaterThan(100, array_sum($cached));
 
-        $this->assertIsArray($someResources);
+        $withoutKeys = ResourceGraph::fromCache('someResources');
+        $withKeys = ResourceGraph::fromCache('someResources', true);
+
+        $this->assertSameSize($withoutKeys, $withKeys);
 
         $deleted = ResourceGraph::deleteCache('someResources');
 
@@ -82,19 +86,30 @@ class ResourceGraphTest extends TestCase
         $this->assertCount(1, $results);
     }
 
+//    /** @test */
+    public function dddd()
+    {
+        $foo = Redis::hDel('myhash', 'myfield', 'myfield2');
+//        $foo[] = Redis::hSet('myhash', 'myfield', 'myvalue');
+//        $foo[] = Redis::hSet('myhash', 'myfield2', 'myvalue');
+
+        dd($foo);
+    }
+
     private function mockRedis()
     {
         for ($i = 0; $i < 10; $i++) {
             $array[$i] = rand();
         }
 
-        Redis::shouldReceive('hSet')->andReturn(0)->once();
-        Redis::shouldReceive('hSet')->andReturn(1)->atLeast()->once();
-
+        Redis::shouldReceive('hSet')->andReturn(1)
+            ->atLeast()->times(2000)
+            ->atMost()->times(5000);
+        Redis::shouldReceive('hVals')->andReturn($array)->once();
         Redis::shouldReceive('hGetAll')->andReturn($array)->once();
-        Redis::shouldReceive('hGetAll')->andReturn([])->atLeast();
-
-        Redis::shouldReceive('hKeys')->andReturn($array);
-        Redis::shouldReceive('hDel')->andReturn(true);
+        Redis::shouldReceive('hVals')->andReturn([])->once();
+        Redis::shouldReceive('hKeys')->andReturn($array)->once();
+        Redis::shouldReceive('hDel')->andReturn(1)->times(10);
+        Redis::shouldReceive('expire')->andReturn(1)->once();
     }
 }

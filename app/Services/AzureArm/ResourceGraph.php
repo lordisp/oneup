@@ -51,43 +51,31 @@ class ResourceGraph
     /**
      * @throws ResourceGraphException
      */
-    public function toCache(string $name): bool
+    public function toCache(string $hash, int $expireSeconds = null): array
     {
-        $id = 0;
-
         $results = $this->call();
 
-        $array_map = [];
-
-        $name = Str::lower($name);
-
-        foreach (Arr::flatten(data_get($results, 'data')) as $key => $value) {
-            $keyString = (string)$id;
-            $array_map[$key] = Redis::hSet($name, "{$name}:{$keyString}", $value);
-            $id++;
-        }
+        $cached = $this->addToCache($hash, $results);
 
         $skipToken = data_get($results, '$skipToken');
 
         while (!empty($skipToken)) {
             $results = $this->call($skipToken);
 
-            foreach (Arr::flatten(data_get($results, 'data')) as $key => $value) {
-                $keyString = (string)$id;
-                $array_map[$key] = Redis::hSet($name, "{$name}:{$keyString}", $value);
-                $id++;
-            }
+            $cached = array_merge($cached, $this->addToCache($hash, $results));
 
             $skipToken = data_get($results, '$skipToken');
         }
 
-        return array_sum($array_map) > 0;
+        if (isset($expireSeconds)) {
+            Redis::expire($hash, $expireSeconds);
+        }
+
+        return $cached;
     }
 
     public function deleteCache($name): bool
     {
-        $name = Str::lower($name);
-
         foreach (Redis::hKeys($name) as $hKey) {
             $map[] = Redis::hDel($name, $hKey);
         }
@@ -95,9 +83,13 @@ class ResourceGraph
         return isset($map) && array_sum($map) > 0;
     }
 
-    public function fromCache($name)
+    public function fromCache($name, $keys = false): array
     {
-        return Redis::hGetAll(Str::lower($name));
+        if ($keys) {
+            return Redis::hGetAll($name);
+        }
+
+        return Redis::hVals($name);
     }
 
     /**
@@ -112,19 +104,6 @@ class ResourceGraph
         }
 
         $this->provider = $provider;
-        return $this;
-    }
-
-    /**
-     * @throws ResourceGraphException
-     */
-    public function name(string $name, string $operator = 'has'): static
-    {
-        if (empty($name)) {
-            throw new ResourceGraphException('The name must be a valid string!');
-        }
-
-        $this->name = "name {$operator} '{$name}'";
         return $this;
     }
 
@@ -153,9 +132,9 @@ class ResourceGraph
         return $this;
     }
 
-    public function project(string|array $attributes): static
+    public function project(string|array ...$attributes): static
     {
-        $attributes = implode(',', (array)$attributes);
+        $attributes = implode(',', $attributes);
 
         $this->project[] = "project {$attributes}";
         return $this;
@@ -242,5 +221,23 @@ class ResourceGraph
         $where = $options ? sprintf("| where %s", implode(' | ', $options)) : null;
 
         return "resources {$where}";
+    }
+
+    /**
+     * @throws ResourceGraphException
+     */
+    private function addToCache(string $hash, array $results): array
+    {
+        foreach (data_get($results, 'data') as $value) {
+            if (!Arr::has($value, ['key', 'value'])) {
+                throw new ResourceGraphException('Caching requires "key" and "value"!. Use `project(\'key\', \'value\') for caching.');
+            }
+
+            $field = (string)$value['key'];
+            $value = (string)$value['value'];
+
+            $cached[] = Redis::hSet($hash, $field, $value);
+        }
+        return $cached ?? [];
     }
 }
