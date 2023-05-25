@@ -116,6 +116,9 @@ class FirewallRulesRead extends Component
     public function sendNotification()
     {
         InviteFirewallReviewerJob::dispatch();
+
+        info(__('messages.dispatched_firewall_review_mails', ['email' => auth()->user()->email]));
+
         $this->event('Done', 'success');
     }
 

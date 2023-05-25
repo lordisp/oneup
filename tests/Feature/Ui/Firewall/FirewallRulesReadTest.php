@@ -3,6 +3,7 @@
 namespace Tests\Feature\Ui\Firewall;
 
 use App\Http\Livewire\PCI\FirewallRulesRead;
+use App\Jobs\InviteFirewallReviewerJob;
 use App\Jobs\ServiceNow\ImportBusinessServiceMemberJob;
 use App\Jobs\ServiceNowDeleteAllJob;
 use App\Models\Audit;
@@ -274,6 +275,21 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $this->assertCount(3, $rows);
         $this->assertEquals('FMG to Kusco', $rows[0]);
         $this->assertEquals('LCA connection to HUBSTAR databases', $rows[1]);
+    }
+
+    /** @test */
+    public function can_send_firewall_review_email()
+    {
+        $user = User::first();
+        $user->assignRole('Global Administrator');
+
+        Queue::fake([InviteFirewallReviewerJob::class]);
+        Log::shouldReceive('info')->with(__('messages.dispatched_firewall_review_mails', ['email' => $user->email]),[]);
+
+        Livewire::actingAs($user)->test(FirewallRulesRead::class)
+            ->call('sendNotification');
+
+        Queue::assertPushed(InviteFirewallReviewerJob::class,1);
     }
 
     protected function createDeveloperGroup()

@@ -37,4 +37,5 @@ return [
     ],
     'rule_previously_decommissioned' => 'Rule previously decommissioned!',
     'rule_decommissioned' => 'Decommissioned Firewall-Rule',
+    'dispatched_firewall_review_mails' => ':email dispatched Firewall-Review Mails',
 ];
