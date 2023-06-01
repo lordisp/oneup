@@ -2,26 +2,30 @@
 
 namespace App\Jobs\Pdns;
 
-use App\Providers\App\Events\UpdateRecordEvent;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 use Validator;
 
 class PdnsQueryZoneRecordsJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, DeveloperNotification;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, DeveloperNotification;
 
     use Token;
 
     protected array $attributes;
+
+    public int $tries = 10;
+
+    public int $backoff = 3;
 
     public function __construct(array $attributes)
     {
@@ -32,7 +36,6 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
             'recordType' => 'required',
             'subscriptionId' => 'required',
             'resourceGroup' => 'required',
-            'resources' => 'required',
             'skippedZonesForValidation' => 'array',
         ]);
 
@@ -48,7 +51,7 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
         $spokeSubscriptionId = $this->spokeSubscriptionId();
 
-        Log::debug("Updating {$zoneName} from {$spokeSubscriptionId}");
+        $jobs = [];
 
         foreach ($records as $record) {
 
@@ -62,9 +65,17 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
                 $this->attributes['record'] = $record;
 
-                event(new UpdateRecordEvent($this->attributes));
+                $jobs[] = new UpdateRecordJob($this->attributes);
             }
         }
+
+        if (count($jobs) > config('services.pdns.chunk.records')) {
+            $jobs = array_chunk($jobs, config('services.pdns.chunk.records'));
+        }
+
+        Bus::batch($jobs)
+            ->name('records')
+            ->dispatch();
     }
 
     protected function spokeSubscriptionId(): string

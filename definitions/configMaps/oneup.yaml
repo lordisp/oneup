@@ -47,6 +47,9 @@ data:
   MAIL_FROM_NAME: "Lufthansa-Group Cloud OneUp"
   SNOW_CLIENT_URI: "https://lhgroup.service-now.com"
   SNOW_CLIENT_ID: "pcifirewall.interface"
+  ARM_CACHE_EXPIRE: "540"
+  PDNS_CHUNK_ZONES: "10"
+  PDNS_CHUNK_RECORDS: "100"
   APACHE_RUN_USER: "www-data"
   APACHE_RUN_GROUP: "www-data"
   apache: |

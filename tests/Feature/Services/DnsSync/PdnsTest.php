@@ -2,15 +2,21 @@
 
 namespace Tests\Feature\Services\DnsSync;
 
-use App\Events\StartNewPdnsSynchronization;
+use App\Facades\AzureArm\ResourceGraph;
+use App\Facades\Redis;
+use App\Jobs\Pdns\LhgTenantJob;
+use App\Jobs\Pdns\PdnsQueryZoneRecordsJob;
 use App\Jobs\PdnsSync;
-use App\Listeners\RequestNetworkInterfaces;
-use App\Models\TokenCacheProvider;
+use App\Jobs\RequestNetworkInterfacesJob;
+use App\Services\Pdns\Pdns;
 use Database\Seeders\DnsSyncAllZonesSeeder;
 use Database\Seeders\TokenCacheProviderSeeder;
+use Illuminate\Bus\PendingBatch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Event;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Queue;
+use Mockery\MockInterface;
 use Tests\Helper;
 use Tests\TestCase;
 
@@ -29,64 +35,86 @@ class PdnsTest extends TestCase
     }
 
     /** @test */
-    public function event_throws_exception_with_invalid_data()
+    public function it_executes_batch_jobs_in_the_correct_order()
     {
-        $this->expectException(ValidationException::class);
-
-        event(new StartNewPdnsSynchronization(['foo']));
-    }
-
-    /** @test */
-    public function a_start_new_pdns_synchronization_event_will_be_triggered()
-    {
-        Event::fake();
-
-        event(new StartNewPdnsSynchronization([
-            'hub' => 'lhg_arm',
-            'spoke' => 'lhg_arm',
-            'recordType' => ['A'],
-        ]));
-
-        Event::assertDispatched(StartNewPdnsSynchronization::class, 1);
-
-        Event::assertListening(StartNewPdnsSynchronization::class, RequestNetworkInterfaces::class);
-
-    }
-
-    /** @test */
-    public function run_a_full_private_dns_synchronization_on_one_subscription()
-    {
-        event(new StartNewPdnsSynchronization([
-            'hub' => 'lhg_arm',
-            'spoke' => 'lhg_arm',
-            'withSubscriptions' => [
-                '636529f0-5874-4a7f-9641-054746c3e250',
-            ],
-            'recordType' => ['A'],
-            'skipZonesForValidation' => [
-                'privatelink.postgres.database.azure.com',
-                'privatelink.api.azureml.ms',
-            ],
-        ]));
-
-        $this->assertTrue(true);
-    }
-
-    /** @test */
-    public function sync_batch_triggers_two_sync_events()
-    {
-        TokenCacheProvider::factory()->state([
-            'name' => 'aviatar_arm',
-            'auth_endpoint' => 'foo',
-            'client' => 'bar',
-        ])->create();
-
-        Event::fake();
+        Bus::fake()->except(PdnsSync::class);
 
         PdnsSync::dispatch();
 
-        Event::assertDispatched(StartNewPdnsSynchronization::class, 2);
+        Bus::assertBatched(function (PendingBatch $batch) {
+            return $batch->jobs->flatten()->count() === 2;
+        });
+    }
 
+    /** @test
+     * @depends  it_executes_batch_jobs_in_the_correct_order
+     */
+    public function can_request_network_interfaces()
+    {
+        Redis::shouldReceive('hSet')
+            ->andReturn(1)
+            ->atLeast()
+            ->times(100);
+        Redis::shouldReceive('expire')
+            ->andReturn(1)
+            ->times(1);
 
+        RequestNetworkInterfacesJob::dispatch('some_provider');
+    }
+
+    /** @test
+     * @depends can_request_network_interfaces
+     */
+    public function the_hub_tenant_can_be_dispatched()
+    {
+        Queue::fake();
+
+        $this->mock(Pdns::class, function (MockInterface $mock) {
+            $mock->shouldReceive('withSpoke')->with('lhg_arm')->andReturnSelf();
+            $mock->shouldReceive('withRecordType')->andReturnSelf();
+            $mock->shouldReceive('skipSubscriptions')->andReturnSelf();
+            $mock->shouldReceive('skipZonesForValidation')->andReturnSelf();
+            $mock->shouldReceive('sync')->andReturnSelf();
+        });
+
+        $job = new LhgTenantJob();
+        $job->handle();
+
+        Queue::assertPushed(PdnsQueryZoneRecordsJob::class);
+    }
+
+    /** @test
+     * @depends the_hub_tenant_can_be_dispatched
+     */
+    public function run_a_full_private_dns_sync_on_one_subscription()
+    {
+        Queue::fake(RequestNetworkInterfacesJob::class);
+
+        $resources = Arr::flatten(
+            ResourceGraph::withProvider('lhg_arm')
+                ->type('microsoft.network/networkinterfaces')
+                ->extend('value', 'tostring(properties.ipConfigurations)')
+                ->project('value')
+                ->get()
+        );
+
+        Redis::shouldReceive('hVals')
+            ->andReturn($resources)
+            ->times(13);
+
+        (new Pdns)
+            ->withSpoke('lhg_arm')
+            ->withRecordType(['A', 'CNAME'])
+            ->withSubscriptions([
+                '636529f0-5874-4a7f-9641-054746c3e250',
+            ])
+            ->skipZonesForValidation([
+                'privatelink.postgres.database.azure.com',
+                'privatelink.westeurope.azmk8s.io',
+                'privatelink.api.azureml.ms',
+            ])
+            ->sync();
+
+        Queue::assertPushed(RequestNetworkInterfacesJob::class, 1);
     }
 }

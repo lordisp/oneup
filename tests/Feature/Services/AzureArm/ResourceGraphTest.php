@@ -4,6 +4,7 @@ namespace Tests\Feature\Services\AzureArm;
 
 use App\Exceptions\AzureArm\ResourceGraphException;
 use App\Facades\AzureArm\ResourceGraph;
+use App\Facades\Redis;
 use Database\Seeders\TokenCacheProviderSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -29,7 +30,7 @@ class ResourceGraphTest extends TestCase
     }
 
     /** @test */
-    public function a_resource_can_be_found_in_the_cache()
+    public function a_resource_can_be_found_in_the_request()
     {
         $subscriptionId = '636529f0-5874-4a7f-9641-054746c3e250';
 
@@ -46,16 +47,30 @@ class ResourceGraphTest extends TestCase
     }
 
     /** @test */
-    public function it_cache_more_than_1000_but_less_than_15000_resources()
+    public function can_cache_results_and_delete_the_cached_data()
     {
+        $this->mockRedis();
+
         $cached = ResourceGraph::type('microsoft.network/networkinterfaces')
-            ->extend('name', 'tostring(properties.ipConfigurations)')
-            ->project('name')
-            ->get();
+            ->extend('key', 'id')
+            ->extend('value', 'tostring(properties.ipConfigurations)')
+            ->project('key', 'value')
+            ->toCache('someResources', 10);
 
-        $this->assertLessThan(15000, count($cached));
+        $this->assertGreaterThan(100, array_sum($cached));
 
-        $this->assertGreaterThan(1000, count($cached));
+        $withoutKeys = ResourceGraph::fromCache('someResources');
+        $withKeys = ResourceGraph::fromCache('someResources', true);
+
+        $this->assertSameSize($withoutKeys, $withKeys);
+
+        $deleted = ResourceGraph::deleteCache('someResources');
+
+        $this->assertTrue($deleted);
+
+        $someResources = ResourceGraph::fromCache('someResources');
+
+        $this->assertCount(0, $someResources);
     }
 
     /** @test */
@@ -71,4 +86,20 @@ class ResourceGraphTest extends TestCase
         $this->assertCount(1, $results);
     }
 
+    private function mockRedis()
+    {
+        for ($i = 0; $i < 10; $i++) {
+            $array[$i] = rand();
+        }
+
+        Redis::shouldReceive('hSet')->andReturn(1)
+            ->atLeast()->times(2000)
+            ->atMost()->times(5000);
+        Redis::shouldReceive('hVals')->andReturn($array)->once();
+        Redis::shouldReceive('hGetAll')->andReturn($array)->once();
+        Redis::shouldReceive('hVals')->andReturn([])->once();
+        Redis::shouldReceive('hKeys')->andReturn($array)->once();
+        Redis::shouldReceive('hDel')->andReturn(1)->times(10);
+        Redis::shouldReceive('expire')->andReturn(1)->once();
+    }
 }

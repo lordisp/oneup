@@ -3,8 +3,10 @@
 namespace App\Services\AzureArm;
 
 use App\Exceptions\AzureArm\ResourceGraphException;
+use App\Facades\Redis;
 use App\Traits\Token;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -12,9 +14,6 @@ use Illuminate\Support\Str;
 class ResourceGraph
 {
     use Token;
-
-    const VERSION = '2021-03-01';
-    const URI = "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=" . self::VERSION;
 
     protected string $provider = 'lhg_arm';
     protected string $withSubscription;
@@ -43,6 +42,51 @@ class ResourceGraph
         }
 
         return data_get($results, 'data') ?: [];
+
+    }
+
+    /**
+     * @throws ResourceGraphException
+     */
+    public function toCache(string $hash, int $expireSeconds = null): array
+    {
+        $results = $this->call();
+
+        $cached = $this->addToCache($hash, $results);
+
+        $skipToken = data_get($results, '$skipToken');
+
+        while (!empty($skipToken)) {
+            $results = $this->call($skipToken);
+
+            $cached = array_merge($cached, $this->addToCache($hash, $results));
+
+            $skipToken = data_get($results, '$skipToken');
+        }
+
+        if (isset($expireSeconds)) {
+            Redis::expire($hash, $expireSeconds);
+        }
+
+        return $cached;
+    }
+
+    public function deleteCache($name): bool
+    {
+        foreach (Redis::hKeys($name) as $hKey) {
+            $map[] = Redis::hDel($name, $hKey);
+        }
+
+        return isset($map) && array_sum($map) > 0;
+    }
+
+    public function fromCache($name, $keys = false): array
+    {
+        if ($keys) {
+            return Redis::hGetAll($name);
+        }
+
+        return Redis::hVals($name);
     }
 
     /**
@@ -57,19 +101,6 @@ class ResourceGraph
         }
 
         $this->provider = $provider;
-        return $this;
-    }
-
-    /**
-     * @throws ResourceGraphException
-     */
-    public function name(string $name, string $operator = 'has'): static
-    {
-        if (empty($name)) {
-            throw new ResourceGraphException('The name must be a valid string!');
-        }
-
-        $this->name = "name {$operator} '{$name}'";
         return $this;
     }
 
@@ -98,9 +129,9 @@ class ResourceGraph
         return $this;
     }
 
-    public function project(string|array $attributes): static
+    public function project(string|array ...$attributes): static
     {
-        $attributes = implode(',', (array)$attributes);
+        $attributes = implode(',', $attributes);
 
         $this->project[] = "project {$attributes}";
         return $this;
@@ -109,12 +140,8 @@ class ResourceGraph
     /**
      * @throws ResourceGraphException
      */
-    public function withSubscription(string $subscriptionId = null, string $operator = '=='): static
+    public function withSubscription(string $subscriptionId, string $operator = '=='): static
     {
-        if (!isset($subscriptionId)) {
-            return $this;
-        }
-
         if (!Str::isUuid($subscriptionId)) {
             throw new ResourceGraphException('The Subscription-Id is not a valid UUID!');
         }
@@ -140,9 +167,13 @@ class ResourceGraph
         $token = !empty($this->token) ? $this->token : $this->token($this->provider);
 
         return Http::withToken(decrypt($token))
-            ->retry(200, 0, function ($exception, $request) {
+            ->retry(10, 50, function ($exception, $request) {
 
                 Log::debug("Retry because {$exception->getMessage()}", (array)$exception);
+
+                if ($exception instanceof RequestException && $exception->response->status() === 400) {
+                    return false;
+                }
 
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
@@ -153,8 +184,8 @@ class ResourceGraph
                 return true;
 
             }, throw: false)
-            ->post(self::URI, $body)
-            ->onError(fn($exception) => throw new ResourceGraphException($exception->reason(), $exception->status()))
+            ->post("https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01", $body)
+            ->onError(fn($exception) => throw new ResourceGraphException($exception))
             ->json();
     }
 
@@ -191,5 +222,23 @@ class ResourceGraph
         $where = $options ? sprintf("| where %s", implode(' | ', $options)) : null;
 
         return "resources {$where}";
+    }
+
+    /**
+     * @throws ResourceGraphException
+     */
+    private function addToCache(string $hash, array $results): array
+    {
+        foreach (data_get($results, 'data') as $value) {
+            if (!Arr::has($value, ['key', 'value'])) {
+                throw new ResourceGraphException('Caching requires "key" and "value"!. Use `project(\'key\', \'value\') for caching.');
+            }
+
+            $field = (string)$value['key'];
+            $value = (string)$value['value'];
+
+            $cached[] = Redis::hSet($hash, $field, $value);
+        }
+        return $cached ?? [];
     }
 }

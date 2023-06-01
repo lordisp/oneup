@@ -2,9 +2,9 @@
 
 namespace App\Jobs;
 
-use App\Events\ReceivedNetworkInterfaces;
-use App\Events\StartNewPdnsSynchronization;
-use App\Facades\AzureArm\ResourceGraph;
+use App\Exceptions\AzureArm\ResourceGraphException;
+use App\Services\AzureArm\ResourceGraph;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -14,26 +14,29 @@ use Illuminate\Queue\SerializesModels;
 
 class RequestNetworkInterfacesJob implements ShouldQueue, ShouldBeUnique
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    public function uniqueId():string
-    {
-        return $this->event->getAttributes('spoke');
-    }
-    public function __construct(public StartNewPdnsSynchronization $event)
+    public function __construct(public string $provider)
     {
     }
 
+    public function uniqueId(): string
+    {
+        return $this->provider;
+    }
+
+    /**
+     * @throws ResourceGraphException
+     */
     public function handle(): void
     {
-        $attributes = $this->event->getAttributes();
+        info(sprintf("RequestNetworkInterfaces with batchId: %s for %s", $this->batchId, $this->provider));
 
-        $attributes['resources'] = ResourceGraph::withProvider($attributes['spoke'])
+        (new ResourceGraph)
             ->type('microsoft.network/networkinterfaces')
-            ->extend('name', 'tostring(properties.ipConfigurations)')
-            ->project('name')
-            ->get();
-
-        event(new ReceivedNetworkInterfaces($attributes));
+            ->extend('key', 'id')
+            ->extend('value', 'tostring(properties.ipConfigurations)')
+            ->project('key,value')
+            ->toCache("networkinterfaces:{$this->provider}", config('services.resourcegraph.expire'));
     }
 }
