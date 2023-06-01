@@ -40,5 +40,16 @@ return [
             'zones' => env('PDNS_CHUNK_ZONES', 10),
             'records' => env('PDNS_CHUNK_RECORDS', 100),
         ]
+    ],
+
+    'scheduler' => [
+        'prune-batches' => [
+            'hours' => env('PRUNE_BATCHES_HOURS', 48),
+            'cancelled' => env('PRUNE_BATCHES_CANCELLED', 72),
+            'unfinished' => env('PRUNE_BATCHES_UNFINISHED', 72),
+        ],
+        'prune-failed' => [
+            'hours' => env('PRUNE_FAILED_HOURS', 24),
+        ]
     ]
 ];
