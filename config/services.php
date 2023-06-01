@@ -31,4 +31,14 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'resourcegraph' => [
+        'expire' => env('ARM_CACHE_EXPIRE', 540),
+    ],
+
+    'pdns' => [
+        'chunk' => [
+            'zones' => env('PDNS_CHUNK_ZONES', 10),
+            'records' => env('PDNS_CHUNK_RECORDS', 100),
+        ]
+    ]
 ];

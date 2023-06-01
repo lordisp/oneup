@@ -55,7 +55,7 @@ class ResourceGraphTest extends TestCase
             ->extend('key', 'id')
             ->extend('value', 'tostring(properties.ipConfigurations)')
             ->project('key', 'value')
-            ->toCache('someResources', 600);
+            ->toCache('someResources', 10);
 
         $this->assertGreaterThan(100, array_sum($cached));
 
@@ -84,16 +84,6 @@ class ResourceGraphTest extends TestCase
             ->get();
 
         $this->assertCount(1, $results);
-    }
-
-//    /** @test */
-    public function dddd()
-    {
-        $foo = Redis::hDel('myhash', 'myfield', 'myfield2');
-//        $foo[] = Redis::hSet('myhash', 'myfield', 'myvalue');
-//        $foo[] = Redis::hSet('myhash', 'myfield2', 'myvalue');
-
-        dd($foo);
     }
 
     private function mockRedis()

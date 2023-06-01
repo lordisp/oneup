@@ -3,9 +3,12 @@
 namespace App\Jobs\Pdns;
 
 use App\Exceptions\UpdateRecordJobException;
+use App\Facades\AzureArm\ResourceGraph;
 use App\Jobs\RecordHasResourceJob;
+use App\Jobs\RequestNetworkInterfacesJob;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
+use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -20,9 +23,11 @@ use Throwable;
 
 class UpdateRecordJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token, DeveloperNotification;
+    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token, DeveloperNotification;
 
     public int $tries = 10;
+
+    public int $backoff = 5;
 
     protected Response $response;
 
@@ -32,6 +37,11 @@ class UpdateRecordJob implements ShouldQueue
 
     public function __construct(protected array $attributes = [])
     {
+    }
+
+    public function uniqueId(): string
+    {
+        return md5($this->attributes['record']['name'] . $this->attributes['spoke']);
     }
 
     /**
@@ -109,11 +119,17 @@ class UpdateRecordJob implements ShouldQueue
         if (!isset($this->response)) {
             return;
         }
+
         if ($this->response->failed()) {
-            Log::warning('Patch Failed' . json_encode($this->response->json()), $this->response->json());
+            Log::warning('Patching ' . $this->attributes['record']['name'] . ' Failed: ' . $this->response->reason(), $this->response->json());
             return;
         }
-        Log::info($this->attributes['message'], $this->attributes['record']['properties']);
+
+        Log::info($this->attributes['message'], [
+            'batch' => $this->batchId,
+            'spoke' => $this->attributes['spoke'],
+            'properties' => $this->attributes['record']['properties']
+        ]);
     }
 
     /**
@@ -125,9 +141,11 @@ class UpdateRecordJob implements ShouldQueue
             return true;
         }
 
-        $resources = data_get($this->attributes, 'resources');
+        $resources = ResourceGraph::fromCache("networkinterfaces:{$this->attributes['spoke']}");
 
         if (empty($resources)) {
+            RequestNetworkInterfacesJob::dispatch($this->attributes['spoke']);
+
             throw new UpdateRecordJobException('No resources in cache!');
         }
 

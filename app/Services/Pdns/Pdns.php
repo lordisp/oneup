@@ -4,10 +4,12 @@ namespace App\Services\Pdns;
 
 use App\Exceptions\DnsZonesException;
 use App\Jobs\Pdns\PdnsQueryZoneRecordsJob;
+use App\Jobs\RequestNetworkInterfacesJob;
 use App\Models\DnsSyncZone;
 use App\Traits\Token;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
@@ -37,27 +39,37 @@ class Pdns
 
 
     /**
-     * @throws DnsZonesException
+     * @throws DnsZonesException|\Throwable
      */
-    public function sync($resources): void
+    public function sync(): void
     {
         $zones = $this->getZones();
 
         Log::debug(sprintf("Processing %s Zones", count($zones)));
 
+        $spoke = $this->spoke;
+        $jobs[] = new RequestNetworkInterfacesJob($spoke);
+
         foreach ($zones as $zone) {
-            PdnsQueryZoneRecordsJob::dispatch([
-                    'zone' => $zone,
-                    'hub' => $this->hub,
-                    'spoke' => $this->spoke,
-                    'recordType' => $this->recordType,
-                    'subscriptionId' => $this->subscriptionId,
-                    'resourceGroup' => $this->resourceGroup,
-                    'resources' => $resources,
-                    'skippedZonesForValidation' => $this->skippedZonesForValidation,
-                    ]
-            );
+            $attributes = [
+                'zone' => $zone,
+                'hub' => $this->hub,
+                'spoke' => $spoke,
+                'recordType' => $this->recordType,
+                'subscriptionId' => $this->subscriptionId,
+                'resourceGroup' => $this->resourceGroup,
+                'skippedZonesForValidation' => $this->skippedZonesForValidation,
+            ];
+            $jobs[] = new PdnsQueryZoneRecordsJob($attributes);
         }
+
+        if (count($jobs) > config('services.pdns.chunk.zones')) {
+            $jobs = array_chunk($jobs, config('services.pdns.chunk.zones'));
+        }
+
+        Bus::batch($jobs)
+            ->name('zones')
+            ->dispatch();
     }
 
     protected function getReferenceZones(): array
@@ -73,7 +85,11 @@ class Pdns
     {
         return Arr::flatten(
             Http::withToken(decrypt($this->token($this->tokenProvider())))
-                ->retry(100, 200, function ($exception, $request): bool {
+                ->retry(200, 0, function ($exception, $request): bool {
+                    if ($exception instanceof RequestException) {
+                        info(sprintf("Retry 'Pdns::getZones' because of %s", $exception->response->reason()));
+                    }
+
                     if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                         return true;
                     }
@@ -123,7 +139,7 @@ class Pdns
 
     public function withSubscriptions(string|array $subscriptionIds): static
     {
-        $this->withSubscriptions = is_array($subscriptionIds) ? $subscriptionIds : [$subscriptionIds];
+        $this->withSubscriptions = (array)$subscriptionIds;
         return $this;
     }
 

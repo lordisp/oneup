@@ -15,9 +15,6 @@ class ResourceGraph
 {
     use Token;
 
-    const VERSION = '2021-03-01';
-    const URI = "https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=" . self::VERSION;
-
     protected string $provider = 'lhg_arm';
     protected string $withSubscription;
     protected string $name;
@@ -170,9 +167,13 @@ class ResourceGraph
         $token = !empty($this->token) ? $this->token : $this->token($this->provider);
 
         return Http::withToken(decrypt($token))
-            ->retry(200, 0, function ($exception, $request) {
+            ->retry(10, 50, function ($exception, $request) {
 
                 Log::debug("Retry because {$exception->getMessage()}", (array)$exception);
+
+                if ($exception instanceof RequestException && $exception->response->status() === 400) {
+                    return false;
+                }
 
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
@@ -183,8 +184,8 @@ class ResourceGraph
                 return true;
 
             }, throw: false)
-            ->post(self::URI, $body)
-            ->onError(fn($exception) => throw new ResourceGraphException($exception->reason(), $exception->status()))
+            ->post("https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01", $body)
+            ->onError(fn($exception) => throw new ResourceGraphException($exception))
             ->json();
     }
 
