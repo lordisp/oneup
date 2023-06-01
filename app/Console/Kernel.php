@@ -25,6 +25,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('passport:purge')->hourly();
 
+        $schedule->command('cache:prune-stale-tags')->hourly();
+
         $schedule->command(sprintf("logs:clear --level debug --age %s --job", now()->subHour()->toDateTimeString()))
             ->hourly()
             ->onOneServer()
