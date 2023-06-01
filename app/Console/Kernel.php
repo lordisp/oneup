@@ -40,6 +40,10 @@ class Kernel extends ConsoleKernel
             ->onOneServer()
             ->runInBackground();
 
+        $this->pruneBatches($schedule)->hourly();
+
+        $this->pruneFailed($schedule)->hourly();
+
         $schedule->job(new PdnsSync())
             ->everyTenMinutes()
             ->onOneServer();
@@ -62,5 +66,21 @@ class Kernel extends ConsoleKernel
         $this->load(__DIR__ . '/Commands');
 
         require base_path('routes/console.php');
+    }
+
+    protected function pruneBatches($schedule)
+    {
+        return $schedule->command(sprintf("queue:prune-batches --hours=%s --cancelled=%s unfinished=%s",
+            config('services.scheduler.prune-batches.hours'),
+            config('services.scheduler.prune-batches.cancelled'),
+            config('services.scheduler.prune-batches.unfinished')
+        ));
+    }
+
+    protected function pruneFailed($schedule)
+    {
+        return $schedule->command(sprintf("queue:prune-failed --hours=%s",
+            config('services.scheduler.prune-failed.hours')
+        ));
     }
 }
