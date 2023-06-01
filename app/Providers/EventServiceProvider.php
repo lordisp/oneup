@@ -37,15 +37,6 @@ class EventServiceProvider extends ServiceProvider
         'session.expire' => [
             SessionExpiredListener::class
         ],
-        StartNewPdnsSynchronization::class => [
-            RequestNetworkInterfaces::class,
-        ],
-        ReceivedNetworkInterfaces::class => [
-            SynchronizePdnsZones::class
-        ],
-        App\Events\UpdateRecordEvent::class => [
-            App\Listeners\UpdateRecord::class
-        ]
     ];
 
     /**
