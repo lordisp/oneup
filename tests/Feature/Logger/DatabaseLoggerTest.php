@@ -27,7 +27,7 @@ class DatabaseLoggerTest extends TestCase
 
         $this->assertEquals('Debug Log', LogMessage::first()->message);
         $this->assertEquals(100, LogMessage::first()->level);
-        $this->assertEquals('DEBUG', LogMessage::first()->level_name);
+        $this->assertEquals('Debug', LogMessage::first()->level_name);
         $this->assertEquals(['context' => 'debug'], LogMessage::first()->context);
     }
 
@@ -38,7 +38,7 @@ class DatabaseLoggerTest extends TestCase
 
         $this->assertEquals('Info Log', LogMessage::first()->message);
         $this->assertEquals(200, LogMessage::first()->level);
-        $this->assertEquals('INFO', LogMessage::first()->level_name);
+        $this->assertEquals('Info', LogMessage::first()->level_name);
         $this->assertEquals(['context' => 'info'], LogMessage::first()->context);
     }
 
@@ -50,7 +50,7 @@ class DatabaseLoggerTest extends TestCase
 
         $this->assertEquals('Notice Log', LogMessage::first()->message);
         $this->assertEquals(250, LogMessage::first()->level);
-        $this->assertEquals('NOTICE', LogMessage::first()->level_name);
+        $this->assertEquals('Notice', LogMessage::first()->level_name);
         $this->assertEquals(['context' => 'notice'], LogMessage::first()->context);
     }
 
@@ -61,7 +61,7 @@ class DatabaseLoggerTest extends TestCase
 
         $this->assertEquals('Waring Log', LogMessage::first()->message);
         $this->assertEquals(300, LogMessage::first()->level);
-        $this->assertEquals('WARNING', LogMessage::first()->level_name);
+        $this->assertEquals('Warning', LogMessage::first()->level_name);
         $this->assertEquals(['context' => 'warning'], LogMessage::first()->context);
     }
 
@@ -72,7 +72,7 @@ class DatabaseLoggerTest extends TestCase
 
         $this->assertEquals('Error Log', LogMessage::first()->message);
         $this->assertEquals(400, LogMessage::first()->level);
-        $this->assertEquals('ERROR', LogMessage::first()->level_name);
+        $this->assertEquals('Error', LogMessage::first()->level_name);
         $this->assertEquals(['context' => 'error'], LogMessage::first()->context);
     }
 
@@ -83,7 +83,7 @@ class DatabaseLoggerTest extends TestCase
 
         $this->assertEquals('Critical Log', LogMessage::first()->message);
         $this->assertEquals(500, LogMessage::first()->level);
-        $this->assertEquals('CRITICAL', LogMessage::first()->level_name);
+        $this->assertEquals('Critical', LogMessage::first()->level_name);
         $this->assertEquals(['context' => 'critical'], LogMessage::first()->context);
     }
 
@@ -94,7 +94,7 @@ class DatabaseLoggerTest extends TestCase
 
         $this->assertEquals('Alert Log', LogMessage::first()->message);
         $this->assertEquals(550, LogMessage::first()->level);
-        $this->assertEquals('ALERT', LogMessage::first()->level_name);
+        $this->assertEquals('Alert', LogMessage::first()->level_name);
         $this->assertEquals(['context' => 'alert'], LogMessage::first()->context);
     }
 
@@ -105,7 +105,7 @@ class DatabaseLoggerTest extends TestCase
 
         $this->assertEquals('Emergency Log', LogMessage::first()->message);
         $this->assertEquals(600, LogMessage::first()->level);
-        $this->assertEquals('EMERGENCY', LogMessage::first()->level_name);
+        $this->assertEquals('Emergency', LogMessage::first()->level_name);
         $this->assertEquals(['context' => 'emergency'], LogMessage::first()->context);
     }
 

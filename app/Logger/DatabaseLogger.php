@@ -13,7 +13,7 @@ class DatabaseLogger
 
     public function __construct()
     {
-        $this->level = Str::upper(config('logging.channels.db.level'));
+        $this->level = Str::title(config('logging.channels.db.level'));
     }
 
     public function __invoke(array $config): Logger
