@@ -72,7 +72,7 @@ class Kernel extends ConsoleKernel
 
     protected function pruneBatches($schedule)
     {
-        return $schedule->command(sprintf("queue:prune-batches --hours=%s --cancelled=%s unfinished=%s",
+        return $schedule->command(sprintf("queue:prune-batches --hours=%s --cancelled=%s --unfinished=%s",
             config('services.scheduler.prune-batches.hours'),
             config('services.scheduler.prune-batches.cancelled'),
             config('services.scheduler.prune-batches.unfinished')
