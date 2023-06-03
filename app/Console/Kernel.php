@@ -4,6 +4,7 @@ namespace App\Console;
 
 use App\Jobs\PdnsSync;
 use App\Jobs\Scim\ScheduledUserImportJob;
+use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use Laravel\Passport\Http\Middleware\CheckClientCredentials;
@@ -46,6 +47,10 @@ class Kernel extends ConsoleKernel
 
         $this->pruneFailed($schedule)->hourly();
 
+        $this->pruneTelescope($schedule)
+            ->hourly()
+            ->onOneServer();
+
         $schedule->job(new PdnsSync())
             ->everyTenMinutes()
             ->onOneServer();
@@ -84,5 +89,13 @@ class Kernel extends ConsoleKernel
         return $schedule->command(sprintf("queue:prune-failed --hours=%s",
             config('services.scheduler.prune-failed.hours')
         ));
+    }
+
+    protected function pruneTelescope(Schedule $schedule): Event
+    {
+        return $schedule->command(sprintf("telescope:prune --hours=%s",
+            config('services.scheduler.prune-failed.hours')
+        ));
+
     }
 }
