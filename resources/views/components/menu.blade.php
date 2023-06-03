@@ -45,7 +45,7 @@
             </x-menu.dropdown-link>
         @endcan
         @can('viewTelescope',[auth()->user()])
-            <x-menu.dropdown-link request="admin/telescope" target="_blank" href="{{route('telescope')}}">Telescope
+            <x-menu.dropdown-link request="admin/telescope" target="_blank" href="/admin/telescope">Telescope
             </x-menu.dropdown-link>
         @endcan
     </x-menu.dropdown>
