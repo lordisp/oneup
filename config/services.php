@@ -48,8 +48,13 @@ return [
             'cancelled' => env('PRUNE_BATCHES_CANCELLED', 72),
             'unfinished' => env('PRUNE_BATCHES_UNFINISHED', 72),
         ],
+
         'prune-failed' => [
             'hours' => env('PRUNE_FAILED_HOURS', 24),
+        ],
+        
+        'prune-telescope' => [
+            'hours' => env('PRUNE_TELESCOPE_HOURS', 12),
         ]
     ]
 ];
