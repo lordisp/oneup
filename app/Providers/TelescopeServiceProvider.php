@@ -59,10 +59,12 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     {
         Gate::define('viewTelescope', function ($user) {
             return $user->operations()->contains(
-                Operation::updateOrCreate([
-                    "operation" => "admin/telescope/view",
-                    "description" => "Can import firewall-requests from Service-Now"
-                ])->operation
+                 cache()->remember('viewTelescope', 1440, function () {
+                    return Operation::updateOrCreate([
+                        "operation" => "admin/telescope/view",
+                        "description" => "Can import firewall-requests from Service-Now"
+                    ])->operation;
+                })
             );
         });
     }
