@@ -63,7 +63,7 @@ class OperationsTest extends TestCase implements FrontendTest
     public function can_create_new_operation()
     {
         User::first()->assignRole('Operations operator');
-        $this->assertDatabaseCount(Operation::class, 24);
+        $this->assertDatabaseCount(Operation::class, 25);
         $operation = Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->set('operation.operation', 'some/test/operation')
@@ -73,7 +73,7 @@ class OperationsTest extends TestCase implements FrontendTest
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'create'])
             ->get('operation');
         $this->assertInstanceOf(Operation::class, $operation);
-        $this->assertDatabaseCount(Operation::class, 25);
+        $this->assertDatabaseCount(Operation::class, 26);
     }
 
     /** @test */
@@ -107,7 +107,7 @@ class OperationsTest extends TestCase implements FrontendTest
     /** @test */
     public function can_delete_a_operation()
     {
-        $this->assertDatabaseCount(Operation::class, 24);
+        $this->assertDatabaseCount(Operation::class, 25);
         $operationId = Operation::whereOperation('admin/tokenCacheProvider/read')->first()->id;
 
         Log::shouldReceive('info')->once()->withArgs(function ($message) {
@@ -126,7 +126,7 @@ class OperationsTest extends TestCase implements FrontendTest
             ->assertPayloadSet('selected', [])
             ->assertPayloadSet('selectedPage', false)
             ->assertPayloadSet('selectAll', false);
-        $this->assertDatabaseCount(Operation::class, 23);
+        $this->assertDatabaseCount(Operation::class, 24);
     }
 
     /** @test */
@@ -171,11 +171,11 @@ class OperationsTest extends TestCase implements FrontendTest
         Livewire::actingAs(User::first())
             ->test(Operations::class)
             ->set('perPage', 10)
-            ->assertSee('Showing 10 of 24')
+            ->assertSee('Showing 10 of 25')
             ->assertSee('Next')
             ->assertDontSee(__('pagination.previous'))
             ->call('gotoPage', 2)
             ->assertSee(__('pagination.previous'))
-            ->assertSee('Showing 10 of 24');
+            ->assertSee('Showing 10 of 25');
     }
 }
