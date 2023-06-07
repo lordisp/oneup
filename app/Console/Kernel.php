@@ -24,31 +24,31 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
-        $schedule->command('passport:purge')->hourly();
+        $schedule->command('passport:purge')->hourlyAt(0);
 
-        $schedule->command('cache:prune-stale-tags')->hourly();
+        $schedule->command('cache:prune-stale-tags')->hourlyAt(0);
 
         $schedule->command(sprintf("logs:clear --level debug --age %s --job", now()->subHour()->toDateTimeString()))
-            ->hourly()
+            ->hourlyAt(0)
             ->onOneServer()
             ->runInBackground();
 
         $schedule->command(sprintf("logs:clear --level info --age %s --job", now()->subMonth()->toDateTimeString()))
-            ->daily()
+            ->dailyAt('00:00')
             ->onOneServer()
             ->runInBackground();
 
         $schedule->command(sprintf("logs:clear --level error --age %s --job", now()->subMonth()->toDateTimeString()))
-            ->daily()
+            ->dailyAt('00:00')
             ->onOneServer()
             ->runInBackground();
 
-        $this->pruneBatches($schedule)->hourly();
+        $this->pruneBatches($schedule)->hourlyAt(0);
 
-        $this->pruneFailed($schedule)->hourly();
+        $this->pruneFailed($schedule)->hourlyAt(0);
 
         $this->pruneTelescope($schedule)
-            ->hourly()
+            ->hourlyAt(0)
             ->onOneServer();
 
         $schedule->job(new PdnsSync())
