@@ -73,9 +73,11 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
             $jobs = array_chunk($jobs, config('services.pdns.chunk.records'));
         }
 
-        Bus::batch($jobs)
-            ->name('records')
-            ->dispatch();
+        if (count($jobs) > 0) {
+            Bus::batch($jobs)
+                ->name('records')
+                ->dispatch();
+        }
     }
 
     protected function spokeSubscriptionId(): string
