@@ -33,7 +33,7 @@ RUN apt-get update && apt-get upgrade -y && apt-get install  \
     zip \
     unzip  \
     gnupg \
-    libnode72 \
+    libnode108 \
     sudo \
     wget -yyq
 
