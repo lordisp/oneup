@@ -141,6 +141,10 @@ class UpdateRecordJob implements ShouldQueue
             return true;
         }
 
+        if (in_array($this->attributes['spoke'], array_map('trim', explode(',', config('dnssync.skip_providers'))))) {
+            return true;
+        }
+
         $resources = ResourceGraph::fromCache("networkinterfaces:{$this->attributes['spoke']}");
 
         if (empty($resources)) {
