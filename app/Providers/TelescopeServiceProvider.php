@@ -4,8 +4,6 @@ namespace App\Providers;
 
 use App\Models\Operation;
 use Illuminate\Support\Facades\Gate;
-use App\Telescope\Entry;
-use Laravel\Telescope\IncomingEntry;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\TelescopeApplicationServiceProvider;
 
@@ -20,7 +18,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 
         $this->hideSensitiveRequestDetails();
 
-        Telescope::filter(function (IncomingEntry|Entry $entry) {
+        Telescope::filter(function ($entry) {
             if ($this->app->environment('local')) {
                 return true;
             }
