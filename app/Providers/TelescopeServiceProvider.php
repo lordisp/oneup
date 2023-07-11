@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Operation;
 use Illuminate\Support\Facades\Gate;
+use App\Telescope\Entry;
 use Laravel\Telescope\IncomingEntry;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\TelescopeApplicationServiceProvider;
@@ -19,7 +20,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
 
         $this->hideSensitiveRequestDetails();
 
-        Telescope::filter(function (IncomingEntry $entry) {
+        Telescope::filter(function (IncomingEntry|Entry $entry) {
             if ($this->app->environment('local')) {
                 return true;
             }
@@ -28,6 +29,9 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
                 $entry->isFailedRequest() ||
                 $entry->isFailedJob() ||
                 $entry->isScheduledTask() ||
+                $entry->isBatch() ||
+                $entry->isJob() ||
+                $entry->isEvent() ||
                 $entry->hasMonitoredTag();
         });
     }
@@ -59,7 +63,7 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
     {
         Gate::define('viewTelescope', function ($user) {
             return $user->operations()->contains(
-                 cache()->remember('viewTelescope', 1440, function () {
+                cache()->tags('rbac')->remember('viewTelescope', 1440, function () {
                     return Operation::updateOrCreate([
                         "operation" => "admin/telescope/view",
                         "description" => "Can import firewall-requests from Service-Now"

@@ -184,4 +184,10 @@ return [
         Watchers\ScheduleWatcher::class => env('TELESCOPE_SCHEDULE_WATCHER', true),
         Watchers\ViewWatcher::class => env('TELESCOPE_VIEW_WATCHER', true),
     ],
+
+    'entries' => [
+        'job' => env('TELESCOPE_JOB_ENTRY', false),
+        'event' => env('TELESCOPE_EVENT_ENTRY', false),
+        'batch' => env('TELESCOPE_BATCH_ENTRY', false),
+    ]
 ];
