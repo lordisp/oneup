@@ -17,6 +17,11 @@ class AviatarTenantJob implements ShouldQueue, ShouldBeUnique
 
     public function handle(): void
     {
+        if (!config('dnssync.pdns_aviatar_enabled')) {
+            info('PDNS Sync for Aviatar is disabled');
+            return;
+        }
+
         (new Pdns)
             ->withSpoke('aviatar_arm')
             ->withRecordType(['A', 'CNAME'])
