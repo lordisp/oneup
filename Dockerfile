@@ -48,6 +48,7 @@ RUN chmod uga+x /usr/local/bin/install-php-extensions && sync && install-php-ext
     redis \
     gd \
     pcntl \
+    intl \
 ;
 
 ADD https://cacerts.digicert.com/DigiCertGlobalRootG2.crt.pem /var/www/html/ssl/

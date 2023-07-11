@@ -64,7 +64,7 @@
                         <div class="flex justify-center">
                             <form action="{{route('signin')}}" method="post">
                                 @csrf
-                                <x-btn.blank type="submit" class="w-full justify-center font-bold bg-lhg-blue text-white hover:bg-white hover:text-lhg-blue">Click to Signin</x-btn.blank>
+                                <x-btn.blank type="submit" color class="w-full justify-center font-bold bg-lhg-blue text-white hover:bg-white hover:text-lhg-blue">Click to Signin</x-btn.blank>
                             </form>
                         </div>
                     @endif

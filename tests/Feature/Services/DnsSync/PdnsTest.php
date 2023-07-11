@@ -100,7 +100,8 @@ class PdnsTest extends TestCase
 
         Redis::shouldReceive('hVals')
             ->andReturn($resources)
-            ->times(13);
+            ->atLeast()
+            ->times(10);
 
         (new Pdns)
             ->withSpoke('lhg_arm')

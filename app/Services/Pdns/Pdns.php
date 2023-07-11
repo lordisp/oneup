@@ -47,14 +47,13 @@ class Pdns
 
         Log::debug(sprintf("Processing %s Zones", count($zones)));
 
-        $spoke = $this->spoke;
-        $jobs[] = new RequestNetworkInterfacesJob($spoke);
+        $jobs[] = new RequestNetworkInterfacesJob($this->spoke);
 
         foreach ($zones as $zone) {
             $attributes = [
                 'zone' => $zone,
                 'hub' => $this->hub,
-                'spoke' => $spoke,
+                'spoke' => $this->spoke,
                 'recordType' => $this->recordType,
                 'subscriptionId' => $this->subscriptionId,
                 'resourceGroup' => $this->resourceGroup,

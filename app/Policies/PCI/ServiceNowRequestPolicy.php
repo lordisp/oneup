@@ -2,13 +2,14 @@
 
 namespace App\Policies\PCI;
 
+use App\Http\Livewire\DataTable\WithRbacCache;
 use App\Models\ServiceNowRequest;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class ServiceNowRequestPolicy
 {
-    use HandlesAuthorization;
+    use HandlesAuthorization, WithRbacCache;
 
     /**
      * Determine whether the user can view any models.
@@ -18,7 +19,9 @@ class ServiceNowRequestPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->operations()->contains('service-now/firewall/request/readAll');
+        return $user->operations()->contains(
+            $this->updateOrCreate('serviceNow/firewall/request/readAll', 'Can read all firewall-requests')
+        );
     }
 
     /**
@@ -43,7 +46,9 @@ class ServiceNowRequestPolicy
      */
     public function create(User $user)
     {
-        return $user->operations()->contains('service-now/firewall/import');
+        return $user->operations()->contains(
+            $this->updateOrCreate('serviceNow/firewall/import', 'Can import firewall-requests from Service-Now')
+        );
     }
 
     /**
@@ -67,7 +72,9 @@ class ServiceNowRequestPolicy
      */
     public function deleteAll(User $user)
     {
-        return $user->operations()->contains('service-now/firewall/request/deleteAll');
+        return $user->operations()->contains(
+            $this->updateOrCreate('serviceNow/firewall/request/deleteAll', 'Can delete all firewall-requests')
+        );
     }
 
     /**

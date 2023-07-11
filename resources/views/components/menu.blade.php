@@ -21,7 +21,7 @@
 @endcanany
 
 
-@canany(['roles-readAll','operation-readAll','provider-readAll','group-read','group-readAll','user-readAll'])
+@can('admin-menu')
     <x-menu.dropdown route="admin*">
         <x-slot name="title">Administration</x-slot>
         <x-slot name="icon">
@@ -49,7 +49,7 @@
             </x-menu.dropdown-link>
         @endcan
     </x-menu.dropdown>
-@endcanany
+@endcan
 {{--
 <x-menu.link request="foo" withIcon href="/foo">
     Account

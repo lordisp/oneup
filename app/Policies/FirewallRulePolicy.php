@@ -2,19 +2,21 @@
 
 namespace App\Policies;
 
+use App\Http\Livewire\DataTable\WithRbacCache;
 use App\Models\FirewallRule;
-use App\Models\Operation;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
 
 class FirewallRulePolicy
 {
-    use HandlesAuthorization;
+    use HandlesAuthorization, WithRbacCache;
 
     public function viewAny(User $user): bool
     {
         return $user->hasFirewallRules()
-            || $user->operations()->contains('service-now/firewall/request/readAll');
+            || $user->operations()->contains(
+                $this->updateOrCreate('serviceNow/firewall/request/readAll', 'Can read all firewall-requests')
+            );
     }
 
     public function view(User $user, FirewallRule $firewallRule): bool
@@ -29,41 +31,29 @@ class FirewallRulePolicy
 
     public function extend(User $user, FirewallRule $rule): bool
     {
-        $key = 'service-now/firewall/request/extendAll';
-        $operation = cache()->rememberForever($key, function () use ($key) {
-            return Operation::firstOrCreate([
-                'operation' => $key,
-                'description' => 'Can extend all firewall rules'
-            ]);
-        });
-
         return $user->hasBusinessService($rule->businessService->name)
             && isset($rule->new_status)
             && ($rule->status != 'deleted' && $rule->status != 'extended')
-            || $user->operations()->contains($operation->operation);
+            || $user->operations()->contains(
+                $this->updateOrCreate('serviceNow/firewall/request/readAll', 'Can extend all firewall rules')
+            );
     }
 
     public function decommission(User $user, FirewallRule $rule): bool
     {
-        $key = 'service-now/firewall/request/decommissionAll';
-        $operation = cache()->rememberForever($key, function () use ($key) {
-            return Operation::firstOrCreate([
-                'operation' => $key,
-                'description' => 'Can decommission all firewall rules'
-            ]);
-        });
-
         return $user->hasBusinessService($rule->businessService->name)
             && isset($rule->new_status)
             && ($rule->status != 'deleted')
-            || $user->operations()->contains($operation->operation);
+            || $user->operations()->contains(
+                $this->updateOrCreate('serviceNow/firewall/request/decommissionAll', 'Can decommission all firewall rules')
+            );
     }
 
     public function update(User $user, FirewallRule $rule): bool
     {
         $key = $user->id . $rule->id . $rule->business_service;
 
-        return cache()->remember($key, now()->addMinutes(15), function () use ($user, $rule) {
+        return cache()->tags('rbac')->remember($key, now()->addMinutes(15), function () use ($user, $rule) {
             return $user->hasBusinessService($rule->business_service);
         });
 
@@ -71,14 +61,9 @@ class FirewallRulePolicy
 
     public function delete(User $user, FirewallRule $rule): bool
     {
-        $key = 'service-now/firewall/request/delete';
-        $operation = cache()->rememberForever($key, function () use ($key) {
-            return Operation::firstOrCreate([
-                'operation' => $key,
-                'description' => 'Can delete firewall rules'
-            ]);
-        });
-        return $user->operations()->contains($operation->operation);
+        return $user->operations()->contains(
+            $this->updateOrCreate('service-now/firewall/request/delete', 'Can delete firewall rules')
+        );
     }
 
     public function restore(User $user, FirewallRule $firewallRule): bool

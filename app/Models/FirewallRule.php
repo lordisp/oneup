@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Http\Livewire\DataTable\WithRbacCache;
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -15,7 +16,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
  */
 class FirewallRule extends Model
 {
-    use Uuid;
+    use Uuid, WithRbacCache;
 
     protected $fillable = [
         'action',
@@ -285,7 +286,9 @@ class FirewallRule extends Model
 
     public function scopeVisibleTo($query, $own = false)
     {
-        if (auth()->user()->operations()->contains('service-now/firewall/request/readAll') && !$own) {
+        if (auth()->user()->operations()->contains(
+                $this->updateOrCreate('serviceNow/firewall/request/readAll', 'Can read all firewall-requests')
+            ) && !$own) {
             return;
         }
         $query->own();

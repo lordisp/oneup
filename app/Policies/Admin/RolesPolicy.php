@@ -2,6 +2,7 @@
 
 namespace App\Policies\Admin;
 
+use App\Models\Operation;
 use App\Models\Role;
 use App\Models\User;
 use App\Policies\Policy;
@@ -20,7 +21,14 @@ class RolesPolicy extends Policy
      */
     public function viewAny(User $user)
     {
-        return $user->operations()->contains('admin/rbac/role/readAll');
+        return $user->operations()->contains(
+            cache()->tags('rbac')->remember('admin/rbac/role/readAll', 3600, function () {
+                return Operation::updateOrCreate(
+                    ['operation' => 'admin/rbac/role/readAll'],
+                    ['description' => 'Can attach roles to a group']
+                )->operation;
+            })
+        );
     }
 
     /**
@@ -70,7 +78,7 @@ class RolesPolicy extends Policy
         $Name = 'Global Administrator';
         if ($role instanceof Collection) {
             foreach ($role as $value) {
-                if($value->name == $Name) return false;
+                if ($value->name == $Name) return false;
             }
         } else {
             return !($role->name == $Name);

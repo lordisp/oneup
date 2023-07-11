@@ -16,20 +16,35 @@ class PdnsSync implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
+    const CHUNK = 10;
+    protected array $jobs = [
+        LhgTenantJob::class,
+        AviatarTenantJob::class
+    ];
 
     public function handle(): void
     {
-        Bus::batch([
-            [
-                new LhgTenantJob
-            ],
-            [
-                new AviatarTenantJob
-            ],
-        ])
+        $jobs = $this->getJobs();
+
+        if (empty($jobs)) {
+            return;
+        }
+
+        if (count($jobs) > self::CHUNK) {
+            $jobs = array_chunk($jobs, self::CHUNK);
+        }
+
+        Bus::batch([$jobs])
             ->name('pdns')
             ->dispatch();
     }
 
+    protected function getJobs(): array
+    {
+        foreach ($this->jobs as $job) {
+            $jobs[] = new $job;
+        }
 
+        return $jobs ?? [];
+    }
 }

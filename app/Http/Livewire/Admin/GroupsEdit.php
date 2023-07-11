@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Admin;
 use App\Http\Livewire\DataTable\WithBulkActions;
 use App\Http\Livewire\DataTable\WithFilteredColumns;
 use App\Http\Livewire\DataTable\WithPerPagePagination;
+use App\Http\Livewire\DataTable\WithRbacCache;
 use App\Http\Livewire\DataTable\WithSearch;
 use App\Http\Livewire\DataTable\WithSorting;
 use App\Models\Group;
@@ -25,7 +26,7 @@ use Livewire\Component;
  */
 class GroupsEdit extends Component
 {
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch;
+    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch, WithRbacCache;
 
     // WithEditPage
     public Model $edit;
@@ -87,15 +88,17 @@ class GroupsEdit extends Component
         if (empty($this->search)) {
             $this->results = [];
         }
+
         // get all filtered results from the model
+        $selected = Arr::flatten(data_get($this->selectedResults, '*.id'));
+
         $this->results = match ($this->tab) {
             'members' => User::where(function ($query) {
                 $query->where('email', 'like', '%' . $this->search . '%')
                     ->orwhere('displayName', 'like', '%' . $this->search . '%');
             })
-                ->where(function ($query) {
+                ->where(function ($query) use ($selected) {
                     $query->whereNotIn('id', $this->edit->users()->pluck('id')->toArray());
-                    $selected = Arr::flatten(data_get($this->selectedResults, '*.id'));
                     if (isset($selected)) $query->whereNotIn('id', $selected);
                 })
                 ->select(['id', 'email', 'displayName', 'firstName', 'lastName', 'avatar'])
@@ -104,9 +107,8 @@ class GroupsEdit extends Component
                 $query->where('email', 'like', '%' . $this->search . '%')
                     ->orwhere('displayName', 'like', '%' . $this->search . '%');
             })
-                ->where(function ($query) {
+                ->where(function ($query) use ($selected) {
                     $query->whereNotIn('id', $this->edit->owners()->pluck('id')->toArray());
-                    $selected = Arr::flatten(data_get($this->selectedResults, '*.id'));
                     if (isset($selected)) $query->whereNotIn('id', $selected);
                 })
                 ->select(['id', 'email', 'displayName', 'firstName', 'lastName', 'avatar'])
@@ -116,9 +118,8 @@ class GroupsEdit extends Component
                 $query->where('name', 'like', '%' . $this->search . '%')
                     ->orwhere('description', 'like', '%' . $this->search . '%');
             })
-                ->where(function ($query) {
+                ->where(function ($query) use ($selected) {
                     $query->whereNotIn('id', $this->edit->roles()->pluck('id')->toArray());
-                    $selected = Arr::flatten(data_get($this->selectedResults, '*.id'));
                     if (isset($selected)) $query->whereNotIn('id', $selected);
                 })
                 ->select(['id', 'name', 'description'])
@@ -174,6 +175,7 @@ class GroupsEdit extends Component
                 }
                 break;
         }
+        $this->flushRbacCache();
     }
 
     public function clearSideOver()
@@ -210,6 +212,7 @@ class GroupsEdit extends Component
         if (!$this->dispatchQueue) {
             $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
             $this->event('Successfully removed selected ' . Str::ucfirst($this->tab) . '!', 'success');
+            $this->flushRbacCache();
         }
         $this->clearSideOver();
     }
@@ -236,8 +239,7 @@ class GroupsEdit extends Component
     }
 
 
-    public
-    function getRowsProperty(): Collection|BelongsToMany
+    public function getRowsProperty(): Collection|BelongsToMany
     {
         switch ($this->tab) {
             case 'members':
@@ -253,8 +255,7 @@ class GroupsEdit extends Component
         return (isset($rows)) ? $rows : collect([]);
     }
 
-    public
-    function render()
+    public function render()
     {
         return view('livewire.admin.groups-edit', [
             'rows' => $this->queryRows
