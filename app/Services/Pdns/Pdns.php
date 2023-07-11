@@ -63,8 +63,14 @@ class Pdns
             $jobs[] = new PdnsQueryZoneRecordsJob($attributes);
         }
 
-        if (count($jobs) > config('services.pdns.chunk.zones')) {
-            $jobs = array_chunk($jobs, config('services.pdns.chunk.zones'));
+        if (count($jobs) === 1) {
+            return;
+        }
+
+        $chunk = config('services.pdns.chunk.zones');
+
+        if (count($jobs) > $chunk) {
+            $jobs = array_chunk($jobs, $chunk);
         }
 
         Bus::batch($jobs)
