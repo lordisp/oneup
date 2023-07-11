@@ -43,13 +43,13 @@
                         </div>
                     </div>
                     <div class="flex-shrink-0 px-4 py-4 flex justify-end space-x-2 bg-white dark:bg-gray-700">
-                        <x-btn.primary wire:click.prevent="resetPage" @click.prevent="{{$show}} = false">
+                        <x-btn.secondary wire:click.prevent="resetPage" @click.prevent="{{$show}} = false">
                             {{$cancel}}
-                        </x-btn.primary>
+                        </x-btn.secondary>
                         @if($withoutSave===false)
-                            <x-btn.secondary type="submit" @click="{{$show}} = false">
+                            <x-btn.primary type="submit" @click="{{$show}} = false">
                                 {{$submit}}
-                            </x-btn.secondary>
+                            </x-btn.primary>
                         @endif
                     </div>
                 </div>

@@ -22,6 +22,11 @@ class LhgTenantJob implements ShouldQueue, ShouldBeUnique
      */
     public function handle(): void
     {
+        if (!config('dnssync.pdns_lhg_enabled')) {
+            info('PDNS Sync for LHG is disabled');
+            return;
+        }
+
         (new Pdns)
             ->withSpoke('lhg_arm')
             ->withRecordType(['A', 'AAAA', 'MX', 'PTR', 'SRV', 'TXT', 'CNAME'])

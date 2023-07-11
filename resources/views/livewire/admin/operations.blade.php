@@ -14,7 +14,7 @@
     <div class="flex justify-end space-x-1">
         <x-btn.danger wire:click="deleteModal"
                          class="{{empty($selected) ? 'hidden' : ''}}">{{ __('button.delete', ['attribute' => '']) }}</x-btn.danger>
-        <x-btn.secondary wire:click.debounce="openCreateModal">{{ __('button.operation_create') }}</x-btn.secondary>
+        <x-btn.primary wire:click.debounce="openCreateModal">{{ __('button.operation_create') }}</x-btn.primary>
     </div>
 
     <!-- Section Main -->
@@ -120,8 +120,8 @@
                 </x-slot>
 
                 <x-slot name="button">
-                    <x-btn.primary wire:click="closeModal">Cancel</x-btn.primary>
-                    <x-btn.secondary type="submit">Create</x-btn.secondary>
+                    <x-btn.secondary wire:click="closeModal">Cancel</x-btn.secondary>
+                    <x-btn.primary type="submit">Create</x-btn.primary>
                 </x-slot>
             </x-modal.panel>
         </form>
@@ -145,7 +145,7 @@
                         </div>
                     </x-slot>
                     <x-slot name="button">
-                        <x-btn.secondary type="submit">Save</x-btn.secondary>
+                        <x-btn.primary type="submit">Save</x-btn.primary>
                         <x-btn.secondary wire:click="closeModal">Cancel</x-btn.secondary>
                     </x-slot>
                 </x-modal.panel>

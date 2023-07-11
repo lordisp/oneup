@@ -230,12 +230,12 @@
                         </div>
                         <x-slot name="buttons">
                             @canany(['group-detach-members','group-attach-members'],$edit)
-                                <x-btn.primary active="{{$active}}" wire:click="detachModal">
+                                <x-btn.secondary active="{{$active}}" wire:click="detachModal">
                                     Remove {{Str::ucfirst($tab)}}
-                                </x-btn.primary>
-                                <x-btn.primary active="{!! Gate::allows('group-attach-members', $this->edit)!!}" @click.prevent="open = true">
+                                </x-btn.secondary>
+                                <x-btn.secondary active="{!! Gate::allows('group-attach-members', $this->edit)!!}" @click.prevent="open = true">
                                     Add {{Str::ucfirst($tab)}}
-                                </x-btn.primary>
+                                </x-btn.secondary>
                             @endcanany
                         </x-slot>
                     </div>

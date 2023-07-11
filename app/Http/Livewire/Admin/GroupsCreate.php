@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Admin;
 
+use App\Http\Livewire\DataTable\WithRbacCache;
 use App\Http\Livewire\DataTable\WithSearch;
 use App\Models\Group;
 use App\Models\Role;
@@ -13,7 +14,7 @@ use Livewire\Component;
 
 class GroupsCreate extends Component
 {
-    use WithSearch;
+    use WithSearch, WithRbacCache;
 
     public $group, $results;
     public array $selected = [], $assignedRoles = [], $owner = [], $member = [], $roles = [];
@@ -40,19 +41,25 @@ class GroupsCreate extends Component
         $this->validate();
         $this->group->save();
         $this->group->owners()->attach(Arr::pluck($this->owner, 'id'));
+
         if (!empty($this->member)) {
             $this->group->attachUsers(Arr::pluck($this->member, 'id'));
         }
+
         if (!empty($this->roles)) {
             $this->group->attachRoles(Arr::pluck($this->roles, 'id'));
         }
+
         $this->event('Saved', 'success');
+        $this->flushRbacCache();
+
         return redirect()->to(route('admin.group'));
     }
 
     public function memberAssigment()
     {
         $this->memberAssigment = !$this->memberAssigment;
+
         if (!$this->memberAssigment) {
             $this->search = '';
             $this->selected = [];
@@ -63,6 +70,7 @@ class GroupsCreate extends Component
     {
         if ($action === 'attach') {
             $this->assignedRoles = $this->roles;
+            $this->resetPage();
         } else {
             $this->roleAssigment = !$this->roleAssigment;
             if (!$this->roleAssigment) {
@@ -124,11 +132,15 @@ class GroupsCreate extends Component
             $selected = collect($selected);
             $key = array_search($selected['id'], array_column($this->member, 'id'));
             array_splice($this->member, $key, 1);
-        } elseif ($type === 'owner') {
+        }
+
+        if ($type === 'owner') {
             $selected = collect($selected);
             $key = array_search($selected['id'], array_column($this->owner, 'id'));
             array_splice($this->owner, $key, 1);
-        } elseif ($type === 'role') {
+        }
+
+        if ($type === 'role') {
             $selected = collect($selected);
             $key = array_search($selected['id'], array_column($this->roles, 'id'));
             array_splice($this->roles, $key, 1);

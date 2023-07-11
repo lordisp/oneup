@@ -5,6 +5,7 @@ namespace App\Http\Livewire\Admin;
 use App\Http\Livewire\DataTable\WithBulkActions;
 use App\Http\Livewire\DataTable\WithFilteredColumns;
 use App\Http\Livewire\DataTable\WithPerPagePagination;
+use App\Http\Livewire\DataTable\WithRbacCache;
 use App\Http\Livewire\DataTable\WithSearch;
 use App\Http\Livewire\DataTable\WithSorting;
 use App\Models\Operation;
@@ -25,7 +26,7 @@ class RolesEdit extends Component
     public Role $role;
     public $roleId;
 
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch;
+    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch, WithRbacCache;
 
     protected function rules(): array
     {
@@ -62,6 +63,7 @@ class RolesEdit extends Component
         $this->role->operations()->sync($this->selected);
         $this->role = Role::make();
         $this->event('Saved', 'success');
+        $this->flushRbacCache();
         return redirect()->to(route('admin.roles'));
     }
 

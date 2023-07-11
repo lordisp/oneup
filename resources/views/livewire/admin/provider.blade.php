@@ -18,8 +18,7 @@
             >{{ __('button.provider_bulk_delete') }}</x-btn.danger>
         @endcan
 
-        <x-btn.secondary wire:click.debounce="openCreateModal"
-        >{{ __('button.provider_create') }}</x-btn.secondary>
+        <x-btn.primary wire:click.debounce="openCreateModal">{{ __('button.provider_create') }}</x-btn.primary>
     </div>
 
     <div x-data="{ selectPagePopup:@entangle('selectPagePopup') }">
@@ -189,8 +188,8 @@
                     </x-slot>
 
                     <x-slot name="button">
-                        <x-btn.primary wire:click="closeModal">Cancel</x-btn.primary>
-                        <x-btn.secondary type="submit">Save</x-btn.secondary>
+                        <x-btn.secondary wire:click="closeModal">Cancel</x-btn.secondary>
+                        <x-btn.primary type="submit">Save</x-btn.primary>
                     </x-slot>
 
                 </x-modal.panel>
@@ -279,8 +278,8 @@
                 </x-slot>
 
                 <x-slot name="button">
-                    <x-btn.primary wire:click.prevent="closeModal">Cancel</x-btn.primary>
-                    <x-btn.secondary type="submit">Create</x-btn.secondary>
+                    <x-btn.secondary wire:click.prevent="closeModal">Cancel</x-btn.secondary>
+                    <x-btn.primary type="submit">Create</x-btn.primary>
                 </x-slot>
 
             </x-modal.panel>

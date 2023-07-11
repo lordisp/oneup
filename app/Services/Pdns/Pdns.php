@@ -47,14 +47,13 @@ class Pdns
 
         Log::debug(sprintf("Processing %s Zones", count($zones)));
 
-        $spoke = $this->spoke;
-        $jobs[] = new RequestNetworkInterfacesJob($spoke);
+        $jobs[] = new RequestNetworkInterfacesJob($this->spoke);
 
         foreach ($zones as $zone) {
             $attributes = [
                 'zone' => $zone,
                 'hub' => $this->hub,
-                'spoke' => $spoke,
+                'spoke' => $this->spoke,
                 'recordType' => $this->recordType,
                 'subscriptionId' => $this->subscriptionId,
                 'resourceGroup' => $this->resourceGroup,
@@ -63,8 +62,14 @@ class Pdns
             $jobs[] = new PdnsQueryZoneRecordsJob($attributes);
         }
 
-        if (count($jobs) > config('services.pdns.chunk.zones')) {
-            $jobs = array_chunk($jobs, config('services.pdns.chunk.zones'));
+        if (count($jobs) === 1) {
+            return;
+        }
+
+        $chunk = config('services.pdns.chunk.zones');
+
+        if (count($jobs) > $chunk) {
+            $jobs = array_chunk($jobs, $chunk);
         }
 
         Bus::batch($jobs)

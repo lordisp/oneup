@@ -2,15 +2,15 @@
 
 namespace App\Policies\Admin;
 
+use App\Http\Livewire\DataTable\WithRbacCache;
 use App\Models\Group;
 use App\Models\User;
 use Illuminate\Auth\Access\HandlesAuthorization;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Arr;
 
 class GroupPolicy
 {
-    use HandlesAuthorization;
+    use HandlesAuthorization, WithRbacCache;
 
     /**
      * Determine whether the user can view any models.
@@ -20,7 +20,7 @@ class GroupPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->operations()->contains('admin/rbac/group/readAll');
+        return $user->operations()->contains($this->updateOrCreate('admin/rbac/group/readAll', 'Can read all groups',));
     }
 
     /**
@@ -33,10 +33,13 @@ class GroupPolicy
     public function view(User $user)
     {
         $owners = [];
-        foreach (Group::all() as $item) {
-            $owners[] = $item->owners()->pluck('id')->flatten()->toArray();
+        $groups = cache()->tags('rbac')->remember('groups', 3600, function () {
+            return Group::all();
+        });
+        foreach ($groups as $item) {
+            $owners[] = cache()->tags('rbac')->remember($user->id . $item->id, 3600, fn() => $item->owners()->pluck('id')->flatten()->toArray());
         }
-        return $user->operations()->contains('admin/rbac/group/read')
+        return $user->operations()->contains($this->updateOrCreate('admin/rbac/group/readAll', 'Can read all groups',))
             || in_array($user->id, Arr::flatten($owners));
     }
 
@@ -48,7 +51,9 @@ class GroupPolicy
      */
     public function create(User $user)
     {
-        return $user->operations()->contains('admin/rbac/group/create');
+        return $user->operations()->contains(
+            $this->updateOrCreate('admin/rbac/group/create', 'Can create a group')
+        );
     }
 
     /**
@@ -60,7 +65,9 @@ class GroupPolicy
      */
     public function update(User $user, Group $group)
     {
-        return $user->operations()->contains('admin/rbac/group/update');
+        return $user->operations()->contains(
+            $this->updateOrCreate('admin/rbac/group/update', 'Can update groups')
+        );
     }
 
     /**
@@ -72,40 +79,56 @@ class GroupPolicy
      */
     public function delete(User $user/*, Collection|Group|null $group*/)
     {
-        return $user->operations()->contains('admin/rbac/group/delete');
+        return $user->operations()->contains(
+            $this->updateOrCreate('admin/rbac/group/delete', 'Can delete groups')
+        );
     }
 
     public function detachMembers(User $user, Group $group): bool
     {
         return in_array($user->id, $group->owners()->pluck('id')->flatten()->toArray())
-            || $user->operations()->contains('admin/rbac/group/detachMembers');
+            || $user->operations()->contains(
+                $this->updateOrCreate('admin/rbac/group/detachMembers', 'Can remove members from groups')
+            );
     }
 
     public function attachMembers(User $user, Group $group): bool
     {
         return in_array($user->id, $group->owners()->pluck('id')->flatten()->toArray())
-            || $user->operations()->contains('admin/rbac/group/attachMembers');
+            || $user->operations()->contains(
+                $this->updateOrCreate('admin/rbac/group/attachMembers', 'Can add members to groups')
+            );
     }
 
     public function attachRoles(User $user): bool
     {
-        return $user->operations()->contains('admin/rbac/group/attachRoles');
+        return $user->operations()->contains(
+            $this->updateOrCreate('admin/rbac/group/attachRoles', 'Can add roles to a group')
+        );
     }
 
     public function detachRoles(User $user): bool
     {
-        return $user->operations()->contains('admin/rbac/group/detachRoles');
+        return $user->operations()->contains(
+            $this->updateOrCreate('admin/rbac/group/detachRoles', 'Can detach roles from a group')
+        );
+
+
     }
 
     public function attachOwners(User $user, Group $group): bool
     {
-        return $user->operations()->contains('admin/rbac/group/attachOwners')
+        return $user->operations()->contains(
+                $this->updateOrCreate('admin/rbac/group/attachOwners', 'Can add owners to groups')
+            )
             || in_array($user->id, $group->owners()->pluck('id')->flatten()->toArray());
     }
 
     public function detachOwners(User $user, Group $group): bool
     {
-        return $user->operations()->contains('admin/rbac/group/detachOwners')
+        return $user->operations()->contains(
+                $this->updateOrCreate('admin/rbac/group/detachOwners', 'Can remove owners from groups')
+            )
             || in_array($user->id, $group->owners()->pluck('id')->flatten()->toArray());
     }
 
@@ -118,7 +141,9 @@ class GroupPolicy
      */
     public function restore(User $user, Group $group)
     {
-        return $user->operations()->contains('admin/rbac/group/restore');
+        return $user->operations()->contains(
+            $this->updateOrCreate('admin/rbac/group/restore', 'Can restore groups')
+        );
     }
 
     /**
@@ -130,6 +155,8 @@ class GroupPolicy
      */
     public function forceDelete(User $user, Group $group)
     {
-        return $user->operations()->contains('admin/rbac/group/forceDelete');
+        return $user->operations()->contains(
+            $this->updateOrCreate('admin/rbac/group/forceDelete', 'Can force-delete groups')
+        );
     }
 }

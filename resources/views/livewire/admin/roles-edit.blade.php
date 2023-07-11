@@ -27,24 +27,26 @@
                 <x-card.form buttons search paddingless id="search">
                     <div class="flex-1 min-w-0 space-y-2 sm:px-4">
                         <x-input.group inline for="operation" label="" :error="$errors->first('selected')">
-                            <x-table class="w-full">
+                            <x-table sticky="false" class="w-full">
                                 <x-slot name="head">
                                     <x-table.heading>
                                         <x-input.checkbox wire:model="selectPage"/>
                                     </x-table.heading>
                                     <x-table.heading>Operation</x-table.heading>
-                                    <x-table.heading>Description</x-table.heading>
+                                    <x-table.heading class="hidden lg:table-cell">Description</x-table.heading>
                                 </x-slot>
                                 <x-slot name="body">
                                     <x-table.body>
                                         @forelse($rows as $row)
                                             <x-table.row>
-                                                <x-table.cell class="w-7">
-                                                    <x-input.checkbox value="{{ $row->id }}" x-model="$wire.selected"
-                                                                      class="'{{$selectPage?'checked':''}}'"/>
+                                                <x-table.cell class="w-8">
+                                                    <x-input.checkbox value="{{ $row->id }}" x-model="$wire.selected" class="'{{$selectPage?'checked':''}}'"/>
                                                 </x-table.cell>
-                                                <x-table.cell>{{$row['operation']}}</x-table.cell>
-                                                <x-table.cell>{{$row['description']}}</x-table.cell>
+                                                <x-table.cell class="flex flex-col">
+                                                    <span>{{$row['operation']}}</span>
+                                                    <span class="lg:hidden">{{$row['description']}}</span>
+                                                </x-table.cell>
+                                                <x-table.cell class="hidden lg:table-cell">{{$row['description']}}</x-table.cell>
                                             </x-table.row>
                                         @empty
                                             <x-table.row>
@@ -66,12 +68,12 @@
                             {{ $rows->onEachSide(2)->links('components/paginate-sm') }}
                         </div>
                         <x-slot name="buttons">
-                            <x-btn.primary wire:click="cancel">
+                            <x-btn.secondary wire:click="cancel">
                                 Cancel
-                            </x-btn.primary>
-                            <x-btn.secondary type="submit">
-                                Save
                             </x-btn.secondary>
+                            <x-btn.primary type="submit">
+                                Save
+                            </x-btn.primary>
                         </x-slot>
                     </div>
                 </x-card.form>

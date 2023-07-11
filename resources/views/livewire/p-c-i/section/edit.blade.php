@@ -203,6 +203,16 @@
 
         <x-slot name="button">
             <div class="space-y-1 md:space-x-1">
+                @can('decommission',$rule)
+                    @if($rule->status !== 'deleted')
+                        <x-btn.danger
+                                wire:loading.attr="disabled"
+                                wire:loading.class="cursor-progress"
+                                wire:target="deleteConfirm"
+                                wire:click="deleteConfirm" type="button">Decommission
+                        </x-btn.danger>
+                    @endif
+                @endcan
                 @can('extend',$rule)
                     <x-btn.primary
                             wire:loading.attr="disabled"
@@ -210,14 +220,6 @@
                             wire:target="extendConfirm"
                             wire:click="extendConfirm" type="button">Extend
                     </x-btn.primary>
-                @endcan
-                @can('decommission',$rule)
-                    <x-btn.danger
-                            wire:loading.attr="disabled"
-                            wire:loading.class="cursor-progress"
-                            wire:target="deleteConfirm"
-                            wire:click="deleteConfirm" type="button">Decommission
-                    </x-btn.danger>
                 @endcan
             </div>
         </x-slot>

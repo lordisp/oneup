@@ -145,14 +145,14 @@ class RoleSeeder extends Seeder
         Role::factory()->state([
             'name' => 'Firewall Administrator',
             'description' => 'Can manage all aspects of groups',
-        ])->hasAttached(Operation::where('operation', 'like', 'service-now/firewall%')
+        ])->hasAttached(Operation::where('operation', 'like', 'serviceNow/firewall%')
             ->get())
             ->create();
 
         Role::factory()->state([
             'name' => 'Firewall-Requests Reader',
             'description' => 'Can read all Service-Now Firewall requests',
-        ])->hasAttached(Operation::where('operation', 'like', 'service-now/firewall/request/readAll')
+        ])->hasAttached(Operation::where('operation', 'like', 'serviceNow/firewall/request/readAll')
             ->get())
             ->create();
 
@@ -160,8 +160,8 @@ class RoleSeeder extends Seeder
             'name' => 'Firewall-Requests Operator',
             'description' => 'Can manage all aspects of Service-Now Firewall requests besides deleting them.',
         ])->hasAttached(Operation::where(function ($query) {
-            $query->where('operation', 'like', 'service-now/firewall/import')
-                ->orWhere('operation', 'like', 'service-now/firewall/request/readAll');
+            $query->where('operation', 'like', 'serviceNow/firewall/import')
+                ->orWhere('operation', 'like', 'serviceNow/firewall/request/readAll');
         })
             ->get())
             ->create();

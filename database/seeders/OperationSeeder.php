@@ -35,10 +35,10 @@ class OperationSeeder extends Seeder
         'admin/rbac/group/delete' => 'Can read groups',
         'admin/rbac/group/update' => 'Can update groups',
         /* ServiceNow Firewall */
-        'service-now/firewall/import' => 'Can import firewall-requests from Service-Now',
-        'service-now/firewall/request/read' => 'Can read own firewall-requests',
-        'service-now/firewall/request/readAll' => 'Can read all firewall-requests',
-        'service-now/firewall/request/deleteAll' => 'Can delete all firewall-requests',
+        'serviceNow/firewall/import' => 'Can import firewall-requests from Service-Now',
+        'serviceNow/firewall/request/read' => 'Can read own firewall-requests',
+        'serviceNow/firewall/request/readAll' => 'Can read all firewall-requests',
+        'serviceNow/firewall/request/deleteAll' => 'Can delete all firewall-requests',
         /* Telescope */
         'admin/telescope/view' => 'Can import firewall-requests from Service-Now',
     ];
@@ -52,8 +52,7 @@ class OperationSeeder extends Seeder
     {
         foreach ($this->operations as $key => $value) {
             Operation::updateOrCreate([
-                'operation' => $key,
-                'description' => $value
+                'operation' => $key
             ], [
                 'operation' => $key,
                 'description' => $value
