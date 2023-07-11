@@ -172,10 +172,10 @@
                                 <x-btn.toggle wire:click.prevent="roleAssigment" label="Add Roles?"/>
                             </div>
                             <span>
-                                <a class="btn-primary" href="{{route('admin.group')}}">Cancel</a>
-                                <x-btn.secondary type="submit">
+                                <a class="btn-secondary" href="{{route('admin.group')}}">Cancel</a>
+                                <x-btn.primary type="submit">
                                     Save
-                                </x-btn.secondary>
+                                </x-btn.primary>
                             </span>
                         </x-slot>
                     </x-card.form>
@@ -232,11 +232,11 @@
                                     </x-table.body>
                                 </x-slot>
                             </x-table>
-                            <!-- Section Slide-Over "Add Roles" -->
+                            <!-- Section Slide-Over "Roles" -->
                             <div>
                                 <form wire:submit.prevent="roleAssigment('attach')">
                                     <x-slide-over show="roles" cancel="{{ __('button.cancel') }}" submit="{{ __('button.apply') }}" class="max-h-screen  overflow-hidden">
-                                        <x-slot name="title">Add Roles</x-slot>
+                                        <x-slot name="title">Roles</x-slot>
                                         <x-slot name="content">
                                             <x-input.text type="search" class="w-full" wire:model="search"></x-input.text>
                                             <div class="h-1/2 overflow-y-auto py-1">
@@ -292,9 +292,9 @@
                                 </form>
                             </div>
                             <x-slot name="buttons">
-                                <x-btn.primary wire:click.prevent="mode('roles')" x-on:click.prevent="roles = true">
-                                    Add Roles
-                                </x-btn.primary>
+                                <x-btn.secondary wire:click.prevent="mode('roles')" x-on:click.prevent="roles = true">
+                                    Roles
+                                </x-btn.secondary>
                             </x-slot>
                         </div>
                     </x-card.form>

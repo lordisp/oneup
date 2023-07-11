@@ -14,7 +14,7 @@
     <div class="flex justify-end space-x-1">
         <x-btn.danger wire:click="deleteModal"
                          class="{{empty($selected) ? 'hidden' : ''}}">{{ __('button.delete', ['attribute' => '']) }}</x-btn.danger>
-        <a class="btn-secondary" href="{{route('admin.roles.create')}}">{{ __('button.role_create') }}</a>
+        <a class="btn-primary" href="{{route('admin.roles.create')}}">{{ __('button.role_create') }}</a>
     </div>
 
     <!-- Section Main -->

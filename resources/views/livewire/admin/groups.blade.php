@@ -17,8 +17,7 @@
                           class="{{empty($selected) ? 'hidden' : ''}}">{{ __('button.delete', ['attribute' => 'Group']) }}</x-btn.danger>
         @endcan
         @can('group-create',auth()->user())
-            <a class="btn-secondary"
-               href="{{route('admin.group.create')}}">{{ __('button.create_new', ['attribute' => 'Group']) }}</a>
+            <a class="btn-primary" href="{{route('admin.group.create')}}">{{ __('button.create_new', ['attribute' => 'Group']) }}</a>
         @endcan
     </div>
 
