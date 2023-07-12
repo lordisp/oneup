@@ -189,5 +189,8 @@ return [
         'job' => env('TELESCOPE_JOB_ENTRY', false),
         'event' => env('TELESCOPE_EVENT_ENTRY', false),
         'batch' => env('TELESCOPE_BATCH_ENTRY', false),
+        'cache' => env('TELESCOPE_BATCH_ENTRY', false),
+        'query' => env('TELESCOPE_BATCH_QUERY', false),
+        'redis' => env('TELESCOPE_BATCH_REDIS', false),
     ]
 ];

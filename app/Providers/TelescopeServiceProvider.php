@@ -32,6 +32,9 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
                 $entry->type == EntryType::BATCH && config('telescope.entries.batch') ||
                 $entry->type == EntryType::JOB && config('telescope.entries.job') ||
                 $entry->type == EntryType::EVENT && config('telescope.entries.event') ||
+                $entry->type == EntryType::CACHE && config('telescope.entries.cache') ||
+                $entry->type == EntryType::QUERY && config('telescope.entries.query') ||
+                $entry->type == EntryType::REDIS && config('telescope.entries.redis') ||
                 $entry->hasMonitoredTag();
         });
     }
