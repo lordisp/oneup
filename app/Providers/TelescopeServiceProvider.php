@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Operation;
 use Illuminate\Support\Facades\Gate;
+use Laravel\Telescope\EntryType;
 use Laravel\Telescope\IncomingEntry;
 use Laravel\Telescope\Telescope;
 use Laravel\Telescope\TelescopeApplicationServiceProvider;
@@ -28,9 +29,9 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
                 $entry->isFailedRequest() ||
                 $entry->isFailedJob() ||
                 $entry->isScheduledTask() ||
-//                $entry->isBatch() ||
-//                $entry->isJob() ||
-//                $entry->isEvent() ||
+                $entry->type == EntryType::BATCH && config('telescope.entries.batch') ||
+                $entry->type == EntryType::JOB && config('telescope.entries.job') ||
+                $entry->type == EntryType::EVENT && config('telescope.entries.event') ||
                 $entry->hasMonitoredTag();
         });
     }
