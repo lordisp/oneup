@@ -25,11 +25,11 @@ trait WithRbacCache
             ]
         );
 
-        return cache()->tags('rbac')->remember($attributes['operation'], $ttl, function () use ($attributes) {
-            return Operation::updateOrCreate(
+        return cache()
+            ->tags('rbac')
+            ->remember($attributes['operation'], $ttl, fn() => Operation::updateOrCreate(
                 ['operation' => $attributes['operation']],
                 ['description' => $attributes['description']]
-            )->operation;
-        });
+            )->operation);
     }
 }

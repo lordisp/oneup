@@ -87,7 +87,7 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
     protected function getRecords(): array
     {
-        return Http::withToken(decrypt($this->attributes['spoke_token']))
+        return (array)Http::withToken(decrypt($this->attributes['spoke_token']))
             ->retry(100, 10, function ($exception, $request) {
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;

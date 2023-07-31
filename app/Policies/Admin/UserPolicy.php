@@ -35,8 +35,6 @@ class UserPolicy
             'group-readAll',
             'provider-read',
             'provider-readAll',
-            'serviceNow-firewallRequests-read',
-            'serviceNow-firewallRequests-readAll',
         ]);
     }
 

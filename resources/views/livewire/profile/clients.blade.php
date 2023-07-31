@@ -12,9 +12,9 @@
     </x-title>
     <div class="flex justify-end space-x-1">
         @can('delete-client')
-            <x-btn.secondary wire:click="deleteModal"
-                             class="{{empty($selected) ? 'hidden' : ''}}"
-            >{{ __('button.clients_bulk_delete') }}</x-btn.secondary>
+            <x-btn.danger wire:click="deleteModal"
+                          class="{{empty($selected) ? 'hidden' : ''}}"
+            >{{ __('button.delete_selected') }}</x-btn.danger>
         @endcan
 
         <x-btn.secondary x-data="{modal: 'create'}"
@@ -112,7 +112,7 @@
     <!-- Section Create new client-->
     <x-modal modal="create">
         <form wire:submit.prevent="createClient">
-            <x-modal.panel class="md:max-w-6xl space-y-4" title="Create new client">
+            <x-modal.panel class="md:max-w-6xl space-y-4" title="Create Client">
                 <x-slot name="content">
                     <div class="sm:grid grid-cols-2 lg:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
                         <x-input.group inline borderless for="name" label="Name" :error="$errors->first('name')"/>
@@ -124,7 +124,8 @@
                                        borderless
                                        for="redirect"
                                        label="Redirect-Uri"
-                                       :error="$errors->first('redirect')">
+                                       :error="$errors->first('redirect')"
+                        >
                             <x-slot name="helpText">
                                 <button type="button" x-tooltip="{{__('help-text.redirect_uri')}}">
                                     <x-icon.question-mark-circle solid class="text-gray-500"/>
@@ -151,7 +152,7 @@
                 </x-slot>
                 <x-slot name="button">
                     <x-btn.secondary x-on:click="open=false">Cancel</x-btn.secondary>
-                    <x-btn.secondary type="submit">Create the client</x-btn.secondary>
+                    <x-btn.primary type="submit">{{__('button.save')}}</x-btn.primary>
                 </x-slot>
             </x-modal.panel>
         </form>
@@ -162,21 +163,25 @@
         <x-modal.panel class="md:max-w-6xl space-y-4" title="Client has been created!">
             <x-slot name="content">
                 <div class="sm:grid grid-cols-2 lg:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
-                    <x-input.group inline borderless for="name" label="Name"/>
-                    {{ !empty($secret) ? $secret['name'] :null}}
+                    <div class="font-medium leading-5 text-gray-700 dark:text-gray-400">Client-Id</div>
+                    <div>{{  data_get($secret,'id') }}</div>
+                </div>
+                <div class="sm:grid grid-cols-2 lg:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+                    <x-input.group inline borderless for="Name" label="Name"/>
+                    {{ data_get($secret,'name') }}
                 </div>
                 <div class="sm:grid grid-cols-2 lg:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
                     <x-input.group inline borderless for="redirect" label="Redirect-Uri"/>
-                    {{ !empty($secret) ? $secret['redirect'] :null}}
+                    {{ data_get($secret,'redirect') }}
                 </div>
-                @if(!empty($secret) && !empty($secret['secret']))
+                @if(!empty( data_get($secret,'secret')))
                     <div class="sm:grid grid-cols-2 lg:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
                         <x-input.group inline borderless for="secret" label="Secret"/>
-                        <b>
-                            {{ $secret['secret'] }}
+                        <b class="break-all">
+                            {{ data_get($secret,'secret') }}
                         </b>
                     </div>
-                    <div class="border-l-2 border-red-400 bg-gray-100 pl-2 py-2">
+                    <div class="border-l-2 border-red-400 bg-gray-100 dark:bg-gray-600 pl-2 py-2">
                         <i>
                             Client secret values cannot be viewed, except for immediately after creation. Be sure to
                             save
@@ -192,7 +197,7 @@
     </x-modal>
 
     <!-- Section delete client modal-->
-    <x-modal modal="delete">
+    <x-modal modal="delete" target="createClient">
         <form wire:submit.prevent="deleteClient">
             <x-modal.panel class="md:max-w-lg space-y-4" type="warning" title="Are you sure?">
                 <x-slot name="content">
