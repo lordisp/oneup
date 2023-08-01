@@ -28,7 +28,8 @@ class AviatarTenantJob implements ShouldQueue, ShouldBeUnique
             ->skipZonesForValidation([
                 'privatelink.postgres.database.azure.com',
                 'privatelink.westeurope.azmk8s.io',
-                'privatelink.api.azureml.ms'
+                'privatelink.api.azureml.ms',
+                'privatelink.azure-api.net',
             ])
             ->sync();
     }
