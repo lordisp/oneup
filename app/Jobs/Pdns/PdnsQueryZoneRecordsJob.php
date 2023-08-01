@@ -13,7 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class PdnsQueryZoneRecordsJob implements ShouldQueue
 {
