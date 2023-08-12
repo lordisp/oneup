@@ -56,5 +56,9 @@ return [
         'prune-telescope' => [
             'hours' => env('PRUNE_TELESCOPE_HOURS', 12),
         ]
+    ],
+
+    'azure-ad' => [
+        'dismis-risky-users' => env('DISMIS_RISKY_USERS', true)
     ]
 ];

@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\DismissRiskyUsersJob;
 use App\Jobs\PdnsSync;
 use App\Jobs\Scim\ScheduledUserImportJob;
 use Illuminate\Console\Scheduling\Event;
@@ -61,6 +62,9 @@ class Kernel extends ConsoleKernel
         $schedule->job(new ScheduledUserImportJob())
             ->everyFifteenMinutes()
             ->onOneServer();
+
+        $schedule->job(new DismissRiskyUsersJob)
+            ->everyFiveMinutes();
     }
 
     /**
