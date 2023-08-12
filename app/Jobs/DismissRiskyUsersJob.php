@@ -21,7 +21,7 @@ class DismissRiskyUsersJob implements ShouldQueue
             return;
         }
         $dismissedUsers = (new UserRiskState)
-            ->select(new RiskyUserProperties('id'))
+            ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
             ->atRisk()
             ->dismiss();
 
