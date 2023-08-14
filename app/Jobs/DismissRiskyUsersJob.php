@@ -6,12 +6,13 @@ use App\Services\AzureAD\RiskyUserProperties;
 use App\Services\AzureAD\RiskyUserTop;
 use App\Services\AzureAD\UserRiskState;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class DismissRiskyUsersJob implements ShouldQueue
+class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -21,6 +22,7 @@ class DismissRiskyUsersJob implements ShouldQueue
         if (!config('services.azure-ad.dismis-risky-users')) {
             return;
         }
+
         $dismissedUsers = (new UserRiskState)
             ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
             ->atRisk()
@@ -28,7 +30,8 @@ class DismissRiskyUsersJob implements ShouldQueue
             ->dismiss();
 
         if ($dismissedUsers->status() == 204) {
-            DismissRiskyUsersJob::dispatch();
+            DismissRiskyUsersJob::dispatch()
+                ->delay(now()->addSeconds(30));
         }
     }
 }
