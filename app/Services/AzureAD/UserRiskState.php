@@ -2,15 +2,19 @@
 
 namespace App\Services\AzureAD;
 
-use App\Facades\TokenCache;
+use App\Jobs\DismissRiskyUsersJob;
 use App\Traits\DeveloperNotification;
+use App\Traits\Token;
+use Illuminate\Bus\Batch;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
 class UserRiskState
 {
-    use DeveloperNotification;
+    use DeveloperNotification, Token;
+
     const PROVIDER = 'lhg_graph';
 
     protected string $userId;
@@ -24,8 +28,6 @@ class UserRiskState
 
     public function list()
     {
-        $this->url = '/identityProtection/riskyUsers';
-
         return $this->callGraphAPI();
     }
 
@@ -52,18 +54,17 @@ class UserRiskState
     {
         $url = $this->queryBuilder();
 
-        return Http::withToken($this->getAccessToken())
+        return Http::withToken(decrypt($this->token(self::PROVIDER)))
             ->retry(5, 50, function ($exception, $request) {
-                if ($exception instanceof RequestException && $exception->getCode() === 404) {
+                if ($exception instanceof RequestException && $exception->getCode() >= 402) {
                     return false;
                 }
-                $request->withToken($this->getAccessToken());
+                $request->withToken(decrypt($this->newToken(self::PROVIDER)));
                 return true;
             }, false)
             ->get($url)
-            ->onError(/**
-             * @throws RequestException
-             */ fn($response) => throw new RequestException($response))
+            ->onError(
+                fn($response) => Log::error('RiskyUsers API Error', (array)$response))
             ->json();
     }
 
@@ -89,15 +90,6 @@ class UserRiskState
         return $url;
     }
 
-    protected function getAccessToken(): string
-    {
-        return decrypt(
-            TokenCache::provider(self::PROVIDER)
-                ->get()
-        );
-
-    }
-
     public function atRisk($operator = 'and'): static
     {
         $this->filter[] = "riskState eq 'atRisk'";
@@ -108,41 +100,26 @@ class UserRiskState
     }
 
 
-    public function dismiss(): \Illuminate\Http\Response|\Illuminate\Http\Client\Response
+    public function dismiss(): Batch|null
     {
-        $values = array_filter(data_get($this->list(), 'value'), fn($item) => data_get($item,'isDeleted') === false);
+        $values = array_filter(
+            (array)data_get($this->list(), 'value'), fn($item) => data_get($item, 'isDeleted') === false
+        );
 
-        $values = data_get($values, '*.id');
+        $userIds = data_get($values, '*.id');
 
-        if (empty($values)) {
+        if (empty($userIds)) {
             Log::info('No RiskyUsers to dismiss');
-
-            return Response('Nothing to process', 200);
+            return null;
         }
 
-        $response = Http::withToken($this->getAccessToken())
-            ->retry(5, 50, function ($exception, $request) {
-                if ($exception instanceof RequestException && $exception->getCode() === 500) {
-
-                    Log::error('Dismiss RiskyUser failed',(array)$exception);
-
-                    $this->sendDeveloperNotification($exception);
-
-                    return false;
-                }
-                $request->withToken($this->getAccessToken());
-                return true;
-            }, false)
-            ->post('https://graph.microsoft.com/v1.0/identityProtection/riskyUsers/dismiss', [
-                'userIds' => $values
-            ]);
-
-        if ($response->status() === 204) {
-            Log::info('Dismissed RiskyUsers', $values);
-            return $response;
+        $jobs = [];
+        foreach (array_chunk($userIds, 79) as $userIds) {
+            $jobs[] = new DismissRiskyUsersJob($userIds);
         }
 
-        Log::error($response->reason());
-        return $response;
+        return Bus::batch($jobs)
+            ->name('dismiss-risky-users')
+            ->dispatch();
     }
 }
