@@ -2,8 +2,8 @@
 
 namespace Tests\Feature\Services\AzureAD;
 
-use App\Facades\TokenCache;
 use App\Services\AzureAD\RiskyUserProperties;
+use App\Services\AzureAD\RiskyUserTop;
 use App\Services\AzureAD\UserRiskState;
 use Database\Seeders\TokenCacheProviderSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -59,11 +59,28 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
+    public function valid_top_returns_its_value()
+    {
+        for ($i = 1; $i <= 500; $i++) {
+            $this->assertTrue($i == (new RiskyUserTop($i))->get());
+        }
+    }
+
+    /** @test */
+    public function invalid_top_throws_an_exception()
+    {
+        $this->expectException(InvalidArgumentException::class);
+
+        (new RiskyUserTop(501))->get();
+    }
+
+    /** @test */
     public function can_list_all_risky_users_objectId()
     {
         $UserRiskState = (new UserRiskState)
             ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
             ->atRisk()
+            ->top((new RiskyUserTop(500)))
             ->list();
 
         $values = array_filter(data_get($UserRiskState, 'value'), fn($item) => data_get($item, 'isDeleted') === false);
@@ -98,6 +115,7 @@ class RiskyUserResetTest extends TestCase
         $dismissedUsers = (new UserRiskState)
             ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
             ->atRisk()
+            ->top((new RiskyUserTop(500)))
             ->dismiss();
 
         $this->assertEquals(204, $dismissedUsers->status());
@@ -119,6 +137,7 @@ class RiskyUserResetTest extends TestCase
         $dismissedUsers = (new UserRiskState)
             ->select(new RiskyUserProperties('id'))
             ->atRisk()
+            ->top((new RiskyUserTop(500)))
             ->dismiss();
 
         $this->assertEquals(200, $dismissedUsers->status());
@@ -145,6 +164,7 @@ class RiskyUserResetTest extends TestCase
         $dismissedUsers = (new UserRiskState)
             ->select(new RiskyUserProperties('id'))
             ->atRisk()
+            ->top((new RiskyUserTop(500)))
             ->dismiss();
 
         $this->assertEquals(204, $dismissedUsers->status());
@@ -166,6 +186,7 @@ class RiskyUserResetTest extends TestCase
         $dismissedUsers = (new UserRiskState)
             ->select(new RiskyUserProperties('id'))
             ->atRisk()
+            ->top((new RiskyUserTop(500)))
             ->dismiss();
 
         $this->assertTrue(true);
