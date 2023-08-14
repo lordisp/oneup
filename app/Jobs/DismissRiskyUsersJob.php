@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Services\AzureAD\RiskyUserProperties;
+use App\Services\AzureAD\RiskyUserTop;
 use App\Services\AzureAD\UserRiskState;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -23,6 +24,7 @@ class DismissRiskyUsersJob implements ShouldQueue
         $dismissedUsers = (new UserRiskState)
             ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
             ->atRisk()
+            ->top((new RiskyUserTop(500)))
             ->dismiss();
 
         if ($dismissedUsers->status() == 204) {

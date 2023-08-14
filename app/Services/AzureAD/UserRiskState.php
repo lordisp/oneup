@@ -16,7 +16,7 @@ class UserRiskState
     protected string $userId;
     protected string $url;
     protected string|array $filter;
-    protected string|null $properties = null;
+    protected array|null $properties = null;
 
     public function __construct()
     {
@@ -34,7 +34,16 @@ class UserRiskState
     {
         $properties = $properties->get();
 
-        $this->properties = $properties ? "\$select=" . $properties : null;
+        $this->properties[] = $properties ? "\$select=" . $properties : null;
+
+        return $this;
+    }
+
+    public function top(RiskyUserTop $top): static
+    {
+        $properties = $top->get();
+
+        $this->properties[] = $properties ? "\$top=" . $properties : null;
 
         return $this;
     }
@@ -67,7 +76,7 @@ class UserRiskState
             $query[] = $this->userId;
         }
         if (isset($this->properties)) {
-            $query[] = $this->properties;
+            $query[] = implode('&', $this->properties);
         }
         if (isset($this->filter)) {
             $query[] = $this->filter;
