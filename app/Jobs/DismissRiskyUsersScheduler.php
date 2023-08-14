@@ -29,7 +29,7 @@ class DismissRiskyUsersScheduler implements ShouldQueue, ShouldBeUnique
             ->top((new RiskyUserTop(500)))
             ->dismiss();
 
-        if ($dismissedUsers instanceof Batch::class) {
+        if ($dismissedUsers instanceof Batch) {
             DismissRiskyUsersScheduler::dispatch()
                 ->delay(now()->addMinute());
         }
