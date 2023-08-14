@@ -30,7 +30,8 @@ class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
             ->dismiss();
 
         if ($dismissedUsers->status() == 204) {
-            DismissRiskyUsersJob::dispatch();
+            DismissRiskyUsersJob::dispatch()
+                ->delay(now()->addSeconds(30));
         }
     }
 }
