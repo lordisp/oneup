@@ -2,12 +2,15 @@
 
 namespace Tests\Feature\Services\AzureAD;
 
+use App\Jobs\DismissRiskyUsersJob;
 use App\Services\AzureAD\RiskyUserProperties;
 use App\Services\AzureAD\RiskyUserTop;
 use App\Services\AzureAD\UserRiskState;
 use Database\Seeders\TokenCacheProviderSeeder;
+use Illuminate\Bus\Batch;
+use Illuminate\Bus\PendingBatch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\Client\RequestException;
+use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
@@ -95,9 +98,9 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function can_dismiss_risky_users()
+    public function can_dispatch_dismiss_risky_users_jobs()
     {
-        Log::shouldReceive('info')->once();
+        Bus::fake([DismissRiskyUsersJob::class]);
 
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
@@ -112,13 +115,43 @@ class RiskyUserResetTest extends TestCase
             'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 204)
         ]);
 
-        $dismissedUsers = (new UserRiskState)
+        (new UserRiskState)
             ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
             ->atRisk()
-            ->top((new RiskyUserTop(500)))
+            ->top(new RiskyUserTop(500))
             ->dismiss();
 
-        $this->assertEquals(204, $dismissedUsers->status());
+        Bus::assertBatched(function (PendingBatch $batch) {
+            return $batch->name == 'dismiss-risky-users' &&
+                $batch->jobs->count() === 1;
+        });
+    }
+
+    /** @test */
+    public function can_dismiss_risky_users_jobs()
+    {
+        Log::shouldReceive('info')->once();
+        Http::fake([
+            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
+            'https://graph.microsoft.com/v1.0/identityProtection/*' => Http::response([
+                'value' => [
+                    [
+                        'id' => Str::uuid()->toString(),
+                        'isDeleted' => false,
+                    ]
+                ]
+            ], 204),
+            'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 204)
+        ]);
+
+        $batch = (new UserRiskState)
+            ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
+            ->atRisk()
+            ->top(new RiskyUserTop(500))
+            ->dismiss();
+
+        $this->assertTrue($batch->pendingJobs === 0);
+
     }
 
     /** @test */
@@ -134,53 +167,61 @@ class RiskyUserResetTest extends TestCase
             'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 204)
         ]);
 
-        $dismissedUsers = (new UserRiskState)
+        $batch = (new UserRiskState)
             ->select(new RiskyUserProperties('id'))
             ->atRisk()
             ->top((new RiskyUserTop(500)))
             ->dismiss();
 
-        $this->assertEquals(200, $dismissedUsers->status());
+        $this->assertTrue($batch === null);
     }
 
     /** @test */
     public function failed_to_dismiss_risky_users()
     {
-        Log::shouldReceive('info')->once();
-
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
-            'https://graph.microsoft.com/v1.0/identityProtection/*' => Http::response([
-                'value' => [
-                    [
-                        'id' => Str::uuid()->toString(),
-                        'isDeleted' => false,
+            'https://graph.microsoft.com/v1.0/identityProtection/riskyUsers*' => Http::sequence()
+                ->push([
+                    'value' => [
+                        [
+                            'id' => Str::uuid()->toString(),
+                            'isDeleted' => false,
+                        ]
                     ]
-                ]
-            ], 204),
-            'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 500)
+                ], 204)
+                ->push(status: 500)
         ]);
 
-        $dismissedUsers = (new UserRiskState)
+        $batch = (new UserRiskState)
             ->select(new RiskyUserProperties('id'))
             ->atRisk()
             ->top((new RiskyUserTop(500)))
             ->dismiss();
 
-        $this->assertEquals(204, $dismissedUsers->status());
+        $this->assertTrue($batch->failedJobs === 1);
     }
 
     /** @test */
     public function api_will_retry_on_error()
     {
-        $this->expectException(RequestException::class);
-
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('tests/Feature/Stubs/app_access_token.json')), true)),
             'https://graph.microsoft.com/v1.0/identityProtection/*' => Http::sequence()
-                ->push(status: 404)
-                ->push(status: 503)
-                ->push(status: 500)
+                ->push(status: 401)
+                ->push(status: 401)
+                ->push(status: 401)
+                ->push(status: 401)
+                ->push([
+                    'value' => [
+                        [
+                            'id' => Str::uuid()->toString(),
+                            'isDeleted' => false,
+                        ]
+                    ]
+                ], 204)
+                ->push(status: 204)
+
         ]);
 
         $dismissedUsers = (new UserRiskState)
@@ -189,6 +230,7 @@ class RiskyUserResetTest extends TestCase
             ->top((new RiskyUserTop(500)))
             ->dismiss();
 
-        $this->assertTrue(true);
+        $this->isInstanceOf(Batch::class);
+        $this->assertFalse($dismissedUsers->hasFailures());
     }
 }
