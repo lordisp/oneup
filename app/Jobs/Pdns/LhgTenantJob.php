@@ -39,6 +39,7 @@ class LhgTenantJob implements ShouldQueue, ShouldBeUnique
                 'privatelink.westeurope.azmk8s.io',
                 'privatelink.api.azureml.ms',
                 'privatelink.azure-api.net',
+                'privatelink.mysql.database.azure.com',
             ])
             ->sync();
     }
