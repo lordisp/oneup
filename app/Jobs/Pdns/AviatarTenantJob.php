@@ -31,6 +31,9 @@ class AviatarTenantJob implements ShouldQueue, ShouldBeUnique
                 'privatelink.api.azureml.ms',
                 'privatelink.azure-api.net',
                 'privatelink.mysql.database.azure.com',
+                'privatelink.westeurope.kusto.windows.net',
+                'privatelink.northeurope.kusto.windows.net',
+                'privatelink.kusto.azuresynapse.net',
             ])
             ->sync();
     }
