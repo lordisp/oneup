@@ -35,7 +35,7 @@ class FirewallRulePolicy
             && isset($rule->new_status)
             && ($rule->status != 'deleted' && $rule->status != 'extended')
             || $user->operations()->contains(
-                $this->updateOrCreate('serviceNow/firewall/request/readAll', 'Can extend all firewall rules')
+                $this->updateOrCreate('serviceNow/firewall/request/extendAll', 'Can extend all firewall rules')
             );
     }
 
