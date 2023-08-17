@@ -41,7 +41,10 @@ class DismissRiskyUsersJob implements ShouldQueue
 
                     return false;
                 }
-
+                if ($exception instanceof RequestException and $exception->getCode() === 429) {
+                    sleep(($exception->response->header('Retry-After') ?? 10) * 60);
+                    return true;
+                }
                 $request->withToken(decrypt($this->newToken(self::PROVIDER)));
 
                 return true;

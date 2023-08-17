@@ -31,7 +31,6 @@ class UserRiskState
         return $this->callGraphAPI();
     }
 
-
     public function select(RiskyUserProperties $properties): static
     {
         $properties = $properties->get();
@@ -56,7 +55,14 @@ class UserRiskState
 
         return Http::withToken(decrypt($this->token(self::PROVIDER)))
             ->retry(5, 50, function ($exception, $request) {
-                if ($exception instanceof RequestException && $exception->getCode() >= 402) {
+                if ($exception instanceof RequestException && $exception->getCode() >= 402 && $exception->getCode() != 429) {
+                    return false;
+                }
+                if ($exception instanceof RequestException and $exception->getCode() === 429) {
+                    sleep(($exception->response->header('Retry-After') ?? 10) * 60);
+                    return true;
+                }
+                if ($exception instanceof RequestException and $exception->getCode() === 400) {
                     return false;
                 }
                 $request->withToken(decrypt($this->newToken(self::PROVIDER)));
@@ -67,7 +73,6 @@ class UserRiskState
                 fn($response) => Log::error('RiskyUsers API Error', (array)$response))
             ->json();
     }
-
 
     protected function queryBuilder(): string
     {
@@ -92,21 +97,16 @@ class UserRiskState
 
     public function atRisk($operator = 'and'): static
     {
-        $this->filter[] = "riskState eq 'atRisk'";
+        $this->filter[] = "riskState eq 'atRisk' and isDeleted eq false and isProcessing eq false";
 
         $this->filter = "\$filter=" . implode(' and ', $this->filter);
 
         return $this;
     }
 
-
     public function dismiss(): Batch|null
     {
-        $values = array_filter(
-            (array)data_get($this->list(), 'value'), fn($item) => data_get($item, 'isDeleted') === false
-        );
-
-        $userIds = data_get($values, '*.id');
+        $userIds = (array)data_get($this->list(), 'value.*.id');
 
         if (empty($userIds)) {
             Log::info('No RiskyUsers to dismiss');
@@ -114,7 +114,8 @@ class UserRiskState
         }
 
         $jobs = [];
-        foreach (array_chunk($userIds, 79) as $userIds) {
+
+        foreach (array_chunk($userIds, 50) as $userIds) {
             $jobs[] = new DismissRiskyUsersJob($userIds);
         }
 
