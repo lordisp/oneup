@@ -86,9 +86,7 @@ class RiskyUserResetTest extends TestCase
             ->top((new RiskyUserTop(500)))
             ->list();
 
-        $values = array_filter(data_get($UserRiskState, 'value'), fn($item) => data_get($item, 'isDeleted') === false);
-
-        $values = data_get($values, '*.id');
+        $values = data_get($UserRiskState, 'value.*.id');
 
         $this->assertIsArray($values);
 
@@ -160,9 +158,7 @@ class RiskyUserResetTest extends TestCase
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
             'https://graph.microsoft.com/v1.0/identityProtection/*' => Http::response([
-                'value' => [
-                    []
-                ]
+                'value' => []
             ], 204),
             'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 204)
         ]);
