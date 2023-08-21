@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Log;
 
 class RuleStatus extends Rule
 {
+    const ReviewIterationMonths = 6;
 
     public static function reset($rule): FirewallRule
     {
@@ -18,16 +19,20 @@ class RuleStatus extends Rule
 
     private function resetStatus(): static
     {
-        if ($this->rule->last_review <= now()->subQuarter()
-            && $this->rule->pci_dss
+        $rule = $this->rule;
+        if ($this->rule->last_review <= now()->subMonths(self::ReviewIterationMonths)
             && $this->rule->action === 'add'
             && $this->rule->status !== 'deleted'
             && $this->rule->status !== 'open'
-            && Carbon::parse($this->rule->end_date) <= now()
+            && Carbon::parse($this->rule->end_date) > now()
         ) {
             $this->rule->status = 'open';
             $this->rule->save();
-            Log::debug("UPDATED STATUS: reset status from '{$this->rule->status}' to 'open'");
+            Log::info("UPDATED STATUS: reset status from '{$rule->status}' to 'open'", [
+                'id' => $rule->id,
+                'previews_status' => $rule->status,
+                'status' => 'open',
+            ]);
         }
         return $this;
     }
