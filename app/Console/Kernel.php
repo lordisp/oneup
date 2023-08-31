@@ -60,6 +60,10 @@ class Kernel extends ConsoleKernel
         $schedule->exec('sudo /usr/local/bin/updater.sh')
             ->daily();
 
+        $schedule->job(new VmStartStopSchedulerJob)
+            ->everyFifteenMinutes()
+            ->onOneServer();
+
         $schedule->job(new ScheduledUserImportJob())
             ->everyFifteenMinutes()
             ->onOneServer();
