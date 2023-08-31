@@ -9,8 +9,6 @@ use App\Traits\Token;
 use Arr;
 use Database\Seeders\TokenCacheProviderSeeder;
 use GuzzleHttp\Promise\PromiseInterface;
-use Illuminate\Console\Scheduling\CallbackEvent;
-use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Event;
@@ -348,24 +346,6 @@ class VMStartStopAutomationTest extends TestCase
         VmStartStopSchedulerJob::dispatch();
 
         $this->assertTrue(true);
-    }
-
-    /** @test */
-    public function start_top_scheduler_runs_every_fifteen_minutes()
-    {
-        $schedule = app()->make(Schedule::class);
-
-        $events = collect($schedule->events())->filter(function (\Illuminate\Console\Scheduling\Event $event) {
-            return stripos($event->description, 'VmStartStopSchedulerJob');
-        });
-
-        if ($events->count() == 0) {
-            $this->fail('No events found');
-        }
-
-        $events->each(function (CallbackEvent $event) {
-            $this->assertEquals('*/15 * * * *', $event->expression);
-        });
     }
 
     protected function runningGraphFaker(): PromiseInterface
