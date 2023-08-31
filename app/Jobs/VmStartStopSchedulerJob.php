@@ -100,12 +100,12 @@ class VmStartStopSchedulerJob implements ShouldQueue
 
     private function createFromFormat(string $date): Carbon
     {
-        $now = now()->setTimezone($this->timezone);
+        $now = now();
 
         return Carbon::createFromFormat('H:i', $date)->setDate(
             $now->year,
             $now->month,
             $now->day,
-        );
+        )->setTimezone($this->timezone);
     }
 }
