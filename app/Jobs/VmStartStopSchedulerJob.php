@@ -72,7 +72,7 @@ class VmStartStopSchedulerJob implements ShouldQueue
             ->get($url);
 
         if ($response->failed()) {
-            Log::error($response->reason());
+            Log::error($response->reason(), ['VmStartStop']);
             $this->release(now()->addSeconds(10));
         }
 
