@@ -223,7 +223,7 @@ class VMStartStopAutomationTest extends TestCase
     public function vm_state_change_event_deallocate_server()
     {
         Event::fake([VmStateChangeEvent::class]);
-        Log::shouldReceive('info')->between(3, 3);
+        Log::shouldReceive('info')->once();
 
         Carbon::setTestNow(
             Carbon::today()
@@ -248,7 +248,7 @@ class VMStartStopAutomationTest extends TestCase
     public function vm_state_change_event_start_server()
     {
         Event::fake([VmStateChangeEvent::class]);
-        Log::shouldReceive('info')->between(3, 3);
+        Log::shouldReceive('info')->once();
 
         Carbon::setTestNow(
             Carbon::today()
@@ -273,7 +273,7 @@ class VMStartStopAutomationTest extends TestCase
     public function vm_state_change_event_deallocate_a_stopped_server()
     {
         Event::fake([VmStateChangeEvent::class]);
-        Log::shouldReceive('info')->between(3, 3);
+        Log::shouldReceive('info')->once();
 
         Carbon::setTestNow(
             Carbon::today()

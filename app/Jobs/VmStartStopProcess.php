@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Events\VmStateChangeEvent;
+use App\Exceptions\AzureArm\ResourceGraphException;
 use App\Services\AzureArm\ResourceGraph;
 use App\Traits\Token;
 use Illuminate\Bus\Batchable;
@@ -19,7 +20,6 @@ class VmStartStopProcess implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token;
 
-    const PROVIDER = 'lhg_arm';
     protected string $timezone = '';
 
     public function __construct(protected array $server)
@@ -44,8 +44,6 @@ class VmStartStopProcess implements ShouldQueue
 
         if ($this->shouldStartServer($now, $this->server['from'], $this->server['to'], data_get($serverState, 'powerState'), data_get($serverState, 'provisioningState'))) {
 
-            Log::info(sprintf("start server %s", $this->server['vmName']),['VmStartStop']);
-
             if ($this->server['status'] == 'simulate') {
                 Log::info(sprintf("Simulate start %s", $this->server['vmName']),['VmStartStop']);
                 return;
@@ -58,8 +56,6 @@ class VmStartStopProcess implements ShouldQueue
 
         if ($this->shouldStopServer($now, $this->server['from'], $this->server['to'], data_get($serverState, 'powerState'), data_get($serverState, 'provisioningState'))) {
 
-            Log::info(sprintf("stop server %s", $this->server['vmName']),['VmStartStop']);
-
             if ($this->server['status'] == 'simulate') {
                 Log::info(sprintf("Simulate deallocate %s", $this->server['vmName']),['VmStartStop']);
                 return;
@@ -70,6 +66,9 @@ class VmStartStopProcess implements ShouldQueue
 
     }
 
+    /**
+     * @throws ResourceGraphException
+     */
     private function getServerState(): array
     {
         $result = (new ResourceGraph)
