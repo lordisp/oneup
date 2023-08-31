@@ -60,7 +60,7 @@ class VmStartStopSchedulerJob implements ShouldQueue
         $response = Http::withToken($token)
             ->retry(5, 0, function ($exception, $request) {
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
-                    sleep(($exception->response->header('Retry-After') ?? 10));
+                    sleep($exception->response->header('Retry-After') ?? 10);
                     return true;
                 }
                 if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
@@ -101,12 +101,10 @@ class VmStartStopSchedulerJob implements ShouldQueue
     private function createFromFormat(string $date): Carbon
     {
         $now = now()->setTimezone($this->timezone);
-        $offSet = $now->getOffset();
 
-        return Carbon::createFromFormat('H:i', $date)->setDate(
-            $now->year,
-            $now->month,
-            $now->day,
-        )->subHours($offSet / 3600)->setTimezone($this->timezone);
+        return Carbon::createFromFormat('H:i', $date)
+            ->setDate($now->year, $now->month, $now->day)
+            ->subSeconds($now->getOffset())
+            ->setTimezone($this->timezone);
     }
 }

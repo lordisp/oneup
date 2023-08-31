@@ -36,28 +36,25 @@ spec:
             - -c
             - |
               php artisan config:cache; php artisan migrate --force; php artisan queue:work --memory=960 --timeout=1800;
-          env:
-            - name: BUILD
-              value: "20230520.1"
           envFrom:
             - secretRef:
                 name: oneup-env
             - configMapRef:
                 name: oneup-env
-          image: acrlhggixiservicesp.azurecr.io/oneup:latest
-          imagePullPolicy: Always
+          image: acrlhggixiservicesp.azurecr.io/oneup:20230831.6
+          imagePullPolicy: IfNotPresent
           name: queue
           ports:
             - containerPort: 8000
               name: oneup
               protocol: TCP
           resources:
-            requests:
-              cpu: 400m
-              memory: 1088Mi
             limits:
               cpu: 400m
-              memory: 1536Mi
+              memory: 400Mi
+            requests:
+              cpu: 300m
+              memory: 300Mi
           volumeMounts:
             - mountPath: /etc/apache2/sites-available/
               name: apache-config
