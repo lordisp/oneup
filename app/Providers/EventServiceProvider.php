@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Events\FirewallReviewAvailableEvent;
 use App\Events\ImportNewFirewallRequestsEvent;
+use App\Events\VmStateChangeEvent;
 use App\Listeners\CleanUpFirewallRulesListener;
 use App\Listeners\ImportNewFirewallRequestsEventListener;
 use App\Listeners\NotifyFirewallImportDispatcherListener;
 use App\Listeners\SessionExpiredListener;
+use App\Listeners\VmStateChangeProcessListener;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -32,6 +34,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         'session.expire' => [
             SessionExpiredListener::class
+        ],
+        VmStateChangeEvent::class => [
+            VmStateChangeProcessListener::class,
         ],
     ];
 
