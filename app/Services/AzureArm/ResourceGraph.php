@@ -176,7 +176,7 @@ class ResourceGraph
         return Http::withToken(decrypt($token))
             ->retry(10, 0, function ($exception, $request) {
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
-                    sleep(($exception->response->header('Retry-After') ?? 10));
+                    sleep($exception->response->header('Retry-After') ?? 10);
                     return true;
                 }
 
