@@ -1,0 +1,13 @@
+{
+  "totalRecords": 1,
+  "count": 1,
+  "data": [
+    {
+      "id": "\/subscriptions\/636529f0-5874-4a7f-9641-054746c3e250\/resourceGroups\/RG_L-JUMP-P01\/providers\/Microsoft.Compute\/virtualMachines\/L-JUMP-P01",
+      "powerState": "PowerState\/running",
+      "provisioningState": "Succeeded"
+    }
+  ],
+  "facets": [],
+  "resultTruncated": "false"
+}

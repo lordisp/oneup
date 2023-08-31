@@ -1,0 +1,36 @@
+{
+  "values": [
+    [
+      "Name",
+      "Subscription",
+      "Start",
+      "Stop",
+      "WeekType",
+      "Status"
+    ],
+    [
+      "L-JUMP-P01",
+      "636529f0-5874-4a7f-9641-054746c3e250",
+      "09:00",
+      "17:00",
+      "Mon-Sun",
+      "Enabled"
+    ],
+    [
+      "L-JUMP-P01",
+      "636529f0-5874-4a7f-9641-054746c3e250",
+      "09:00",
+      "17:00",
+      "Mon-Sun",
+      "Simulate"
+    ],
+    [
+      "L-JUMP-P01",
+      "636529f0-5874-4a7f-9641-054746c3e250",
+      "09:00",
+      "17:00",
+      "Mon-Sun",
+      "Disabled"
+    ]
+  ]
+}

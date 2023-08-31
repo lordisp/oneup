@@ -55,7 +55,12 @@ return [
         
         'prune-telescope' => [
             'hours' => env('PRUNE_TELESCOPE_HOURS', 12),
-        ]
+        ],
+
+        'vm-start-stop-scheduler' => [
+            'enabled' => env('VM_START_STOP_ENABLED', true),
+            'timezone' => env('VM_START_STOP_TIMEZONE', 'Europe/Amsterdam'),
+        ],
     ],
 
     'azure-ad' => [

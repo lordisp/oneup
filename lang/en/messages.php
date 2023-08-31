@@ -34,6 +34,7 @@ return [
     ],
     'failed' => [
         'firewall_request_validation' => 'Firewall-Request Validation failed',
+        'invalid_operation_argument' => 'Either start or deallocate are allowed arguments',
     ],
     'rule_previously_decommissioned' => 'Rule previously decommissioned!',
     'rule_decommissioned' => 'Decommissioned Firewall-Rule',

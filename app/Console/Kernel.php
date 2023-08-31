@@ -5,6 +5,7 @@ namespace App\Console;
 use App\Jobs\DismissRiskyUsersScheduler;
 use App\Jobs\PdnsSync;
 use App\Jobs\Scim\ScheduledUserImportJob;
+use App\Jobs\VmStartStopSchedulerJob;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;

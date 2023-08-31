@@ -22,6 +22,7 @@ class ResourceGraph
     protected array $extend;
     protected array $where;
     protected array $project;
+    protected string $take;
     protected string $token = '';
 
     /**
@@ -129,6 +130,12 @@ class ResourceGraph
         return $this;
     }
 
+    public function take(int $number): static
+    {
+        $this->take = "take {$number}";
+        return $this;
+    }
+
     public function project(string|array ...$attributes): static
     {
         $attributes = implode(',', $attributes);
@@ -167,7 +174,11 @@ class ResourceGraph
         $token = !empty($this->token) ? $this->token : $this->token($this->provider);
 
         return Http::withToken(decrypt($token))
-            ->retry(10, 50, function ($exception, $request) {
+            ->retry(10, 0, function ($exception, $request) {
+                if ($exception instanceof RequestException and $exception->getCode() === 429) {
+                    sleep(($exception->response->header('Retry-After') ?? 10));
+                    return true;
+                }
 
                 Log::debug("Retry because {$exception->getMessage()}", (array)$exception);
 
@@ -211,6 +222,10 @@ class ResourceGraph
 
         if (isset($this->project)) {
             $options[] = implode(' | ', $this->project);
+        }
+
+        if (isset($this->take)) {
+            $options[] = $this->take;
         }
 
         if (isset($this->withSubscription)) {
