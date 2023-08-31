@@ -36,10 +36,10 @@ class VmStateChangeProcessListener
             ->post(sprintf("https://management.azure.com%s/{$event->operation}?api-version=2023-07-01", $event->id));
 
         if ($response->failed()) {
-            Log::error(sprintf("Failed to %s %s. %s", $event->operation, $event->vmName, $response->reason()));
+            Log::error(sprintf("Failed to %s %s. %s", $event->operation, $event->vmName, $response->reason()),['VmStartStop']);
             return;
         }
 
-        Log::info(sprintf("Successfully to %s %s.", $event->operation, $event->vmName));
+        Log::info(sprintf("Successfully %s %s.", $event->operation, $event->vmName),['VmStartStop']);
     }
 }
