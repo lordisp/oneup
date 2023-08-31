@@ -106,6 +106,6 @@ class VmStartStopSchedulerJob implements ShouldQueue
             $now->year,
             $now->month,
             $now->day,
-        )->setTimezone($this->timezone);
+        )->subHours(2)->setTimezone($this->timezone);
     }
 }
