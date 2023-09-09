@@ -47,9 +47,6 @@ class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
         $response = Http::withToken(decrypt($this->token(self::PROVIDER)))
             ->retry(5, 0, function ($exception, $request) {
                 if ($exception instanceof RequestException && $exception->getCode() === 400) {
-
-                    $this->sendDeveloperNotification($exception);
-
                     return false;
                 }
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
@@ -64,9 +61,11 @@ class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
                 'userIds' => $this->userIds
             ]);
 
-        Log::info('Updated User-Risk State', [
-            'service' => 'risky-users',
-            'ids' => $this->userIds
-        ]);
+        if ($response->successful()) {
+            Log::info('Updated User-Risk State', [
+                'service' => 'risky-users',
+                'ids' => $this->userIds
+            ]);
+        }
     }
 }
