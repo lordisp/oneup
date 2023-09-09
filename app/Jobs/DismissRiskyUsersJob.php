@@ -6,15 +6,18 @@ use App\Traits\DeveloperNotification;
 use App\Traits\Token;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Cache\Repository;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class DismissRiskyUsersJob implements ShouldQueue
+class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token, DeveloperNotification;
 
@@ -22,6 +25,16 @@ class DismissRiskyUsersJob implements ShouldQueue
 
     public function __construct(private array $userIds)
     {
+    }
+
+    public function uniqueId(): string
+    {
+        return md5(json_encode($this->userIds));
+    }
+
+    public function uniqueVia(): Repository
+    {
+        return Cache::driver(config('app.env') == 'production' ? 'redis' : 'array');
     }
 
     /**
@@ -37,7 +50,7 @@ class DismissRiskyUsersJob implements ShouldQueue
 
                     $this->sendDeveloperNotification($exception);
 
-                    $this->fail($exception);
+                    $this->fail($exception->getMessage());
 
                     return false;
                 }
