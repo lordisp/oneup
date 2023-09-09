@@ -122,6 +122,35 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
+    public function risky_users_returns_request_exception()
+    {
+        Log::shouldReceive('error')->withArgs(function ($message, $context) {
+            return $message == 'RiskyUsers API Error' &&
+                $context['service'] == 'risky-users' &&
+                $context['message'] == 'Bad Request' &&
+                $context['status'] == 400;
+        })->once();
+
+        Log::shouldReceive('info')->withArgs(function ($message, $context) {
+            return $message == 'No RiskyUsers to dismiss' && $context['service'] == 'risky-users';
+        })->once();
+
+
+        Http::fake([
+            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
+            'https://graph.microsoft.com/v1.0/identityProtection/*' => Http::response(status: 400)
+        ]);
+
+        (new UserRiskState)
+            ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
+            ->atRisk()
+            ->top((new RiskyUserTop(500)))
+            ->dismiss();
+
+        $this->assertTrue(true);
+    }
+
+    /** @test */
     public function can_dispatch_dismiss_risky_users_jobs()
     {
         Bus::fake([DismissRiskyUsersJob::class]);
