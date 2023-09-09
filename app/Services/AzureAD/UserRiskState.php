@@ -70,7 +70,11 @@ class UserRiskState
             }, false)
             ->get($url)
             ->onError(
-                fn($response) => Log::error('RiskyUsers API Error', (array)$response))
+                fn($exception) => Log::error('RiskyUsers API Error', [
+                    'message' => sprintf("%s on Line %s in %s", $exception->getMessage(), $exception->getLine(), $exception->getFile()),
+                    'code' => $exception->getCode(),
+                    'trace' => $exception->getTrace(),
+                ]))
             ->json();
     }
 
