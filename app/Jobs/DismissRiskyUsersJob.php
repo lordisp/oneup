@@ -29,7 +29,7 @@ class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
 
     public function uniqueId(): string
     {
-        return md5(json_encode($this->userIds));
+        return implode('_', $this->userIds);
     }
 
     public function uniqueVia(): Repository

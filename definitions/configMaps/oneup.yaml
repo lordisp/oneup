@@ -62,6 +62,7 @@ data:
   TELESCOPE_BATCH_ENTRY: "false"
   TELESCOPE_BATCH_QUERY: "false"
   TELESCOPE_BATCH_REDIS: "false"
+  CHUNK_DISMISS_RISKY_USERS: "1"
   APACHE_RUN_USER: "www-data"
   APACHE_RUN_GROUP: "www-data"
   apache: |

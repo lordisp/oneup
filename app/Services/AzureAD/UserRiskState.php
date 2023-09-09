@@ -5,7 +5,6 @@ namespace App\Services\AzureAD;
 use App\Jobs\DismissRiskyUsersJob;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
-use Illuminate\Bus\Batch;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
@@ -108,22 +107,26 @@ class UserRiskState
         return $this;
     }
 
-    public function dismiss(): Batch|null
+    public function dismiss(): void
     {
         $userIds = (array)data_get($this->list(), 'value.*.id');
 
         if (empty($userIds)) {
-            Log::info('No RiskyUsers to dismiss');
-            return null;
+            Log::info('No RiskyUsers to dismiss', [
+                'service' => 'risky-users'
+            ]);
+            return ;
         }
 
-        foreach (array_chunk($userIds, 20) as $userIds) {
+        foreach (array_chunk($userIds, config('services.azure-ad.chunk-dismiss-risky-users')) as $userIds) {
             $jobs[] = new DismissRiskyUsersJob($userIds);
         }
 
-        return isset($jobs) ? Bus::batch($jobs)
-            ->name('dismiss-risky-users')
-            ->allowFailures()
-            ->dispatch() : null;
+        if (isset($jobs)) {
+            Bus::batch($jobs)
+                ->name('dismiss-risky-users')
+                ->allowFailures()
+                ->dispatch();
+        }
     }
 }
