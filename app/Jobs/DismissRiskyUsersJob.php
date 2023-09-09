@@ -64,15 +64,6 @@ class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
                 'userIds' => $this->userIds
             ]);
 
-        if ($response->failed()) {
-            Log::error('Failed to update User-Risk State', [
-                'service' => 'risky-users',
-                'status' => $response->status(),
-                'reason' => $response->reason(),
-            ]);
-            $this->fail($response->reason());
-            return;
-        }
         Log::info('Updated User-Risk State', [
             'service' => 'risky-users',
             'ids' => $this->userIds
