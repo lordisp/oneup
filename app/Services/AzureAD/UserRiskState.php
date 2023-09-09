@@ -59,7 +59,7 @@ class UserRiskState
                     return false;
                 }
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
-                    sleep(($exception->response->header('Retry-After') ?? 10) * 60);
+                    sleep($exception->response->header('Retry-After') ?? 10);
                     return true;
                 }
                 if ($exception instanceof RequestException and $exception->getCode() === 400) {
@@ -121,6 +121,7 @@ class UserRiskState
 
         return Bus::batch($jobs)
             ->name('dismiss-risky-users')
+            ->allowFailures()
             ->dispatch();
     }
 }

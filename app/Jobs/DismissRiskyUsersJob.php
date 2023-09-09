@@ -32,8 +32,8 @@ class DismissRiskyUsersJob implements ShouldQueue
     public function handle()
     {
         $response = Http::withToken(decrypt($this->token(self::PROVIDER)))
-            ->retry(5, 50, function ($exception, $request) {
-                if ($exception instanceof RequestException && $exception->getCode() >= 402) {
+            ->retry(5, 0, function ($exception, $request) {
+                if ($exception instanceof RequestException && $exception->getCode() === 400) {
 
                     $this->sendDeveloperNotification($exception);
 
@@ -42,7 +42,7 @@ class DismissRiskyUsersJob implements ShouldQueue
                     return false;
                 }
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
-                    sleep(($exception->response->header('Retry-After') ?? 10) * 60);
+                    sleep($exception->response->header('Retry-After') ?? 10);
                     return true;
                 }
                 $request->withToken(decrypt($this->newToken(self::PROVIDER)));
@@ -53,8 +53,18 @@ class DismissRiskyUsersJob implements ShouldQueue
                 'userIds' => $this->userIds
             ]);
 
-        if ($response->successful()) {
-            Log::info('Updated User-Risk State', $this->userIds);
+        if ($response->failed()) {
+            Log::error('Failed to update User-Risk State', [
+                'service' => 'risky-users',
+                'status' => $response->status(),
+                'reason' => $response->reason(),
+            ]);
+            $this->fail($response->reason());
+            return;
         }
+        Log::info('Updated User-Risk State', [
+            'service' => 'risky-users',
+            'ids' => $this->userIds
+        ]);
     }
 }
