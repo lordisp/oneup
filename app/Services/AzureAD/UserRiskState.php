@@ -117,7 +117,7 @@ class UserRiskState
             return null;
         }
 
-        foreach (array_chunk($userIds, 50) as $userIds) {
+        foreach (array_chunk($userIds, 20) as $userIds) {
             $jobs[] = new DismissRiskyUsersJob($userIds);
         }
 
