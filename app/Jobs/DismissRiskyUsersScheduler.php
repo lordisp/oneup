@@ -12,6 +12,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class DismissRiskyUsersScheduler implements ShouldQueue, ShouldBeUnique
 {
@@ -20,6 +21,7 @@ class DismissRiskyUsersScheduler implements ShouldQueue, ShouldBeUnique
     public function handle(): void
     {
         if (!config('services.azure-ad.dismiss-risky-users')) {
+            Log::warning('Dismiss-Risky-Users is disabled');
             return;
         }
 
