@@ -6,13 +6,14 @@ use App\Services\AzureAD\RiskyUserProperties;
 use App\Services\AzureAD\RiskyUserTop;
 use App\Services\AzureAD\UserRiskState;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 
-class DismissRiskyUsersScheduler implements ShouldQueue
+class DismissRiskyUsersScheduler implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 

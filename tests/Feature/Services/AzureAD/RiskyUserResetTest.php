@@ -3,21 +3,16 @@
 namespace Tests\Feature\Services\AzureAD;
 
 use App\Jobs\DismissRiskyUsersJob;
-use App\Models\Group;
-use App\Models\User;
-use App\Notifications\DeveloperNotification;
 use App\Services\AzureAD\RiskyUserProperties;
 use App\Services\AzureAD\RiskyUserTop;
 use App\Services\AzureAD\UserRiskState;
 use Database\Seeders\TokenCacheProviderSeeder;
-use Database\Seeders\UserAzureSeeder;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Tests\TestCase;
