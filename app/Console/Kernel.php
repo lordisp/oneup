@@ -69,7 +69,8 @@ class Kernel extends ConsoleKernel
             ->onOneServer();
 
         $schedule->job(new DismissRiskyUsersScheduler)
-            ->everyFiveMinutes();
+            ->everyFiveMinutes()
+            ->onOneServer();
     }
 
     /**
