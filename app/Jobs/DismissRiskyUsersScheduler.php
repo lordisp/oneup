@@ -28,15 +28,10 @@ class DismissRiskyUsersScheduler implements ShouldQueue
             'service' => 'risky-users'
         ]);
 
-        $dismissedUsers = (new UserRiskState)
+        (new UserRiskState)
             ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
             ->atRisk()
             ->top((new RiskyUserTop(500)))
             ->dismiss();
-
-        if ($dismissedUsers !== null) {
-            DismissRiskyUsersScheduler::dispatch()
-                ->delay(now()->addSeconds(5));
-        }
     }
 }
