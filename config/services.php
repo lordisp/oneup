@@ -64,6 +64,6 @@ return [
     ],
 
     'azure-ad' => [
-        'dismis-risky-users' => env('DISMIS_RISKY_USERS', true)
+        'dismiss-risky-users' => env('DISMISS_RISKY_USERS', true)
     ]
 ];
