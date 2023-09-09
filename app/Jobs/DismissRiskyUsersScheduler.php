@@ -19,10 +19,14 @@ class DismissRiskyUsersScheduler implements ShouldQueue
     public function handle(): void
     {
         if (!config('services.azure-ad.dismiss-risky-users')) {
-            Log::warning('Dismiss-Risky-Users is disabled');
+            Log::warning('Dismiss-Risky-Users is disabled', [
+                'service' => 'risky-users'
+            ]);
             return;
         }
-        Log::info('Run Risky-Users Scheduler');
+        Log::info('Run Risky-Users Scheduler', [
+            'service' => 'risky-users'
+        ]);
 
         $dismissedUsers = (new UserRiskState)
             ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
