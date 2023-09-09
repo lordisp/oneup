@@ -112,8 +112,10 @@ class UserRiskState
         $userIds = (array)data_get($this->list(), 'value.*.id');
 
         if (empty($userIds)) {
-            Log::info('No RiskyUsers to dismiss');
-            return null;
+            Log::info('No RiskyUsers to dismiss', [
+                'service' => 'risky-users'
+            ]);
+            return ;
         }
 
         foreach (array_chunk($userIds, 20) as $userIds) {
