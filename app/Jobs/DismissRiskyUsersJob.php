@@ -50,8 +50,6 @@ class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
 
                     $this->sendDeveloperNotification($exception);
 
-                    $this->fail($exception->getMessage());
-
                     return false;
                 }
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
