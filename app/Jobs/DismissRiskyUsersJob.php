@@ -47,6 +47,10 @@ class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
         $response = Http::withToken(decrypt($this->token(self::PROVIDER)))
             ->retry(5, 0, function ($exception, $request) {
                 if ($exception instanceof RequestException && $exception->getCode() === 400) {
+                    Log::error('Failed to dismiss risky-users: ' . $exception->getMessage(), [
+                        'service' => 'risky-users',
+                        'ids' => $this->userIds
+                    ]);
                     return false;
                 }
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
