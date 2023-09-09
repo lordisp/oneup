@@ -5,7 +5,6 @@ namespace App\Services\AzureAD;
 use App\Jobs\DismissRiskyUsersJob;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
-use Illuminate\Bus\Batch;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
