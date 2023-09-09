@@ -3,16 +3,21 @@
 namespace Tests\Feature\Services\AzureAD;
 
 use App\Jobs\DismissRiskyUsersJob;
+use App\Models\Group;
+use App\Models\User;
+use App\Notifications\DeveloperNotification;
 use App\Services\AzureAD\RiskyUserProperties;
 use App\Services\AzureAD\RiskyUserTop;
 use App\Services\AzureAD\UserRiskState;
 use Database\Seeders\TokenCacheProviderSeeder;
+use Database\Seeders\UserAzureSeeder;
 use Illuminate\Bus\Batch;
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use Tests\TestCase;
@@ -77,21 +82,47 @@ class RiskyUserResetTest extends TestCase
         (new RiskyUserTop(501))->get();
     }
 
+    protected function fakeListRiskyUsers(int $count = 500): \GuzzleHttp\Promise\PromiseInterface
+    {
+        for ($i = 1; $i <= $count; $i++) {
+            $value[] = [
+                'id' => Str::uuid()->toString(),
+                'isDeleted' => false,
+                'riskState' => 'atRisk',
+            ];
+        }
+        $response = [
+            '@odata.context' => 'https://graph.microsoft.com/v1.0/$metadata#identityProtection/riskyUsers(id,riskState,isDeleted)',
+            '@odata.nextLink' => 'https://graph.microsoft.com/v1.0/identityProtection/riskyUsers?$select=id%2criskState%2cisDeleted&$top=500&$filter=riskState+eq+%27atRisk%27+and+isDeleted+eq+false+and+isProcessing+eq+false&$skiptoken=389e075f59896e6ef4b385f94e130473edc479c91ecddacbb707404f0343a259_500',
+            'value' => $value ?? []
+        ];
+
+        return Http::response($response);
+    }
+
     /** @test */
     public function can_list_all_risky_users_objectId()
     {
+        Http::fake([
+            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
+            'https://graph.microsoft.com/v1.0/identityProtection/*' => $this->fakeListRiskyUsers()
+        ]);
+
         $UserRiskState = (new UserRiskState)
             ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
             ->atRisk()
             ->top((new RiskyUserTop(500)))
             ->list();
 
-        $values = data_get($UserRiskState, 'value.*.id');
+        $values = data_get($UserRiskState, 'value');
 
         $this->assertIsArray($values);
+        $this->assertCount(500, $values);
 
         foreach ($values as $value) {
-            $this->assertTrue(Str::isUuid($value));
+            $this->assertTrue(Str::isUuid(data_get($value, 'id')));
+            $this->assertFalse(data_get($value, 'isDeleted'));
+            $this->assertEquals('atRisk', data_get($value, 'riskState'));
         }
     }
 
@@ -175,6 +206,20 @@ class RiskyUserResetTest extends TestCase
     /** @test */
     public function failed_to_dismiss_risky_users()
     {
+        /* Seed database */
+        $this->seed([UserAzureSeeder::class]);
+        Group::factory()->state(['name' => 'Developers'])->create();
+        User::first()->assignGroup('Developers');
+
+        /* Faker */
+        Notification::fake();
+        Log::shouldReceive('error')->once()->withArgs(function ($message, $context) {
+            return $message === 'Failed to update User-Risk State' &&
+                $context['service'] === 'risky-users' &&
+                $context['status'] === 400 &&
+                $context['reason'] === 'Bad Request';
+        });
+
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
             'https://graph.microsoft.com/v1.0/identityProtection/riskyUsers*' => Http::sequence()
@@ -186,15 +231,22 @@ class RiskyUserResetTest extends TestCase
                         ]
                     ]
                 ], 204)
-                ->push(status: 500)
+                ->push(status: 400)
+                ->push(status: 400)
+                ->push(status: 400)
+                ->push(status: 400)
+                ->push(status: 400)
         ]);
 
+        /* Act */
         $batch = (new UserRiskState)
             ->select(new RiskyUserProperties('id'))
             ->atRisk()
             ->top((new RiskyUserTop(500)))
             ->dismiss();
 
+        /* Assert */
+        Notification::assertSentTimes(DeveloperNotification::class, 1);
         $this->assertTrue($batch->failedJobs === 1);
     }
 
