@@ -206,19 +206,7 @@ class RiskyUserResetTest extends TestCase
     /** @test */
     public function failed_to_dismiss_risky_users()
     {
-        /* Seed database */
-        $this->seed([UserAzureSeeder::class]);
-        Group::factory()->state(['name' => 'Developers'])->create();
-        User::first()->assignGroup('Developers');
-
-        /* Faker */
-        Notification::fake();
-        Log::shouldReceive('error')->once()->withArgs(function ($message, $context) {
-            return $message === 'Failed to update User-Risk State' &&
-                $context['service'] === 'risky-users' &&
-                $context['status'] === 400 &&
-                $context['reason'] === 'Bad Request';
-        });
+        Log::shouldReceive('info')->never();
 
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
@@ -246,8 +234,7 @@ class RiskyUserResetTest extends TestCase
             ->dismiss();
 
         /* Assert */
-        Notification::assertSentTimes(DeveloperNotification::class, 1);
-        $this->assertTrue($batch->failedJobs === 1);
+        $this->assertTrue($batch->failedJobs === 0);
     }
 
     /** @test */

@@ -113,15 +113,13 @@ class UserRiskState
             return null;
         }
 
-        $jobs = [];
-
         foreach (array_chunk($userIds, 50) as $userIds) {
             $jobs[] = new DismissRiskyUsersJob($userIds);
         }
 
-        return Bus::batch($jobs)
+        return isset($jobs) ? Bus::batch($jobs)
             ->name('dismiss-risky-users')
             ->allowFailures()
-            ->dispatch();
+            ->dispatch() : null;
     }
 }

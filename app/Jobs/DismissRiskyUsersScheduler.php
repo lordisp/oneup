@@ -5,7 +5,6 @@ namespace App\Jobs;
 use App\Services\AzureAD\RiskyUserProperties;
 use App\Services\AzureAD\RiskyUserTop;
 use App\Services\AzureAD\UserRiskState;
-use Illuminate\Bus\Batch;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -31,9 +30,9 @@ class DismissRiskyUsersScheduler implements ShouldQueue
             ->top((new RiskyUserTop(500)))
             ->dismiss();
 
-        if ($dismissedUsers instanceof Batch) {
+        if ($dismissedUsers !== null) {
             DismissRiskyUsersScheduler::dispatch()
-                ->delay(now()->addMinute());
+                ->delay(now()->addSeconds(5));
         }
     }
 }
