@@ -6,6 +6,7 @@ use App\Jobs\DismissRiskyUsersJob;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
 use Illuminate\Http\Client\RequestException;
+use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -69,11 +70,14 @@ class UserRiskState
             }, false)
             ->get($url)
             ->onError(
-                fn($exception) => Log::error('RiskyUsers API Error', [
-                    'message' => sprintf("%s on Line %s in %s", $exception->getMessage(), $exception->getLine(), $exception->getFile()),
-                    'code' => $exception->getCode(),
-                    'trace' => $exception->getTrace(),
-                ]))
+                function (Response $response) {
+                    Log::error('RiskyUsers API Error', [
+                        'service' => 'risky-users',
+                        'message' => $response->reason(),
+                        'status' => $response->status(),
+                    ]);
+                    return [];
+                })
             ->json();
     }
 
@@ -115,7 +119,7 @@ class UserRiskState
             Log::info('No RiskyUsers to dismiss', [
                 'service' => 'risky-users'
             ]);
-            return ;
+            return;
         }
 
         foreach (array_chunk($userIds, config('services.azure-ad.chunk-dismiss-risky-users')) as $userIds) {
