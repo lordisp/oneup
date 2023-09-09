@@ -108,7 +108,7 @@ class UserRiskState
         return $this;
     }
 
-    public function dismiss(): Batch|null
+    public function dismiss(): void
     {
         $userIds = (array)data_get($this->list(), 'value.*.id');
 
@@ -121,9 +121,11 @@ class UserRiskState
             $jobs[] = new DismissRiskyUsersJob($userIds);
         }
 
-        return isset($jobs) ? Bus::batch($jobs)
-            ->name('dismiss-risky-users')
-            ->allowFailures()
-            ->dispatch() : null;
+        if (isset($jobs)) {
+            Bus::batch($jobs)
+                ->name('dismiss-risky-users')
+                ->allowFailures()
+                ->dispatch();
+        }
     }
 }
