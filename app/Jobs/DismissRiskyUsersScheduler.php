@@ -24,6 +24,7 @@ class DismissRiskyUsersScheduler implements ShouldQueue, ShouldBeUnique
             Log::warning('Dismiss-Risky-Users is disabled');
             return;
         }
+        Log::info('Run Risky-Users Scheduler');
 
         $dismissedUsers = (new UserRiskState)
             ->select(new RiskyUserProperties(['id', 'riskState', 'isDeleted']))
