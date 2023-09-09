@@ -202,6 +202,7 @@ class RiskyUserResetTest extends TestCase
     public function failed_to_dismiss_risky_users()
     {
         Log::shouldReceive('info')->never();
+        Log::shouldReceive('error')->once();
 
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
