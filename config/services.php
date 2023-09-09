@@ -64,6 +64,7 @@ return [
     ],
 
     'azure-ad' => [
-        'dismiss-risky-users' => env('DISMISS_RISKY_USERS', true)
+        'dismiss-risky-users' => env('DISMISS_RISKY_USERS', true),
+        'chunk-dismiss-risky-users' => env('CHUNK_DISMISS_RISKY_USERS', 20),
     ]
 ];
