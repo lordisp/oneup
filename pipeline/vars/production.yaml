@@ -5,7 +5,7 @@ variables:
   resource_group: "rg_lhg_aks_gixi_01_p"
   registry_name: "acrlhggixiservicesp.azurecr.io"
   registry_rg: "RG_LHG_ACR_01_P"
-  source_registry: "k8s.gcr.io"
+  source_registry: "registry.k8s.io"
   controller_image: "ingress-nginx/controller"
   chart_version: "4.7.2"
   controller_tag: "v1.8.2"
