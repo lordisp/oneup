@@ -135,16 +135,17 @@ return [
             'timeout' => env('REDIS_TIMEOUT', 5),
         ],
 
-        //'clusters' => [
+        'clusters' => [
             'default' => [
                 'url' => env('REDIS_URL'),
                 'host' => env('REDIS_HOST', '127.0.0.1'),
                 'username' => env('REDIS_USERNAME'),
                 'password' => env('REDIS_PASSWORD'),
                 'port' => env('REDIS_PORT', '6380'),
-                'database' => env('REDIS_DB', '0'),
+                'database' => env('REDIS_DB', 0),
+                'read_write_timeout' => env('REDIS_READ_WRITE_TIMEOUT', 3),
             ],
-        //],
+        ],
 
         'cache' => [
             'url' => env('REDIS_URL'),
