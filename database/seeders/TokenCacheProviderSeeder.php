@@ -65,5 +65,18 @@ class TokenCacheProviderSeeder extends Seeder
                 'resource' => 'https://management.azure.com',
             ])
         ])->create();
+
+        TokenCacheProvider::factory()->state([
+            'name' => 'lhtest_graph',
+            'auth_url' => '/oauth2/v2.0/authorize',
+            'token_url' => '/oauth2/v2.0/token',
+            'auth_endpoint' => 'https://login.microsoftonline.com/',
+            'client' => json_encode([
+                'tenant' => config('tokencache.azure_test.client.tenant'),
+                'client_id' => config('tokencache.azure_test.client.client_id'),
+                'client_secret' => encrypt(config('tokencache.azure_test.client.client_secret')),
+                'scope' => 'openid offline_access https://graph.microsoft.com/.default',
+            ])
+        ])->create();
     }
 }

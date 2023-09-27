@@ -40,6 +40,6 @@ class TokenCacheProviderTest extends TestCase
         $this->seed(TokenCacheProviderSeeder::class);
         $provider = TokenCacheProvider::all();
         $this->assertIsObject($provider);
-        $this->assertCount(4, $provider);
+        $this->assertCount(5, $provider);
     }
 }

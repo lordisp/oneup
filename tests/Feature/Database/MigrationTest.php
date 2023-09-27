@@ -59,7 +59,7 @@ class MigrationTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
         $this->assertDatabaseCount('users', 4);
-        $this->assertDatabaseCount('token_cache_providers', 4);
+        $this->assertDatabaseCount('token_cache_providers', 5);
         $this->assertDatabaseCount('roles', 19);
         $this->assertDatabaseCount('operations', 25);
         $this->assertDatabaseCount('business_services', 0);

@@ -2,7 +2,10 @@
 
 namespace App\Services;
 
+use App\Exceptions\TokenCacheException;
 use App\Models\TokenCacheProvider;
+use App\Traits\HttpRetryConditions;
+use App\Traits\Token;
 use Arr;
 use Exception;
 use Illuminate\Http\RedirectResponse;
@@ -12,6 +15,8 @@ use Illuminate\Support\Str;
 
 class TokenCache
 {
+    use Token, HttpRetryConditions;
+
     protected string $token, $provider;
 
     protected array $config = [], $client = [];
@@ -166,7 +171,11 @@ class TokenCache
         $body = $this->client;
         $body['client_secret'] = decrypt($this->client['client_secret']);
 
-        return Http::asForm()->retry(200,throw: false)
+        return Http::asForm()
+            ->retry(20, 0, function ($exception, $request) {
+                $this->handleRequestExceptionConditions($exception, TokenCacheException::class);
+                return $this->handleRetryConditions($exception, $request, TokenCacheException::class);
+            }, throw: false)
             ->post($this->getTokenUrl(), $body)
             ->json('access_token');
     }

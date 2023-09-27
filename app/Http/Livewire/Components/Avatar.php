@@ -2,74 +2,90 @@
 
 namespace App\Http\Livewire\Components;
 
-use App\Services\TokenCache;
+use App\Exceptions\MsGraphException;
+use App\Services\AzureAD\MsGraph;
+use App\Traits\HttpRetryConditions;
 use App\Traits\Token;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 use Livewire\Component;
 
-/**
- * @property mixed $avatar
- */
 class Avatar extends Component
 {
-    use Token;
+    use Token, HttpRetryConditions;
 
     const PROVIDER = 'lhg_graph';
+
     public $userId;
-    public string $class = '', $alt, $size = '48x48';
-    public bool $isLoaded = false;
-    public bool $noCache = false;
-    public $key;
+    public string $class = '', $alt = '', $size = '48x48';
+    public bool $isLoaded = false, $noCache = false;
 
-    public function loadAvatar()
+    public function loadAvatar(): void
     {
         $this->isLoaded = true;
     }
 
-    protected function callAvatarApi(): string
-    {
-        $this->isLoaded = true;
-        if (isset($this->userId)) {
-            $token = decrypt($this->token(self::PROVIDER));
-            $uri = 'https://graph.microsoft.com/v1.0/users/' . $this->userId . '/photos/' . $this->size . '/$value';
-            $response = Http::withToken($token)->withHeaders(['Content-Type' => 'image/jpg'])
-                ->retry(3, 0, function ($exception, $request) {
-                    if ($exception->response->status() != 403) {
-                        return false;
-                    }
-                    $newToken = decrypt((new TokenCache())->noCache()->provider(self::PROVIDER)->get());
-                    $request->withToken($newToken);
-                    return true;
-                }, throw: false)
-                ->get($uri);
-        }
-        $alt = str_replace(['(', ')', '-', '#', '_', 'Extern'], '', $this->alt);
-        return (isset($response) && $response->status() == 200)
-            ? 'data:image/jpeg;base64,' . base64_encode($response->body())
-            : 'https://ui-avatars.com/api/?name=' . urlencode($alt) . '&color=7F9CF5&background=random';
-    }
-
+    /**
+     * Get the avatar image
+     *
+     * @return string
+     */
     public function getAvatarProperty(): string
     {
-        if ($this->noCache) return $this->callAvatarApi();
+        if (!$this->noCache) {
+            $avatar = cache()->tags([$this->userId])->get('avatar');
 
-        $avatar = Cache::tags([$this->userId])->get('avatar');
-
-        if (is_string($avatar)) {
-            $this->isLoaded = false;
-        } else {
-            $this->isLoaded = true;
-            $avatar = $this->callAvatarApi();
-            Cache::tags([$this->userId])->put('avatar', $avatar, now()->addHours(3));
+            if (is_string($avatar)) {
+                return $avatar;
+            }
         }
+
+        $avatar = $this->callAvatarApi();
+        cache()->tags([$this->userId])->put('avatar', $avatar, now()->addHours(3));
+
         return $avatar;
     }
 
-    public function render()
+    /**
+     * Call the API to fetch the avatar image.
+     *
+     * @return string
+     * @throws MsGraphException
+     */
+    protected function callAvatarApi(): string
+    {
+        $this->isLoaded = true;
+
+        if (!isset($this->userId)) {
+            return $this->generateFallbackAvatar();
+        }
+
+        $body = MsGraph::get(sprintf("/users/%s/photos/%s/\$value", $this->userId, $this->size))->body();
+
+        return Str::contains($body, 'error')
+            ? $this->generateFallbackAvatar()
+            : 'data:image/jpeg;base64,' . base64_encode($body);
+    }
+
+    /**
+     * Generate a fallback avatar URL based on user's alternative text.
+     *
+     * @return string
+     */
+    protected function generateFallbackAvatar(): string
+    {
+        $alt = str_replace(['(', ')', '-', '#', '_', 'Extern'], '', $this->alt);
+        return 'https://ui-avatars.com/api/?name=' . urlencode($alt) . '&color=7F9CF5&background=random';
+    }
+
+    /**
+     * Render the component.
+     *
+     * @return string
+     */
+    public function render(): string
     {
         return <<<'blade'
-            <div wire:init="loadAvatar" wire:key="avatar-{{$key}}">
+            <div wire:init="loadAvatar" wire:key="avatar-{{md5($userId)}}">
             @if($isLoaded)
             @if($this->avatar)
                 <img class="{{$this->class}}" src="{{$this->avatar}}" alt="{{$alt}}">
@@ -80,6 +96,4 @@ class Avatar extends Component
             </div>
         blade;
     }
-
-
 }
