@@ -1,0 +1,80 @@
+trigger: none
+pool:
+  name: LHG-WEUR-GIXI-DEVAGENT-VMSS-01-P
+variables:
+  - group: oneup-testing-envs
+
+stages:
+- stage: Test
+  jobs:
+  - job: Testing
+    condition: |
+      and(
+        eq(variables['Build.Reason'], 'PullRequest'),
+        not(contains(variables['System.PullRequest.SourceBranch'], 'develop')),
+        not(contains(variables['System.PullRequest.SourceBranch'], 'hotfix')),
+        contains(variables['System.PullRequest.SourceBranch'], 'feature')
+      )
+    steps:
+      - script: composer install --no-interaction --prefer-dist
+        displayName: 'Installing Package Dependencies'
+        workingDirectory: $(System.DefaultWorkingDirectory)
+
+      - task: NodeTool@0
+        displayName: 'Use Node 19.x'
+        inputs:
+          versionSpec: 19.x
+
+      - script: npm install && npm run build
+        displayName: 'Install NPM Dependencies'
+        workingDirectory: $(System.DefaultWorkingDirectory)
+
+      - script: cp .env.testing .env && php artisan key:generate && php artisan config:clear
+        displayName: 'Generate App-Key'
+        workingDirectory: $(System.DefaultWorkingDirectory)
+        env:
+          AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+          AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+          AZURE_TENANT: $(AZURE_TENANT)
+          AZURE_AD_CLIENT_ID: $(AZURE_CLIENT_ID)
+          AZURE_AD_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+          AZURE_AD_TENANT: $(AZURE_TENANT)
+          HUB_SUBSCRIPTION: $(HUB_SUBSCRIPTION)
+          HUB_RESOURCE_GROUP: $(HUB_RESOURCE_GROUP)
+          AZURE_TEST_TENANT: $(AZURE_TEST_TENANT)
+          AZURE_TEST_CLIENT_ID: $(AZURE_TEST_CLIENT_ID)
+          AZURE_TEST_CLIENT_SECRET: $(AZURE_TEST_CLIENT_SECRET)
+          SNOW_CLIENT_URI: $(SNOW_CLIENT_URI)
+          SNOW_CLIENT_ID: $(SNOW_CLIENT_ID)
+          SNOW_CLIENT_SECRET: $(SNOW_CLIENT_SECRET)
+
+      - script: vendor/bin/phpunit --configuration $(System.DefaultWorkingDirectory)/phpunit.xml -d memory_limit=2048M --log-junit tests.xml --coverage-cobertura coverage.xml --coverage-html $(System.DefaultWorkingDirectory)/coverage
+        displayName: 'Run Integration Tests'
+        env:
+          AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+          AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+          AZURE_TENANT: $(AZURE_TENANT)
+          AZURE_AD_CLIENT_ID: $(AZURE_CLIENT_ID)
+          AZURE_AD_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+          AZURE_AD_TENANT: $(AZURE_TENANT)
+          HUB_SUBSCRIPTION: $(HUB_SUBSCRIPTION)
+          HUB_RESOURCE_GROUP: $(HUB_RESOURCE_GROUP)
+          AZURE_TEST_TENANT: $(AZURE_TEST_TENANT)
+          AZURE_TEST_CLIENT_ID: $(AZURE_TEST_CLIENT_ID)
+          AZURE_TEST_CLIENT_SECRET: $(AZURE_TEST_CLIENT_SECRET)
+          SNOW_CLIENT_URI: $(SNOW_CLIENT_URI)
+          SNOW_CLIENT_ID: $(SNOW_CLIENT_ID)
+          SNOW_CLIENT_SECRET: $(SNOW_CLIENT_SECRET)
+
+      - task: PublishTestResults@2
+        displayName: 'Publish Test Results'
+        inputs:
+          testResultsFiles: '**/tests.xml'
+
+      - task: PublishCodeCoverageResults@1
+        displayName: 'Publish Coverage Report'
+        inputs:
+          codeCoverageTool: 'Cobertura'
+          summaryFileLocation: 'coverage.xml'
+          reportDirectory: '$(System.DefaultWorkingDirectory)/coverage/'
+          pathToSources: '$(System.DefaultWorkingDirectory)'
