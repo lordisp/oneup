@@ -8,13 +8,7 @@ stages:
 - stage: Test
   jobs:
   - job: Testing
-    condition: |
-      and(
-        eq(variables['Build.Reason'], 'PullRequest'),
-        not(contains(variables['System.PullRequest.SourceBranch'], 'develop')),
-        not(contains(variables['System.PullRequest.SourceBranch'], 'hotfix')),
-        contains(variables['System.PullRequest.SourceBranch'], 'feature')
-      )
+    condition: eq(variables['Build.Reason'], 'PullRequest')
     steps:
       - script: composer install --no-interaction --prefer-dist
         displayName: 'Installing Package Dependencies'
