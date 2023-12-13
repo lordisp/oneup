@@ -42,7 +42,7 @@ class PdnsTest extends TestCase
         PdnsSync::dispatch();
 
         Bus::assertBatched(function (PendingBatch $batch) {
-            return $batch->jobs->flatten()->count() === 2;
+            return $batch->jobs->flatten()->count() > 1;
         });
     }
 

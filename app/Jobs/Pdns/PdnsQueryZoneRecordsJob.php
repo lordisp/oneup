@@ -13,6 +13,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PdnsQueryZoneRecordsJob implements ShouldQueue
@@ -55,6 +56,14 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
         foreach ($records as $record) {
 
+            if (data_get($record, 'name') === '*') {
+                Log::info('Skipping wildcard record', [
+                    'Trigger' => 'PdnsQueryZoneRecordsJob',
+                    'Resource' => $this->attributes['zone'],
+                    'record' => $record
+                ]);
+                return;
+            }
             if ($this->isRecordType($record)) {
 
                 $type = basename($record['type']);
