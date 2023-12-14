@@ -1,5 +1,5 @@
 # PHP Dependencies
-FROM composer:latest as vendor
+FROM composer:2.2.21 as vendor
 RUN apk add --no-cache freetype libpng libjpeg-turbo freetype-dev libpng-dev libjpeg-turbo-dev && \
   docker-php-ext-configure gd \
     --with-freetype \
