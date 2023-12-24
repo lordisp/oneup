@@ -1,0 +1,116 @@
+trigger: none
+pool:
+  name: LHG-WEUR-GIXI-DEVAGENT-VMSS-01-P
+variables:
+  - group: oneup-testing-envs
+
+stages:
+  - stage: Test
+    jobs:
+      - job: Testing
+        condition: eq(variables['Build.Reason'], 'PullRequest')
+        steps:
+          - script: |
+              # Set up Laravel environment
+              composer install --optimize-autoloader --no-interaction  --prefer-dist
+              composer require laravel/sail --dev
+              composer dump-autoload
+            displayName: 'Set up environment'
+            workingDirectory: $(System.DefaultWorkingDirectory)
+
+          - script: |
+              # Install and start Laravel Sail
+              cp .env.example .env
+              cp .env.example .env.testing
+              ./vendor/bin/sail up -d
+            displayName: 'Install & start Sail'
+            env:
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+              AZURE_TENANT: $(AZURE_TENANT)
+              AZURE_AD_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_AD_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+              AZURE_AD_TENANT: $(AZURE_TENANT)
+              HUB_SUBSCRIPTION: $(HUB_SUBSCRIPTION)
+              HUB_RESOURCE_GROUP: $(HUB_RESOURCE_GROUP)
+              AZURE_TEST_TENANT: $(AZURE_TEST_TENANT)
+              AZURE_TEST_CLIENT_ID: $(AZURE_TEST_CLIENT_ID)
+              AZURE_TEST_CLIENT_SECRET: $(AZURE_TEST_CLIENT_SECRET)
+              SNOW_CLIENT_URI: $(SNOW_CLIENT_URI)
+              SNOW_CLIENT_ID: $(SNOW_CLIENT_ID)
+              SNOW_CLIENT_SECRET: $(SNOW_CLIENT_SECRET)
+
+          - script: |
+              # Install NPM dependencies
+              ./vendor/bin/sail npm install
+              ./vendor/bin/sail npm run build
+              ./vendor/bin/sail npm install shiki
+            displayName: 'Install NPM dependencies'
+            env:
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+              AZURE_TENANT: $(AZURE_TENANT)
+              AZURE_AD_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_AD_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+              AZURE_AD_TENANT: $(AZURE_TENANT)
+              HUB_SUBSCRIPTION: $(HUB_SUBSCRIPTION)
+              HUB_RESOURCE_GROUP: $(HUB_RESOURCE_GROUP)
+              AZURE_TEST_TENANT: $(AZURE_TEST_TENANT)
+              AZURE_TEST_CLIENT_ID: $(AZURE_TEST_CLIENT_ID)
+              AZURE_TEST_CLIENT_SECRET: $(AZURE_TEST_CLIENT_SECRET)
+              SNOW_CLIENT_URI: $(SNOW_CLIENT_URI)
+              SNOW_CLIENT_ID: $(SNOW_CLIENT_ID)
+              SNOW_CLIENT_SECRET: $(SNOW_CLIENT_SECRET)
+
+          - script: |
+              touch tests.xml
+              ./vendor/bin/sail test --compact --coverage-cobertura coverage.xml --log-junit tests.xml
+            displayName: 'Run PHPUnit tests with code coverage'
+            env:
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+              AZURE_TENANT: $(AZURE_TENANT)
+              AZURE_AD_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_AD_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+              AZURE_AD_TENANT: $(AZURE_TENANT)
+              HUB_SUBSCRIPTION: $(HUB_SUBSCRIPTION)
+              HUB_RESOURCE_GROUP: $(HUB_RESOURCE_GROUP)
+              AZURE_TEST_TENANT: $(AZURE_TEST_TENANT)
+              AZURE_TEST_CLIENT_ID: $(AZURE_TEST_CLIENT_ID)
+              AZURE_TEST_CLIENT_SECRET: $(AZURE_TEST_CLIENT_SECRET)
+              SNOW_CLIENT_URI: $(SNOW_CLIENT_URI)
+              SNOW_CLIENT_ID: $(SNOW_CLIENT_ID)
+              SNOW_CLIENT_SECRET: $(SNOW_CLIENT_SECRET)
+
+          - script: |
+              # Stop and clean up Sail services
+              ./vendor/bin/sail down
+            displayName: 'Stop Sail Services'
+            env:
+              AZURE_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+              AZURE_TENANT: $(AZURE_TENANT)
+              AZURE_AD_CLIENT_ID: $(AZURE_CLIENT_ID)
+              AZURE_AD_CLIENT_SECRET: $(AZURE_CLIENT_SECRET)
+              AZURE_AD_TENANT: $(AZURE_TENANT)
+              HUB_SUBSCRIPTION: $(HUB_SUBSCRIPTION)
+              HUB_RESOURCE_GROUP: $(HUB_RESOURCE_GROUP)
+              AZURE_TEST_TENANT: $(AZURE_TEST_TENANT)
+              AZURE_TEST_CLIENT_ID: $(AZURE_TEST_CLIENT_ID)
+              AZURE_TEST_CLIENT_SECRET: $(AZURE_TEST_CLIENT_SECRET)
+              SNOW_CLIENT_URI: $(SNOW_CLIENT_URI)
+              SNOW_CLIENT_ID: $(SNOW_CLIENT_ID)
+              SNOW_CLIENT_SECRET: $(SNOW_CLIENT_SECRET)
+
+          - task: PublishTestResults@2
+            displayName: 'Publish Test Results'
+            inputs:
+              testResultsFiles: '**/tests.xml'
+
+          - task: PublishCodeCoverageResults@1
+            displayName: 'Publish Coverage Report'
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: 'coverage.xml'
+              reportDirectory: '$(System.DefaultWorkingDirectory)/coverage/'
+              pathToSources: '$(System.DefaultWorkingDirectory)'
