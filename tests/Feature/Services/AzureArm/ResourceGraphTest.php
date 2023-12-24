@@ -4,7 +4,6 @@ namespace Tests\Feature\Services\AzureArm;
 
 use App\Exceptions\AzureArm\ResourceGraphException;
 use App\Facades\AzureArm\ResourceGraph;
-use App\Facades\Redis;
 use Database\Seeders\TokenCacheProviderSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -49,8 +48,6 @@ class ResourceGraphTest extends TestCase
     /** @test */
     public function can_cache_results_and_delete_the_cached_data()
     {
-        $this->mockRedis();
-
         $cached = ResourceGraph::type('microsoft.network/networkinterfaces')
             ->extend('key', 'id')
             ->extend('value', 'tostring(properties.ipConfigurations)')
@@ -84,22 +81,5 @@ class ResourceGraphTest extends TestCase
             ->get();
 
         $this->assertCount(1, $results);
-    }
-
-    private function mockRedis()
-    {
-        for ($i = 0; $i < 10; $i++) {
-            $array[$i] = rand();
-        }
-
-        Redis::shouldReceive('hSet')->andReturn(1)
-            ->atLeast()->times(2000)
-            ->atMost()->times(5000);
-        Redis::shouldReceive('hVals')->andReturn($array)->once();
-        Redis::shouldReceive('hGetAll')->andReturn($array)->once();
-        Redis::shouldReceive('hVals')->andReturn([])->once();
-        Redis::shouldReceive('hKeys')->andReturn($array)->once();
-        Redis::shouldReceive('hDel')->andReturn(1)->times(10);
-        Redis::shouldReceive('expire')->andReturn(1)->once();
     }
 }
