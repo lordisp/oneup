@@ -178,8 +178,8 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         // Assert
         $this->assertDatabaseCount(ServiceNowRequest::class, 0);
         $this->assertDatabaseCount(FirewallRule::class, 0);
-        BusinessService::truncate();
-        User::truncate();
+        BusinessService::all()->each->delete();
+        User::all()->each->delete();
 
         Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);

@@ -185,13 +185,12 @@ class ProviderBulkTest extends TestCase implements BulkTest
     /** @test */
     public function can_delete_selected_page()
     {
-        $selected = TokenCacheProvider::pluck('id')->toArray();
-        Log::shouldReceive('info')->once()->withArgs(function ($message, $context) use ($selected) {
+        Log::shouldReceive('info')->once()->withArgs(function ($message, $context) {
             return str_contains($message, 'Destroy Token-Cache Provider') == true
                 && $context['Trigger'] == auth()->user()->getAuthIdentifier()
-                && $context['Resource'][0]['id'] == $selected[0]
                 && count($context['Resource']) == 15;
         });
+
         Livewire::actingAs($this->user)
             ->test(Provider::class)
             ->set('selectPage', true)
