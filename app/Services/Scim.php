@@ -127,7 +127,7 @@ class Scim
     protected function importUserAccounts($members): void
     {
         foreach ($members as $member) {
-            ImportUserJob::dispatch($member, $this->provider)->onQueue('admin');
+            ImportUserJob::dispatch($member, $this->provider);
         }
     }
 
@@ -144,12 +144,14 @@ class Scim
     {
         try {
             return User::updateOrCreate(
-                ['email' => $user['email']],
+                [
+                    'email' => $user['email'],
+                    'provider_id' => $user['id'],
+                ],
                 [
                     'displayName' => $user['displayName'],
                     'firstName' => $user['givenName'],
                     'lastName' => $user['surname'],
-                    'provider_id' => $user['id'],
                     'status' => $this->status,
                     'provider' => $this->provider,
                 ]);
