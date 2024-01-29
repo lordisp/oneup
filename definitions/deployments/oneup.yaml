@@ -27,7 +27,7 @@ spec:
             runAsUser: 1000
             #readOnlyRootFilesystem: true
           image: acrlhggixiservicesp.azurecr.io/oneup:latest
-          imagePullPolicy: Always
+          imagePullPolicy: IfNotPresent
           lifecycle:
             postStart:
               exec:
@@ -35,6 +35,7 @@ spec:
                   - "/bin/sh"
                   - "-c"
                   - >
+                    php artisan optimize:clear;
                     php artisan config:cache;
                     php artisan migrate --force;
                   #php artisan down --secret="maintenance" --render="maintenance.index";
@@ -48,6 +49,9 @@ spec:
           volumeMounts:
             - name: apache-config
               mountPath: /etc/apache2/sites-enabled/
+              readOnly: true
+            - name: ssl
+              mountPath: /var/www/html/ssl/
               readOnly: true
             - name: oneup-storage
               mountPath: /var/www/html/storage/app/
@@ -68,6 +72,14 @@ spec:
             items:
               - key: apache
                 path: 000-default.conf
+        - name: ssl
+          secret:
+            secretName: oneup-tls-secret
+            items:
+              - key: mysql-attr-ssl-ca
+                path: DigiCertGlobalRootCA.crt.pem
+              - key: mysql-attr-ssl-key
+                path: BaltimoreCyberTrustRoot.crt.pem
         - name: oneup-storage
           persistentVolumeClaim:
             claimName: oneup-storage

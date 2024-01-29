@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Log;
 
 class RecordHasResourceJob
 {
@@ -20,6 +21,8 @@ class RecordHasResourceJob
             return $this->aRecords();
         }
 
+        Log::debug("Handle other Records");
+
         return true;
     }
 
@@ -35,6 +38,7 @@ class RecordHasResourceJob
             }, $this->resources)
         );
 
+        Log::debug(sprintf("PTR Records: %s", $resourceMatch));
         return $resourceMatch > 0;
     }
 
@@ -49,6 +53,7 @@ class RecordHasResourceJob
             }, $this->resources)
         );
 
+        Log::debug(sprintf("A Records: %s", $resourceMatch));
         return $resourceMatch > 0;
     }
 }

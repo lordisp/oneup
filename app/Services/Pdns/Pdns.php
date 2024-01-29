@@ -45,7 +45,7 @@ class Pdns
     {
         $zones = $this->getZones();
 
-        Log::debug(sprintf("Processing %s Zones", count($zones)));
+        Log::debug(sprintf("Processing %s Zones for %s", count($zones),$this->spoke));
 
         $jobs[] = new RequestNetworkInterfacesJob($this->spoke);
 
@@ -73,6 +73,7 @@ class Pdns
         }
 
         Bus::batch($jobs)
+            ->onQueue(config('dnssync.queue_name'))
             ->name('zones')
             ->dispatch();
     }

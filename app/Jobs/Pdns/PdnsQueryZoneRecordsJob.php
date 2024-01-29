@@ -75,6 +75,12 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
                 $this->attributes['record'] = $record;
 
                 $jobs[] = new UpdateRecordJob($this->attributes);
+            } else {
+                Log::debug(sprintf("Skipping record from spoke %s", $this->attributes['spoke']), [
+                    'Trigger' => 'PdnsQueryZoneRecordsJob',
+                    'Resource' => $this->attributes['zone'],
+                    'Record' => $record,
+                ]);
             }
         }
 

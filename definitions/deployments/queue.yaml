@@ -35,13 +35,13 @@ spec:
             - /bin/sh
             - -c
             - |
-              php artisan config:cache; php artisan migrate --force; php artisan queue:work --memory=960 --timeout=1800;
+              php artisan optimize:clear; php artisan config:cache; php artisan migrate --force; php artisan queue:work --queue=default,pdns --memory=960 --timeout=1800;
           envFrom:
             - secretRef:
                 name: oneup-env
             - configMapRef:
                 name: oneup-env
-          image: acrlhggixiservicesp.azurecr.io/oneup:20230831.6
+          image: acrlhggixiservicesp.azurecr.io/oneup:latest
           imagePullPolicy: IfNotPresent
           name: queue
           ports:
@@ -51,7 +51,7 @@ spec:
           resources:
             limits:
               cpu: 400m
-              memory: 400Mi
+              memory: 960Mi
             requests:
               cpu: 300m
               memory: 300Mi
@@ -61,6 +61,9 @@ spec:
               readOnly: true
             - mountPath: /var/www/html/storage/app/
               name: oneup-storage
+            - name: ssl
+              mountPath: /var/www/html/ssl/
+              readOnly: true
       restartPolicy: Always
       volumes:
         - configMap:
@@ -73,3 +76,11 @@ spec:
         - name: oneup-storage
           persistentVolumeClaim:
             claimName: oneup-storage
+        - name: ssl
+          secret:
+            secretName: oneup-tls-secret
+            items:
+              - key: mysql-attr-ssl-ca
+                path: DigiCertGlobalRootCA.crt.pem
+              - key: mysql-attr-ssl-key
+                path: BaltimoreCyberTrustRoot.crt.pem

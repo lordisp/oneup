@@ -1,28 +1,30 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: job
+  name: schedule
   namespace: oneup
 spec:
   schedule: "*/1 * * * *"
   jobTemplate:
     metadata:
-      name: job
+      name: schedule
       namespace: oneup
     spec:
       template:
         metadata:
-          name: job
+          name: schedule
           namespace: oneup
         spec:
-          #activeDeadlineSeconds: 600
           containers:
-            - name: job
+            - name: schedule
               image: acrlhggixiservicesp.azurecr.io/oneup:latest
-              imagePullPolicy: Always
+              imagePullPolicy: IfNotPresent
               volumeMounts:
                 - name: apache-config
                   mountPath: /etc/apache2/sites-available/
+                - name: ssl
+                  mountPath: /var/www/html/ssl/
+                  readOnly: true
                 - name: oneup-storage
                   mountPath: /var/www/html/storage/app/
               envFrom:
@@ -34,6 +36,7 @@ spec:
                 - "/bin/sh"
                 - "-c"
                 - >
+                  php artisan optimize:clear;
                   php artisan config:cache;
                   php artisan schedule:run;
           affinity:
@@ -53,6 +56,14 @@ spec:
                 items:
                   - key: apache
                     path: 000-default.conf
+            - name: ssl
+              secret:
+                secretName: oneup-tls-secret
+                items:
+                  - key: mysql-attr-ssl-ca
+                    path: DigiCertGlobalRootCA.crt.pem
+                  - key: mysql-attr-ssl-key
+                    path: BaltimoreCyberTrustRoot.crt.pem
             - name: oneup-storage
               persistentVolumeClaim:
                 claimName: oneup-storage

@@ -29,21 +29,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('cache:prune-stale-tags')->hourlyAt(0);
 
-        $schedule->command(sprintf("logs:clear --level debug --age %s --job", now()->subHour()->toDateTimeString()))
-            ->hourlyAt(0)
-            ->onOneServer()
-            ->runInBackground();
-
-        $schedule->command(sprintf("logs:clear --level info --age %s --job", now()->subMonth()->toDateTimeString()))
-            ->dailyAt('00:00')
-            ->onOneServer()
-            ->runInBackground();
-
-        $schedule->command(sprintf("logs:clear --level error --age %s --job", now()->subMonth()->toDateTimeString()))
-            ->dailyAt('00:00')
-            ->onOneServer()
-            ->runInBackground();
-
         $this->pruneBatches($schedule)->hourlyAt(0);
 
         $this->pruneFailed($schedule)->hourlyAt(0);
