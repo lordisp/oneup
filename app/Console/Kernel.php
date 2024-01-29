@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\DismissRiskyUsersScheduler;
 use App\Jobs\PdnsSync;
 use App\Jobs\Scim\ScheduledUserImportJob;
 use App\Jobs\VmStartStopSchedulerJob;
@@ -29,21 +30,6 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('cache:prune-stale-tags')->hourlyAt(0);
 
-        $schedule->command(sprintf("logs:clear --level debug --age %s --job", now()->subHour()->toDateTimeString()))
-            ->hourlyAt(0)
-            ->onOneServer()
-            ->runInBackground();
-
-        $schedule->command(sprintf("logs:clear --level info --age %s --job", now()->subMonth()->toDateTimeString()))
-            ->dailyAt('00:00')
-            ->onOneServer()
-            ->runInBackground();
-
-        $schedule->command(sprintf("logs:clear --level error --age %s --job", now()->subMonth()->toDateTimeString()))
-            ->dailyAt('00:00')
-            ->onOneServer()
-            ->runInBackground();
-
         $this->pruneBatches($schedule)->hourlyAt(0);
 
         $this->pruneFailed($schedule)->hourlyAt(0);
@@ -67,9 +53,9 @@ class Kernel extends ConsoleKernel
             ->everyFifteenMinutes()
             ->onOneServer();
 
-//        $schedule->job(new DismissRiskyUsersScheduler)
-//            ->everyFiveMinutes()
-//            ->onOneServer();
+        $schedule->job(new DismissRiskyUsersScheduler)
+            ->everyFiveMinutes()
+            ->onOneServer();
     }
 
     /**

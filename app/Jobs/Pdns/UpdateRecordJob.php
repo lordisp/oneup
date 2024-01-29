@@ -50,6 +50,12 @@ class UpdateRecordJob implements ShouldQueue
     public function handle(): void
     {
         if (!$this->recordHasResource($this->attributes['record'])) {
+            Log::debug('No resource found for ' . $this->attributes['record']['name'], [
+                'Trigger' => 'UpdateRecordJob',
+                'batch' => $this->batchId,
+                'spoke' => $this->attributes['spoke'],
+                'properties' => $this->attributes['record']['properties']
+            ]);
             return;
         }
 
@@ -64,14 +70,7 @@ class UpdateRecordJob implements ShouldQueue
     {
         $hubRecord = Http::withToken(decrypt($this->attributes['token']))
             ->retry(20, 0, function ($exception, $request): bool {
-                if ($exception instanceof RequestException && $exception->getCode() === 404) {
-                    return false;
-                }
-                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
-                    return true;
-                }
-                $request->withToken(decrypt($this->newToken($this->attributes['hub'])));
-                return true;
+                return $this->requestExceptions($exception, $request);
             }, throw: false)
             ->get($uri);
 
@@ -105,11 +104,7 @@ class UpdateRecordJob implements ShouldQueue
         }
         $this->response = Http::withToken(decrypt($this->attributes['token']))
             ->retry(10, 200, function ($exception, $request) {
-                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
-                    return true;
-                }
-                $request->withToken(decrypt($this->newToken($this->attributes['hub'])));
-                return true;
+                return $this->requestExceptions($exception, $request);
             }, throw: false)
             ->put($this->attributes['uri'], Arr::only($this->request, ['etag', 'properties']));
     }
@@ -176,5 +171,25 @@ class UpdateRecordJob implements ShouldQueue
         preg_match('/privatelink\.([a-zA-Z0-9.-]+)/', $record['id'], $match);
 
         return in_array($match[0], $this->attributes['skippedZonesForValidation']);
+    }
+
+    /**
+     * @param $exception
+     * @param $request
+     * @return true
+     */
+    private function requestExceptions($exception, $request): bool
+    {
+        if ($exception instanceof RequestException && $exception->getCode() === 429) {
+            $retryAfter = $exception->response->header('Retry-After');
+            sleep(empty($retryAfter) ? 10 : $retryAfter);
+            return true;
+        }
+
+        if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+            return true;
+        }
+        $request->withToken(decrypt($this->newToken($this->attributes['hub'])));
+        return true;
     }
 }

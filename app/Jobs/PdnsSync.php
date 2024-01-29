@@ -35,6 +35,7 @@ class PdnsSync implements ShouldQueue, ShouldBeUnique
         }
 
         Bus::batch([$jobs])
+            ->onQueue(config('dnssync.queue_name'))
             ->name('pdns')
             ->dispatch();
     }
