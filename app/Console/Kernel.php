@@ -2,7 +2,8 @@
 
 namespace App\Console;
 
-use App\Jobs\PdnsSync;
+use App\Jobs\DismissRiskyUsersScheduler;
+use App\Jobs\PrivateDnsUpdate;
 use App\Jobs\Scim\ScheduledUserImportJob;
 use App\Jobs\VmStartStopSchedulerJob;
 use Illuminate\Console\Scheduling\Event;
@@ -37,7 +38,7 @@ class Kernel extends ConsoleKernel
             ->hourlyAt(0)
             ->onOneServer();
 
-        $schedule->job(new PdnsSync())
+        $schedule->job(new PrivateDnsUpdate)
             ->everyTenMinutes()
             ->onOneServer();
 
@@ -48,13 +49,13 @@ class Kernel extends ConsoleKernel
             ->everyFifteenMinutes()
             ->onOneServer();
 
-        $schedule->job(new ScheduledUserImportJob())
+        $schedule->job(new ScheduledUserImportJob)
             ->everyFifteenMinutes()
             ->onOneServer();
 
-//        $schedule->job(new DismissRiskyUsersScheduler)
-//            ->everyFiveMinutes()
-//            ->onOneServer();
+        $schedule->job(new DismissRiskyUsersScheduler)
+            ->everyFiveMinutes()
+            ->onOneServer();
     }
 
     /**
@@ -90,6 +91,5 @@ class Kernel extends ConsoleKernel
         return $schedule->command(sprintf("telescope:prune --hours=%s",
             config('services.scheduler.prune-failed.hours')
         ));
-
     }
 }
