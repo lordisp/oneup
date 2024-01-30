@@ -6,7 +6,7 @@ use App\Facades\AzureArm\ResourceGraph;
 use App\Facades\Redis;
 use App\Jobs\Pdns\LhgTenantJob;
 use App\Jobs\Pdns\PdnsQueryZoneRecordsJob;
-use App\Jobs\PdnsSync;
+use App\Jobs\PrivateDnsUpdate;
 use App\Jobs\RequestNetworkInterfacesJob;
 use App\Services\Pdns\Pdns;
 use Database\Seeders\DnsSyncAllZonesSeeder;
@@ -37,9 +37,9 @@ class PdnsTest extends TestCase
     /** @test */
     public function it_executes_batch_jobs_in_the_correct_order()
     {
-        Bus::fake()->except(PdnsSync::class);
+        Bus::fake()->except(PrivateDnsUpdate::class);
 
-        PdnsSync::dispatch();
+        PrivateDnsUpdate::dispatch();
 
         Bus::assertBatched(function (PendingBatch $batch) {
             return $batch->jobs->flatten()->count() > 1;
