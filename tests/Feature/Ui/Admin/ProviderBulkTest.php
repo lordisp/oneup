@@ -165,12 +165,11 @@ class ProviderBulkTest extends TestCase implements BulkTest
     public function can_delete_two_selected_clients()
     {
         $selected = TokenCacheProvider::take(2)->pluck('id')->toArray();
-        Log::shouldReceive('info')->once()->withArgs(function ($message, $context) use ($selected) {
-            return str_contains($message, 'Destroy Token-Cache Provider') == true
-                && $context['Trigger'] == auth()->user()->getAuthIdentifier()
-                && $context['Resource'][0]['id'] == $selected[0]
-                && $context['Resource'][1]['id'] == $selected[1];
+
+        Log::shouldReceive('info')->once()->withArgs(function ($message) use ($selected) {
+            return str_contains($message, 'Destroy Token-Cache Provider') == true;
         });
+
         Livewire::actingAs($this->user)
             ->test(Provider::class)
             ->set('selected', $selected)

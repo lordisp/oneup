@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Events\FirewallReviewAvailableEvent;
 use App\Events\ImportNewFirewallRequestsEvent;
+use App\Events\InterfacesReceived;
 use App\Events\VmStateChangeEvent;
 use App\Listeners\CleanUpFirewallRulesListener;
 use App\Listeners\ImportNewFirewallRequestsEventListener;
 use App\Listeners\NotifyFirewallImportDispatcherListener;
+use App\Listeners\QueuePrivateDnsSync;
 use App\Listeners\SessionExpiredListener;
 use App\Listeners\VmStateChangeProcessListener;
 use Illuminate\Auth\Events\Registered;
@@ -37,6 +39,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         VmStateChangeEvent::class => [
             VmStateChangeProcessListener::class,
+        ],
+
+        InterfacesReceived::class => [
+            QueuePrivateDnsSync::class,
         ],
     ];
 

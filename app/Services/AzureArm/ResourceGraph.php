@@ -2,6 +2,7 @@
 
 namespace App\Services\AzureArm;
 
+use App\Events\InterfacesReceived;
 use App\Exceptions\AzureArm\ResourceGraphException;
 use App\Facades\Redis;
 use App\Traits\Token;
@@ -51,6 +52,8 @@ class ResourceGraph
      */
     public function toCache(string $hash, int $expireSeconds = null): array
     {
+        Log::debug("ResourceGraph: Caching {$hash}");
+
         $results = $this->call();
 
         $cached = $this->addToCache($hash, $results);
@@ -69,20 +72,30 @@ class ResourceGraph
             Redis::expire($hash, $expireSeconds);
         }
 
+        Log::info(sprintf("ResourceGraph: Caching %s with %s entries", $hash, count($cached)));
+
+        InterfacesReceived::dispatch( $this->provider);
+
         return $cached;
     }
 
     public function deleteCache($name): bool
     {
+        Log::debug("ResourceGraph: Deleting cache {$name}");
+
+        $map = [];
         foreach (Redis::hKeys($name) as $hKey) {
             $map[] = Redis::hDel($name, $hKey);
         }
 
+        Log::debug("ResourceGraph: Deleted cache {$name} with " . array_sum($map) . " entries");
         return isset($map) && array_sum($map) > 0;
     }
 
     public function fromCache($name, $keys = false): array
     {
+        Log::debug("ResourceGraph: Fetching cache {$name}");
+
         if ($keys) {
             return Redis::hGetAll($name);
         }
@@ -97,6 +110,7 @@ class ResourceGraph
      */
     public function withProvider(string $provider): static
     {
+        Log::debug("ResourceGraph: Using provider {$provider}");
         if (empty($provider)) {
             throw new ResourceGraphException('The name must be a valid string!');
         }

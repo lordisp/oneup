@@ -4,8 +4,6 @@ namespace App\Jobs\Pdns;
 
 use App\Exceptions\UpdateRecordJobException;
 use App\Facades\AzureArm\ResourceGraph;
-use App\Jobs\RecordHasResourceJob;
-use App\Jobs\RequestNetworkInterfacesJob;
 use App\Traits\DeveloperNotification;
 use App\Traits\Token;
 use Illuminate\Bus\Batchable;
@@ -97,11 +95,24 @@ class UpdateRecordJob implements ShouldQueue
         return ['If-Match' => $hubRecord['etag']];
     }
 
+    /**
+     * @return void
+     * @description Update the record in the hub
+     * @see https://learn.microsoft.com/en-us/rest/api/dns/privatedns/record-sets/create-or-update?view=rest-dns-privatedns-2018-09-01&tabs=HTTP
+     */
     protected function updateRecord(): void
     {
         if (data_get($this->request, 'headers.skip')) {
             return;
         }
+
+        Log::debug('Updating ' . $this->attributes['record']['name'], [
+            'Trigger' => 'UpdateRecordJob',
+            'batch' => $this->batchId,
+            'spoke' => $this->attributes['spoke'],
+            'properties' => $this->attributes['record']['properties']
+        ]);
+
         $this->response = Http::withToken(decrypt($this->attributes['token']))
             ->retry(10, 200, function ($exception, $request) {
                 return $this->requestExceptions($exception, $request);
@@ -143,9 +154,7 @@ class UpdateRecordJob implements ShouldQueue
         $resources = ResourceGraph::fromCache("networkinterfaces:{$this->attributes['spoke']}");
 
         if (empty($resources)) {
-            RequestNetworkInterfacesJob::dispatch($this->attributes['spoke']);
-
-            throw new UpdateRecordJobException('No resources in cache!');
+            throw new UpdateRecordJobException('No resources in cache for ' . $this->attributes['spoke']);
         }
 
         return (new RecordHasResourceJob(

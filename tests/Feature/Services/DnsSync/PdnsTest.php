@@ -2,21 +2,18 @@
 
 namespace Tests\Feature\Services\DnsSync;
 
-use App\Facades\AzureArm\ResourceGraph;
-use App\Facades\Redis;
-use App\Jobs\Pdns\LhgTenantJob;
-use App\Jobs\Pdns\PdnsQueryZoneRecordsJob;
-use App\Jobs\PrivateDnsUpdate;
+use App\Events\InterfacesReceived;
+use App\Jobs\Pdns\PrivateDnsSync;
+use App\Jobs\Pdns\ProcessPrivateDnsSyncJob;
+use App\Jobs\Pdns\QueryZoneRecords;
 use App\Jobs\RequestNetworkInterfacesJob;
-use App\Services\Pdns\Pdns;
 use Database\Seeders\DnsSyncAllZonesSeeder;
 use Database\Seeders\TokenCacheProviderSeeder;
 use Illuminate\Bus\PendingBatch;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Queue;
-use Mockery\MockInterface;
 use Tests\Helper;
 use Tests\TestCase;
 
@@ -35,87 +32,61 @@ class PdnsTest extends TestCase
     }
 
     /** @test */
-    public function it_executes_batch_jobs_in_the_correct_order()
+    public function it_should_dispatch_request_network_interfaces_job_when_private_dns_sync_is_run()
     {
-        Bus::fake()->except(PrivateDnsUpdate::class);
+        //Arrange
+        app()->get('config')->set('dnssync.provider', 'lhtest_arm');
+        Bus::fake([RequestNetworkInterfacesJob::class]);
 
-        PrivateDnsUpdate::dispatch();
+        //Act
+        PrivateDnsSync::dispatch();
 
+        //Assert
         Bus::assertBatched(function (PendingBatch $batch) {
-            return $batch->jobs->flatten()->count() > 1;
+            return $batch->name == 'pdns' &&
+                $batch->jobs->count() === 1 &&
+                $batch->jobs->filter(function ($job) {
+                    return $job instanceof RequestNetworkInterfacesJob;
+                })->count() === $batch->jobs->count();
         });
     }
 
-    /** @test
-     * @depends  it_executes_batch_jobs_in_the_correct_order
-     */
-    public function can_request_network_interfaces()
+    /** @test */
+    public function private_dns_sync_dispatch_should_trigger_interfaces_received_event_when_data_is_cached()
     {
-        Redis::shouldReceive('hSet')
-            ->andReturn(1)
-            ->atLeast()
-            ->times(100);
-        Redis::shouldReceive('expire')
-            ->andReturn(1)
-            ->times(1);
+        //Arrange
+        app()->get('config')->set('dnssync.provider', 'lhtest_arm');
+        Event::fake([InterfacesReceived::class]);
 
-        RequestNetworkInterfacesJob::dispatch('some_provider');
+        //Act
+        PrivateDnsSync::dispatch();
+
+        //Assert
+        Event::assertDispatched(InterfacesReceived::class);
     }
 
-    /** @test
-     * @depends can_request_network_interfaces
-     */
-    public function the_hub_tenant_can_be_dispatched()
+
+    /** @test */
+    public function it_dispatches_private_dns_sync_correctly()
     {
-        Queue::fake();
+        app()->get('config')->set('dnssync.provider', 'lhtest_arm');
 
-        $this->mock(Pdns::class, function (MockInterface $mock) {
-            $mock->shouldReceive('withSpoke')->with('lhg_arm')->andReturnSelf();
-            $mock->shouldReceive('withRecordType')->andReturnSelf();
-            $mock->shouldReceive('skipSubscriptions')->andReturnSelf();
-            $mock->shouldReceive('skipZonesForValidation')->andReturnSelf();
-            $mock->shouldReceive('sync')->andReturnSelf();
-        });
+        Queue::fake([ProcessPrivateDnsSyncJob::class]);
+        //Act
+        PrivateDnsSync::dispatch();
 
-        $job = new LhgTenantJob();
-        $job->handle();
-
-        Queue::assertPushed(PdnsQueryZoneRecordsJob::class);
+        Queue::assertPushed(ProcessPrivateDnsSyncJob::class, 1);
+        $this->assertTrue(true);
     }
 
-    /** @test
-     * @depends the_hub_tenant_can_be_dispatched
-     */
-    public function run_a_full_private_dns_sync_on_one_subscription()
+    /** @test */
+    public function query_zone_records_is_queued_when_private_dns_sync_is_dispatched()
     {
-        Queue::fake(RequestNetworkInterfacesJob::class);
+        app()->get('config')->set('dnssync.provider', 'lhtest_arm');
+        Queue::fake([QueryZoneRecords::class]);
 
-        $resources = Arr::flatten(
-            ResourceGraph::withProvider('lhg_arm')
-                ->type('microsoft.network/networkinterfaces')
-                ->extend('value', 'tostring(properties.ipConfigurations)')
-                ->project('value')
-                ->get()
-        );
+        PrivateDnsSync::dispatch();
 
-        Redis::shouldReceive('hVals')
-            ->andReturn($resources)
-            ->atLeast()
-            ->times(10);
-
-        (new Pdns)
-            ->withSpoke('lhg_arm')
-            ->withRecordType(['A', 'CNAME'])
-            ->withSubscriptions([
-                '636529f0-5874-4a7f-9641-054746c3e250',
-            ])
-            ->skipZonesForValidation([
-                'privatelink.postgres.database.azure.com',
-                'privatelink.westeurope.azmk8s.io',
-                'privatelink.api.azureml.ms',
-            ])
-            ->sync();
-
-        Queue::assertPushed(RequestNetworkInterfacesJob::class, 1);
+        Queue::assertPushed(QueryZoneRecords::class);
     }
 }

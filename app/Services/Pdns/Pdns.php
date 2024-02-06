@@ -3,8 +3,7 @@
 namespace App\Services\Pdns;
 
 use App\Exceptions\DnsZonesException;
-use App\Jobs\Pdns\PdnsQueryZoneRecordsJob;
-use App\Jobs\RequestNetworkInterfacesJob;
+use App\Jobs\Pdns\QueryZoneRecords;
 use App\Models\DnsSyncZone;
 use App\Traits\Token;
 use Illuminate\Http\Client\RequestException;
@@ -43,11 +42,17 @@ class Pdns
      */
     public function sync(): void
     {
+        Log::info("Starting sync for {$this->spoke}");
+
         $zones = $this->getZones();
 
-        Log::debug(sprintf("Processing %s Zones for %s", count($zones),$this->spoke));
+        if (empty($zones)) {
+            Log::info("No zones found for {$this->spoke}");
+            return;
+        }
 
-        $jobs[] = new RequestNetworkInterfacesJob($this->spoke);
+        Log::debug(sprintf("Processing %s Zones for %s", count($zones), $this->spoke));
+        $jobs = [];
 
         foreach ($zones as $zone) {
             $attributes = [
@@ -59,11 +64,7 @@ class Pdns
                 'resourceGroup' => $this->resourceGroup,
                 'skippedZonesForValidation' => $this->skippedZonesForValidation,
             ];
-            $jobs[] = new PdnsQueryZoneRecordsJob($attributes);
-        }
-
-        if (count($jobs) === 1) {
-            return;
+            $jobs[] = new QueryZoneRecords($attributes);
         }
 
         $chunk = config('services.pdns.chunk.zones');
@@ -74,7 +75,6 @@ class Pdns
 
         Bus::batch($jobs)
             ->onQueue(config('dnssync.queue_name'))
-            ->name('zones')
             ->dispatch();
     }
 

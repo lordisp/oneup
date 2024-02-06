@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Exceptions\AzureArm\ResourceGraphException;
+use App\Facades\Redis;
 use App\Services\AzureArm\ResourceGraph;
 use Illuminate\Bus\Batchable;
 use Illuminate\Bus\Queueable;
@@ -32,11 +33,16 @@ class RequestNetworkInterfacesJob implements ShouldQueue, ShouldBeUnique
     {
         info(sprintf("RequestNetworkInterfaces with batchId: %s for %s", $this->batchId, $this->provider));
 
+        $hash = "networkinterfaces:{$this->provider}";
+
+        Redis::delete($hash);
+
         (new ResourceGraph)
             ->type('microsoft.network/networkinterfaces')
+            ->withProvider($this->provider)
             ->extend('key', 'id')
             ->extend('value', 'tostring(properties.ipConfigurations)')
             ->project('key,value')
-            ->toCache("networkinterfaces:{$this->provider}", config('services.resourcegraph.expire'));
+            ->toCache($hash, config('services.resourcegraph.expire'));
     }
 }

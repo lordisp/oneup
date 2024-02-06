@@ -3,7 +3,7 @@
 namespace App\Console;
 
 use App\Jobs\DismissRiskyUsersScheduler;
-use App\Jobs\PrivateDnsUpdate;
+use App\Jobs\Pdns\PrivateDnsSync;
 use App\Jobs\Scim\ScheduledUserImportJob;
 use App\Jobs\VmStartStopSchedulerJob;
 use Illuminate\Console\Scheduling\Event;
@@ -38,7 +38,7 @@ class Kernel extends ConsoleKernel
             ->hourlyAt(0)
             ->onOneServer();
 
-        $schedule->job(new PrivateDnsUpdate)
+        $schedule->job(new PrivateDnsSync)
             ->everyTenMinutes()
             ->onOneServer();
 

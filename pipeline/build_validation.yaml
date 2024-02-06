@@ -39,6 +39,7 @@ stages:
               SNOW_CLIENT_URI: $(SNOW_CLIENT_URI)
               SNOW_CLIENT_ID: $(SNOW_CLIENT_ID)
               SNOW_CLIENT_SECRET: $(SNOW_CLIENT_SECRET)
+              PDNS_PROVIDER: lhtest_arm
 
           - script: |
               # Install NPM dependencies
@@ -61,6 +62,7 @@ stages:
               SNOW_CLIENT_URI: $(SNOW_CLIENT_URI)
               SNOW_CLIENT_ID: $(SNOW_CLIENT_ID)
               SNOW_CLIENT_SECRET: $(SNOW_CLIENT_SECRET)
+              PDNS_PROVIDER: lhtest_arm
 
           - script: |
               touch tests.xml
@@ -81,6 +83,7 @@ stages:
               SNOW_CLIENT_URI: $(SNOW_CLIENT_URI)
               SNOW_CLIENT_ID: $(SNOW_CLIENT_ID)
               SNOW_CLIENT_SECRET: $(SNOW_CLIENT_SECRET)
+              PDNS_PROVIDER: lhtest_arm
 
           - script: |
               # Stop and clean up Sail services
@@ -101,6 +104,7 @@ stages:
               SNOW_CLIENT_URI: $(SNOW_CLIENT_URI)
               SNOW_CLIENT_ID: $(SNOW_CLIENT_ID)
               SNOW_CLIENT_SECRET: $(SNOW_CLIENT_SECRET)
+              PDNS_PROVIDER: lhtest_arm
 
           - task: PublishTestResults@2
             displayName: 'Publish Test Results'

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
-class PdnsQueryZoneRecordsJob implements ShouldQueue
+class QueryZoneRecords implements ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, DeveloperNotification;
 
@@ -76,11 +76,14 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
                 $jobs[] = new UpdateRecordJob($this->attributes);
             } else {
-                Log::debug(sprintf("Skipping record from spoke %s", $this->attributes['spoke']), [
-                    'Trigger' => 'PdnsQueryZoneRecordsJob',
-                    'Resource' => $this->attributes['zone'],
-                    'Record' => $record,
-                ]);
+                if (basename($record['type']) != 'SOA') {
+                    Log::info(sprintf("Skipping record from spoke %s", $this->attributes['spoke']), [
+                        'Trigger' => 'PdnsQueryZoneRecordsJob',
+                        'Resource' => $this->attributes['zone'],
+                        'Record' => $record,
+                    ]);
+                }
+
             }
         }
 
@@ -90,9 +93,24 @@ class PdnsQueryZoneRecordsJob implements ShouldQueue
 
         if (count($jobs) > 0) {
             Bus::batch($jobs)
+                ->onQueue(config('dnssync.queue_name'))
                 ->name('records')
                 ->dispatch();
+
+            Log::info(sprintf("Updating %s records for %s", count($jobs), $this->attributes['zone']), [
+                'Trigger' => 'PdnsQueryZoneRecordsJob',
+                'Resource' => $this->attributes['zone'],
+                'Jobs' => count($jobs),
+                'Records' => $records,
+            ]);
+
+            return;
         }
+
+        Log::info(sprintf("No records found for %s", basename($this->attributes['zone'])), [
+            'Trigger' => 'PdnsQueryZoneRecordsJob',
+            'Resource' => $this->attributes['zone'],
+        ]);
     }
 
     protected function spokeSubscriptionId(): string
