@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pma-cfg
+  namespace: pma
+  labels:
+    app: pma
+data:
+  config-inc: |
+    <?php
+    declare(strict_types=1);
+    $cfg['blowfish_secret'] = getenv('blowfish_secret');
+    $cfg['PmaAbsoluteUri'] = 'https://oneup.az.lhgroup.de/pma';
+    $i = 0;
+
+    /* masql-lhg-sm-giti-p01 */
+    $i++;
+    $cfg['Servers'][$i]['auth_type'] = 'cookie';
+    $cfg['Servers'][$i]['verbose'] =  'masql-lhg-sm-giti-p01';
+    $cfg['Servers'][$i]['host'] =  'masql-lhg-sm-giti-p01.mariadb.database.azure.com';
+    $cfg['Servers'][$i]['compress'] = false;
+    $cfg['Servers'][$i]['AllowNoPassword'] = false;
+    $cfg['Servers'][$i]['ssl'] = true;
+    $cfg['Servers'][$i]['ssl_ca'] = '/etc/ssl/certs/BaltimoreCyberTrustRoot.crt.pem';
+    $cfg['Servers'][$i]['ssl_verify'] = true;
+    
+    /* mysql-lhg-oneup-p01 */
+    $i++;
+    $cfg['Servers'][$i]['auth_type'] = 'cookie';
+    $cfg['Servers'][$i]['verbose'] =  'mysql-lhg-oneup-p01';
+    $cfg['Servers'][$i]['host'] =  'mysql-lhg-oneup-p01.mysql.database.azure.com';
+    $cfg['Servers'][$i]['compress'] = false;
+    $cfg['Servers'][$i]['AllowNoPassword'] = false;
+    $cfg['Servers'][$i]['ssl'] = true;
+    $cfg['Servers'][$i]['ssl_ca'] = '/etc/ssl/certs/DigiCertGlobalRootCA.crt.pem';
+    $cfg['Servers'][$i]['ssl_verify'] = true;
+
+    /* Directories for saving/loading files from server */
+    $cfg['UploadDir'] = '/var/www/html/files/save/';
+    $cfg['SaveDir'] = '/var/www/html/files/save/';
+    $cfg['TempDir'] = '/var/www/html/files/tmp/';

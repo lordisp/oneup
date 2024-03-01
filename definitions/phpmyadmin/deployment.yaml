@@ -17,34 +17,49 @@ spec:
     spec:
       containers:
         - name: pma
-          image: phpmyadmin/phpmyadmin:5.2.0
+          image: phpmyadmin/phpmyadmin:latest
           resources:
             requests:
-              cpu: "100m"
-              memory:  "128Mi"
+              cpu: "1"
+              memory: "8Gi"
             limits:
-              cpu: "842m"
-              memory:  "2560Mi"
+              cpu: "1"
+              memory: "8Gi"
+          env:
+            - name: UPLOAD_LIMIT
+              value: 300M
+          envFrom:
+            - secretRef:
+                name: pma-tls
+
           ports:
             - containerPort: 80
               name: pma
           volumeMounts:
             - name: pma-cfg
               mountPath: /etc/phpmyadmin/
+            - name: pma-ssl
+              mountPath: /etc/ssl/certs/
             - name: pma-disk
               mountPath: /var/www/html/files/
       volumes:
-         - name: pma-cfg
-           configMap:
-             name: pma-cfg
-             items:
-               - key: config-inc
-                 path: config.inc.php
-               - key: ssl-cert
-                 path: ssl/BaltimoreCyberTrustRoot.crt.pem
-         - name: pma-disk
-           persistentVolumeClaim:
-             claimName: pma-disk
+        - name: pma-cfg
+          configMap:
+            name: pma-cfg
+            items:
+              - key: config-inc
+                path: config.inc.php
+        - name: pma-ssl
+          secret:
+            secretName: pma-tls
+            items:
+              - key: ssl-masql-lhg-sm-giti-p01
+                path: BaltimoreCyberTrustRoot.crt.pem
+              - key: ssl-mysql-lhg-oneup-p01
+                path: DigiCertGlobalRootCA.crt.pem
+        - name: pma-disk
+          persistentVolumeClaim:
+            claimName: pma-disk
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
