@@ -1,0 +1,20 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: apache-config
+  namespace: oneup-stage
+  labels:
+    app: oneup-apache
+data:
+  config : |
+    <VirtualHost *:8000>
+      DocumentRoot /var/www/html/public
+
+      <Directory "/">
+        AllowOverride all
+        Require all granted
+      </Directory>
+
+      ErrorLog ${APACHE_LOG_DIR}/error.log
+      CustomLog ${APACHE_LOG_DIR}/access.log combined
+    </VirtualHost>

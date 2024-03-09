@@ -1,0 +1,73 @@
+auth:
+  enabled: true
+  sentinel: true
+  existingSecret: redis-secret
+
+sentinel:
+  enabled: false
+
+metrics:
+  enabled: true
+  startupProbe:
+    enabled: true
+  livenessProbe:
+    enabled: true
+  readinessProbe:
+    enabled: true
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 100m
+      memory: 164Mi
+
+annotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9121"
+
+master:
+  count: 1
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: agentpool
+                operator: In
+                values:
+                  - userpool
+  persistence:
+    enabled: true
+    storageClass: "managed-premium"
+    size: "8Gi"
+  resources:
+    requests:
+      cpu: 2288m   # Doubled from 1144m
+      memory: 800Mi   # Doubled from 400Mi
+    limits:
+      cpu: 2496m   # Doubled from 1248m
+      memory: 1600Mi   # Doubled from 800Mi
+
+replica:
+  replicaCount: 3
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: agentpool
+                operator: In
+                values:
+                  - userpool
+  persistence:
+    enabled: true
+    storageClass: "managed-premium"
+    size: "8Gi"
+  resources:
+    requests:
+      cpu: 1760m   # Doubled from 880m
+      memory: 800Mi   # Doubled from 400Mi
+    limits:
+      cpu: 1920m   # Doubled from 960m
+      memory: 1600Mi   # Doubled from 800Mi

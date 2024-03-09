@@ -1,0 +1,6 @@
+redis-secret.yaml
+tls/*.crt
+tls/*.key
+tls/*.pem
+tls/*.csr
+tls/*.srl

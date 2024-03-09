@@ -59,11 +59,11 @@ return [
             'strict' => true,
             'engine' => null,
             'sslmode' => 'prefer',
-            'options' => env('APP_ENV') != 'local' ? [
-                PDO::MYSQL_ATTR_SSL_CA => base_path() . '/ssl/DigiCertGlobalRootG2.crt.pem',
-                PDO::MYSQL_ATTR_SSL_KEY => base_path() . '/ssl/BaltimoreCyberTrustRoot.crt',
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-            ] : [],
+            'options' => env('APP_ENV') != 'local' && env('APP_ENV') != 'testing' ?
+                [
+                    PDO::MYSQL_ATTR_SSL_CA => base_path() . '/ssl/DigiCertGlobalRootCA.crt.pem',
+                    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                ] : []
         ],
 
         'pgsql' => [
@@ -135,15 +135,44 @@ return [
             'timeout' => env('REDIS_TIMEOUT', 5),
         ],
 
-            'default' => [
-                'url' => env('REDIS_URL'),
-                'host' => env('REDIS_HOST', '127.0.0.1'),
-                'username' => env('REDIS_USERNAME'),
-                'password' => env('REDIS_PASSWORD'),
-                'port' => env('REDIS_PORT', '6380'),
-                'database' => env('REDIS_DB', 0),
-                'read_write_timeout' => env('REDIS_READ_WRITE_TIMEOUT', 3),
+        'default' => [
+            'url' => env('REDIS_URL'),
+            'host' => env('REDIS_HOST', '127.0.0.1'),
+            'password' => env('REDIS_PASSWORD', null),
+            'port' => env('REDIS_PORT', '6380'),
+            'database' => env('REDIS_DB', 0),
+            'read_write_timeout' => env('REDIS_READ_WRITE_TIMEOUT', 60),
+            'parameters' => [
+                'ssl' => [
+                    'verify_peer' => true,
+                    'verify_peer_name' => true,
+                    'cafile' => env('REDIS_CA_CERT', '/var/www/html/ssl/redis/ca.crt'),
+                    'local_cert' => env('REDIS_CLIENT_CERT', '/var/www/html/ssl/redis/redis-client.crt'),
+                    'local_pk' => env('REDIS_CLIENT_KEY', '/var/www/html/ssl/redis/redis-client.key'),
+                ],
             ],
+        ],
+
+        'clusters' => [
+            'options' => [
+                'cluster' => 'redis',
+            ],
+            'default' => [
+                [
+                    'host' => env('REDIS_HOST', '127.0.0.1'),
+                    'password' => env('REDIS_PASSWORD', null),
+                    'port' => env('REDIS_PORT', 6379),
+                    'database' => env('REDIS_DB', 0),
+                ],
+                [
+                    'host' => env('REDIS_READONLY_HOST', '127.0.0.1'),
+                    'password' => env('REDIS_PASSWORD', null),
+                    'port' => env('REDIS_PORT', 6379),
+                    'database' => env('REDIS_DB', 0),
+                    'read_only' => true,
+                ],
+            ],
+        ],
 
         'cache' => [
             'url' => env('REDIS_URL'),
@@ -153,7 +182,5 @@ return [
             'port' => env('REDIS_PORT', '6380'),
             'database' => env('REDIS_CACHE_DB', '1'),
         ],
-
     ],
-
 ];

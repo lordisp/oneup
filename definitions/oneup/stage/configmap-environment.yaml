@@ -1,17 +1,17 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  namespace: oneup
+  namespace: oneup-stage
   name: oneup-env
   labels:
     app: oneup
 data:
   APP_NAME: "OneUp"
-  APP_ENV: "production"
+  APP_ENV: "stage"
   CURL_VERIFY: "false"
-  APP_DEBUG: "false"
-  DEBUGBAR_ENABLED: "false"
-  APP_URL: "https://oneup.az.lhgroup.de"
+  APP_DEBUG: "true"
+  DEBUGBAR_ENABLED: "true"
+  APP_URL: "https://oneup-stage.az.lhgroup.de"
   RATE_LIMIT_API: "60"
   LOG_CHANNEL: "db"
   LOG_DEPRECATIONS_CHANNEL: "null"
@@ -19,26 +19,26 @@ data:
   DB_CONNECTION: "mysql"
   DB_HOST: "mysql-lhg-oneup-p01.mysql.database.azure.com"
   DB_PORT: "3306"
-  DB_DATABASE: "oneup_prod"
+  DB_DATABASE: "oneup_stage"
   DB_USERNAME: "oneup_admin"
   SESSION_CONNECTION: "default"
   BROADCAST_DRIVER: "redis"
   CACHE_DRIVER: "redis"
-  REDIS_HOST: "redis-master.oneup-redis.svc.cluster.local"
-  REDIS_READONLY_HOST: "redis-replicas.oneup-redis.svc.cluster.local"
+  REDIS_HOST: "redis-master.oneup-stage-redis.svc.cluster.local"
+  REDIS_READONLY_HOST: "redis-replicas.oneup-stage-redis.svc.cluster.local"
   REDIS_PORT: "6379"
   REDIS_READ_TIMEOUT: "10"
   REDIS_TIMEOUT: "5"
   REDIS_RETRY_INTERVAL: "100"
   REDIS_PERSISTENT: "true"
   REDIS_CLUSTER: "redis"
-  REDIS_DB: "0"
-  REDIS_CACHE_DB: "1"
+  REDIS_DB: "3"
+  REDIS_CACHE_DB: "2"
   QUEUE_CONNECTION: "redis"
   SESSION_DRIVER: "redis"
   SESSION_LIFETIME: "30"
   SESSION_SECURE_COOKIE: "true"
-  SESSION_COOKIE: "oneup_session"
+  SESSION_COOKIE: "oneup_stage_session"
   MAIL_DRIVER: "smtp"
   MAIL_HOST: "smtp.office365.com"
   MAIL_PORT: "587"
@@ -48,15 +48,16 @@ data:
   MAIL_FROM_NAME: "Lufthansa-Group Cloud OneUp"
   SNOW_CLIENT_URI: "https://lhgroup.service-now.com"
   SNOW_CLIENT_ID: "pcifirewall.interface"
-  ARM_CACHE_EXPIRE: "1080"
+  ARM_CACHE_EXPIRE: "540"
+  SKIP_PROVIDERS: "aviatar_arm"
   PDNS_CHUNK_ZONES: "200"
   PDNS_CHUNK_RECORDS: "200"
-  PDNS_QUEUE_NAME: "pdns"
-  PDNS_PROVIDER: "lhg_arm,aviatar_arm"
   PRUNE_BATCHES_HOURS: "10"
   PRUNE_BATCHES_CANCELLED: "10"
   PRUNE_BATCHES_UNFINISHED: "10"
   PRUNE_FAILED_HOURS: "10"
+  PDNS_LHG_ENABLED: "true"
+  PDNS_AVIATAR_ENABLED: "true"
   TELESCOPE_JOB_ENTRY: "false"
   TELESCOPE_EVENT_ENTRY: "false"
   TELESCOPE_BATCH_ENTRY: "false"
@@ -66,15 +67,3 @@ data:
   DISMISS_RISKY_USERS: "true"
   APACHE_RUN_USER: "www-data"
   APACHE_RUN_GROUP: "www-data"
-  apache: |
-    <VirtualHost *:8000>
-      DocumentRoot /var/www/html/public
-
-      <Directory "/">
-        AllowOverride all
-        Require all granted
-      </Directory>
-
-      ErrorLog ${APACHE_LOG_DIR}/error.log
-      CustomLog ${APACHE_LOG_DIR}/access.log combined
-    </VirtualHost>

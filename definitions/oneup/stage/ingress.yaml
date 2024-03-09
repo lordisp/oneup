@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oneup
+  namespace: oneup-stage
+  annotations:
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+    nginx.ingress.kubernetes.io/proxy-body-size: 20m
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload";
+      more_set_headers "X-Frame-Options: Deny";
+      more_set_headers "Content-Security-Policy: policy";
+      more_set_headers "X-Content-Type-Options: nosniff";
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+    nginx.ingress.kubernetes.io/real-ip-header: "X-Real-IP"
+    nginx.ingress.kubernetes.io/proxy-real-ip-path: "/proxy-real-ip"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - oneup-stage.az.lhgroup.de
+      secretName: oneup-tls-2024
+  rules:
+    - host: oneup-stage.az.lhgroup.de
+      http:
+        paths:
+          - path: /(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: oneup
+                port:
+                  number: 8000

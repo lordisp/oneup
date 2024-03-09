@@ -1,0 +1,113 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: queue
+  namespace: oneup-stage
+spec:
+  replicas: 2
+  minReadySeconds: 2
+  progressDeadlineSeconds: 120
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: queue
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 1
+  template:
+    metadata:
+      labels:
+        app: queue
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: agentpool
+                    operator: In
+                    values:
+                      - userpool
+      securityContext:
+        runAsUser: 1000
+      containers:
+        - name: queue
+          securityContext:
+            runAsUser: 1000
+          image: acrlhggixiservicesp.azurecr.io/oneup:20240206.2
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sh
+            - -c
+            - |
+              php artisan optimize:clear; 
+              php artisan config:cache; 
+              php artisan migrate --force; 
+              php artisan queue:work --queue=default,pdns --memory=960 --timeout=1800;
+
+          resources:
+            limits:
+              cpu: 400m
+              memory: 960Mi
+            requests:
+              cpu: 300m
+              memory: 300Mi
+          volumeMounts:
+            - name: apache-config
+              mountPath: /etc/apache2/sites-enabled/
+              readOnly: true
+            - name: ssl
+              mountPath: /var/www/html/ssl/
+              readOnly: true
+            - name: oneup-storage
+              mountPath: /var/www/html/storage/app/
+            - mountPath: /tmp
+              name: tmp
+          envFrom:
+            - secretRef:
+                name: oneup-env
+            - configMapRef:
+                name: oneup-env
+          ports:
+            - containerPort: 8000
+              name: oneup
+              protocol: TCP
+      restartPolicy: Always
+      volumes:
+        - name: apache-config
+          configMap:
+            name: apache-config
+            defaultMode: 420
+            items:
+              - key: config
+                path: 000-default.conf
+        - name: ssl
+          secret:
+            secretName: oneup-tls-2024
+            items:
+              - key: mysql-attr-ssl-ca
+                path: DigiCertGlobalRootG2.crt.pem
+              - key: mysql-attr-ssl-key
+                path: BaltimoreCyberTrustRoot.crt.pem
+              - key: mysql-flex-ssl-ca
+                path: DigiCertGlobalRootCA.crt.pem
+        - name: redis
+          secret:
+            secretName: redis-tls
+            defaultMode: 0644
+            items:
+              - key: ca.crt
+                path: ca.crt
+              - key: redis-client.crt
+                path: redis-client.crt
+              - key: redis-client.key
+                path: redis-client.key
+        - name: oneup-storage
+          azureFile:
+            secretName: azure-file-secret
+            shareName: oneup-stage
+            readOnly: false
+        - emptyDir: { }
+          name: tmp
