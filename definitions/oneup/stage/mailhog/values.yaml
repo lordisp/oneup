@@ -1,0 +1,44 @@
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    nginx.ingress.kubernetes.io/enable-real-ip: "true"
+    nginx.ingress.kubernetes.io/real-ip-header: "X-Real-IP"
+    nginx.ingress.kubernetes.io/proxy-real-ip-path: "/proxy-real-ip"
+  labels: {}
+  hosts:
+    - host: oneup-stage.az.lhgroup.de
+      paths:
+        - path: /mailhog
+          pathType: Prefix
+          backend:
+              service:
+              name: mailhog
+              port:
+                  number: 8025
+
+  tls:
+    - secretName: oneup-tls-2024
+      hosts:
+        - oneup-stage.az.lhgroup.de
+
+resources:
+   limits:
+     cpu: 200m
+     memory: 669Mi
+   requests:
+     cpu: 100m
+     memory: 363Mi
+
+affinity:
+ nodeAffinity:
+   requiredDuringSchedulingIgnoredDuringExecution:
+     nodeSelectorTerms:
+       - matchExpressions:
+           - key: agentpool
+             operator: In
+             values:
+               - userpool
+extraEnv:
+    - name: MH_UI_WEB_PATH
+      value: "mailhog"

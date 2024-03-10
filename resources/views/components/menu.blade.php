@@ -44,10 +44,26 @@
             <x-menu.dropdown-link request="admin/provider" href="{{route('admin.provider')}}">Provider
             </x-menu.dropdown-link>
         @endcan
+    </x-menu.dropdown>
+@endcan
+@canany(['mailhog-read','telescope-read'])
+    <x-menu.dropdown route="developer*">
+        <x-slot name="title">Developers</x-slot>
+        <x-slot name="icon">
+            <x-icon.code class="icon-menu" size="6"/>
+        </x-slot>
         @can('viewTelescope',[auth()->user()])
-            <x-menu.dropdown-link request="admin/telescope" target="_blank" href="/admin/telescope">Telescope
+            <x-menu.dropdown-link request="developer/telescope" target="_blank" href="/admin/telescope">Telescope
             </x-menu.dropdown-link>
         @endcan
+        @if (config('app.env') === 'local')
+            <x-menu.dropdown-link request="developer/mailhog" target="_blank" href="http://localhost:8025/">Mailhog
+            </x-menu.dropdown-link>
+        @endif
+        @if (config('app.env') === 'stage')
+            <x-menu.dropdown-link request="developer/mailhog" target="_blank" href="/mailhog">Mailhog
+            </x-menu.dropdown-link>
+        @endif
     </x-menu.dropdown>
 @endcan
 {{--

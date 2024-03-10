@@ -14,6 +14,7 @@ use App\Policies\Admin\RolesPolicy;
 use App\Policies\Admin\TokenCacheProviderPolicy;
 use App\Policies\Admin\UserPolicy;
 use App\Policies\FirewallRulePolicy;
+use App\Policies\MailhogPolicy;
 use App\Policies\PCI\ServiceNowRequestPolicy;
 use App\Policies\Profile\ClientPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -53,6 +54,7 @@ class AuthServiceProvider extends ServiceProvider
         $this->registerOperationPolicy();
         $this->registerGroupPolicy();
         $this->registerServiceNowPolicy();
+        $this->registerMailhogPolicy();
     }
 
     public function registerPassportScopes()
@@ -157,5 +159,10 @@ class AuthServiceProvider extends ServiceProvider
         Gate::after(function ($user, $operation) {
             return $user->operations()->contains($operation);
         });
+    }
+
+    protected function registerMailhogPolicy()
+    {
+        Gate::define('mailhog-read', [MailhogPolicy::class, 'view']);
     }
 }
