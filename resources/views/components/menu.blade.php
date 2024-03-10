@@ -46,7 +46,7 @@
         @endcan
     </x-menu.dropdown>
 @endcan
-@canany(['mailhog-read','telescope-read'])
+@canany(['mailhog-read','viewTelescope'])
     <x-menu.dropdown route="developer*">
         <x-slot name="title">Developers</x-slot>
         <x-slot name="icon">
