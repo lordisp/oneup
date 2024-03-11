@@ -12,7 +12,7 @@ class MailhogPolicy
 
     public function view(User $user): bool
     {
-        return $this->hasMailhogReadPermission($user) && $this->isStagingEnvironment();
+        return $this->hasMailhogReadPermission($user) && $this->isNotProduction();
     }
 
     protected function hasMailhogReadPermission(User $user): bool
@@ -22,8 +22,8 @@ class MailhogPolicy
         );
     }
 
-    protected function isStagingEnvironment(): bool
+    protected function isNotProduction(): bool
     {
-        return config('app.env') === 'stage';
+        return config('app.env') !== 'production';
     }
 }

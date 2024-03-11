@@ -67,7 +67,7 @@
             @endif
         @endcan
         @if (config('app.env') === 'stage')
-            @can('pma',[auth()->user()])
+            @can('pma-read',[auth()->user()])
                 <x-menu.dropdown-link request="developer/pma" target="_blank" href="/pma/index.php?route=/">PhpMyAdmin
                 </x-menu.dropdown-link>
             @endcan
