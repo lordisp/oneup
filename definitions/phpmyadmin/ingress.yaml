@@ -19,7 +19,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: oneup.az.lhgroup.de
+    - host: oneup-stage.az.lhgroup.de
       http:
         paths:
           - path: /pma(/|$)(.*)
@@ -31,5 +31,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - oneup.az.lhgroup.de
+        - oneup-stage.az.lhgroup.de
       secretName: pma-tls

@@ -28,7 +28,7 @@
             <x-icon.view-grid class="icon-menu" size="6"/>
         </x-slot>
         @canany(['user-read','user-readAll'],[auth()->user()])
-        <x-menu.dropdown-link request="admin/users" href="{{route('admin.users')}}">Users</x-menu.dropdown-link>
+            <x-menu.dropdown-link request="admin/users" href="{{route('admin.users')}}">Users</x-menu.dropdown-link>
         @endcanany
         @canany(['group-read','group-readAll'],[auth()->user()])
             <x-menu.dropdown-link request="admin/group" href="{{route('admin.group')}}">Groups</x-menu.dropdown-link>
@@ -56,13 +56,27 @@
             <x-menu.dropdown-link request="developer/telescope" target="_blank" href="/admin/telescope">Telescope
             </x-menu.dropdown-link>
         @endcan
-        @if (config('app.env') === 'local')
-            <x-menu.dropdown-link request="developer/mailhog" target="_blank" href="http://localhost:8025/">Mailhog
-            </x-menu.dropdown-link>
-        @endif
+        @can('mailhog-read',[auth()->user()])
+            @if (config('app.env') === 'local')
+                <x-menu.dropdown-link request="developer/mailhog" target="_blank" href="http://localhost:8025/">Mailhog
+                </x-menu.dropdown-link>
+            @endif
+            @if (config('app.env') === 'stage')
+                <x-menu.dropdown-link request="developer/mailhog" target="_blank" href="/mailhog">Mailhog
+                </x-menu.dropdown-link>
+            @endif
+        @endcan
         @if (config('app.env') === 'stage')
-            <x-menu.dropdown-link request="developer/mailhog" target="_blank" href="/mailhog">Mailhog
-            </x-menu.dropdown-link>
+            @can('pma',[auth()->user()])
+                <x-menu.dropdown-link request="developer/pma" target="_blank" href="/pma/index.php?route=/">PhpMyAdmin
+                </x-menu.dropdown-link>
+            @endcan
+        @endif
+        @if (config('app.env') === 'local')
+            @can('pma-read',[auth()->user()])
+                <x-menu.dropdown-link request="developer/pma" target="_blank" href="http://localhost:8080/">phpMyAdmin
+                </x-menu.dropdown-link>
+            @endcan
         @endif
     </x-menu.dropdown>
 @endcan

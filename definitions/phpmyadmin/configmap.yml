@@ -12,17 +12,6 @@ data:
     $cfg['blowfish_secret'] = getenv('blowfish_secret');
     $cfg['PmaAbsoluteUri'] = 'https://oneup.az.lhgroup.de/pma';
     $i = 0;
-
-    /* masql-lhg-sm-giti-p01 */
-    $i++;
-    $cfg['Servers'][$i]['auth_type'] = 'cookie';
-    $cfg['Servers'][$i]['verbose'] =  'masql-lhg-sm-giti-p01';
-    $cfg['Servers'][$i]['host'] =  'masql-lhg-sm-giti-p01.mariadb.database.azure.com';
-    $cfg['Servers'][$i]['compress'] = false;
-    $cfg['Servers'][$i]['AllowNoPassword'] = false;
-    $cfg['Servers'][$i]['ssl'] = true;
-    $cfg['Servers'][$i]['ssl_ca'] = '/etc/ssl/certs/BaltimoreCyberTrustRoot.crt.pem';
-    $cfg['Servers'][$i]['ssl_verify'] = true;
     
     /* mysql-lhg-oneup-p01 */
     $i++;
