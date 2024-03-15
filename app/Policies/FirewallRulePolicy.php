@@ -33,11 +33,11 @@ class FirewallRulePolicy
     {
         return $user->hasBusinessService($rule->businessService->name)
             && isset($rule->new_status)
-            && ($rule->status != 'deleted' && $rule->status != 'extended')
-            || $user->operations()->contains(
-                $this->updateOrCreate('serviceNow/firewall/request/extendAll', 'Can extend all firewall rules')
-            )
-            && ($rule->status != 'deleted' && $rule->status != 'extended');
+            && ($rule->status != 'deleted' && $rule->status != 'extended' || $rule->last_review <= now()->subDays(90))
+                || $user->operations()->contains(
+                    $this->updateOrCreate('serviceNow/firewall/request/extendAll', 'Can extend all firewall rules')
+                )
+                && ($rule->status != 'deleted' && $rule->status != 'extended');
     }
 
     public function decommission(User $user, FirewallRule $rule): bool
