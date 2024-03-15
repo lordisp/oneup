@@ -21,7 +21,8 @@ class GlobalAdminSeeder extends Seeder
         'admin/tokenCacheProvider/read' => 'Can read Provider',
         'admin/tokenCacheProvider/create' => 'Can create Provider',
         'admin/tokenCacheProvider/delete' => 'Can delete Provider',
-        'admin/tokenCacheProvider/readAll' => 'Can read all Providers'
+        'admin/tokenCacheProvider/readAll' => 'Can read all Providers',
+        'serviceNow-firewallRequests-invite' => 'Can invite firewall-reviewers'
     ];
 
     /**

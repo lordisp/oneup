@@ -56,7 +56,7 @@ class CreateFirewallRequestNotification extends Notification implements ShouldQu
         return (new MailMessage)
             ->greeting("Hello {$notifiable->firstName}!")
             ->line("Your request has been successfully submitted to Service-Now. You will be informed about the further progress via Service-Now under reference {$this->body['requestNumber']}.")
-            ->action('Service-Now', url('https://lhgroup.service-now.com/sp'))
+            ->action('Service-Now', url($this->body['requestItemNumberLink']))
             ->line('If you have any question, dont hesitate to contact us.');
     }
 

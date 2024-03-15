@@ -17,7 +17,6 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class ImportFirewallRequestJob implements ShouldQueue
 {
@@ -30,7 +29,7 @@ class ImportFirewallRequestJob implements ShouldQueue
         $this->container['review'] = now()->subQuarter();
     }
 
-    public function handle()
+    public function handle(): void
     {
         $this
             ->validate()
@@ -91,9 +90,7 @@ class ImportFirewallRequestJob implements ShouldQueue
 
         foreach ($rules as $key => $rule) {
             $rules[$key] = Normalizer::normalize($rule)
-                ->withBusinessService(
-                    data_get($this->container, 'business_service')
-                )
+                ->withBusinessService(data_get($this->container, 'business_service'))
                 ->get();
 
             if (empty($rules[$key])) {
@@ -202,7 +199,7 @@ class ImportFirewallRequestJob implements ShouldQueue
         $businessService = data_get($this->container, 'business_service');
 
         if (!empty($businessService)) {
-            ImportBusinessServiceMemberJob::dispatch($businessService->name, Str::random(40))
+            ImportBusinessServiceMemberJob::dispatch($businessService->name, $businessService->name)
                 ->afterCommit();
         }
 

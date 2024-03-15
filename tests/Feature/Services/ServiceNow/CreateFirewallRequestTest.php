@@ -51,7 +51,7 @@ class CreateFirewallRequestTest extends TestCase
         $this->assertIsArray($response->json());
         $this->assertEquals('Success', $response->json('result')['status']);
         $this->assertEquals('REQ0032701', $response->json('result')['requestNumber']);
-        $this->assertEquals('ROT0033162', $response->json('result')['requestItemNumber']);
+        $this->assertEquals('RIT0033162', $response->json('result')['requestItemNumber']);
     }
 
     /** @test */
@@ -150,10 +150,12 @@ class CreateFirewallRequestTest extends TestCase
             $user1,
             function (CreateFirewallRequestNotification $notification) {
                 return $notification->getBody() === [
-                    "status" => "Success",
-                    "requestNumber" => "REQ0032701",
-                    "requestItemNumber" => "ROT0033162",
-                ];
+                        "status" => "Success",
+                        "requestNumber" => "REQ0032701",
+                        'requestNumberlink'=>'https://lhgroupuat.service-now.com/sp?id=ticket&table=sc_request&sys_id=e715cee71b740e105c7e744c8b4bcb2c',
+                        "requestItemNumber" => "RIT0033162",
+                        'requestItemNumberLink'=>'https://lhgroupuat.service-now.com/sp?id=ticket&table=sc_req_item&sys_id=2315cee71b740e105c7e744c8b4bcb2d'
+                    ];
             }
         );
 

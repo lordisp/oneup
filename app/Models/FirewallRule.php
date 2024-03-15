@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Str;
 
 
 /**
@@ -141,12 +142,11 @@ class FirewallRule extends Model
      */
     public function newStatus(): Attribute
     {
-        return Attribute::make(
-            fn() => $this->status != 'deleted' && $this->pci_dss
-                ? ($this->last_review <= now()->subQuarter() || $this->last_review == null
-                    ? 'review'
-                    : $this->status)
-                : $this->status,
+        return Attribute::make(fn() => $this->status != 'deleted' && $this->pci_dss
+            ? ($this->last_review <= now()->subQuarter() || $this->last_review == null
+                ? 'review'
+                : $this->status)
+            : $this->status,
         );
     }
 
@@ -182,11 +182,13 @@ class FirewallRule extends Model
      * @param $query
      * @return void
      */
-    public function scopeReview($query): void
+    public function scopeReview($query, $pci = false, $all = false): void
     {
-        $query->where(function ($query) {
+        $query->where(function ($query) use ($all, $pci) {
             $query->where('action', '=', 'add');
-            $query->where('pci_dss', '=', true);
+            if (!$all) {
+                $query->where('pci_dss', '=', !$pci);
+            }
             $query->where('status', '!=', 'deleted');
             $query->where('end_date', '>', now());
 
@@ -224,6 +226,11 @@ class FirewallRule extends Model
         $query->where(function ($query) {
             $query->where('action', '=', 'add');
             $query->where('status', '=', 'extended');
+            $query->where(function ($sub) {
+                $sub->where('last_review', '=', null)
+                    ->orWhere('last_review', '<=', now()->subQuarters(3));
+            });
+
         });
     }
 
@@ -292,5 +299,19 @@ class FirewallRule extends Model
             return;
         }
         $query->own();
+    }
+
+    public function sourceStringShort($length = 80): Attribute
+    {
+        return Attribute::make(
+            get: fn() => Str::limit(implode(', ', json_decode($this->source, true)), $length),
+        );
+    }
+
+    public function destinationStringShort($length = 80): Attribute
+    {
+        return Attribute::make(
+            get: fn() => Str::limit(implode(', ', json_decode($this->destination, true)), $length),
+        );
     }
 }

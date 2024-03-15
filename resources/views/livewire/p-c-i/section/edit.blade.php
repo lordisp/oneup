@@ -12,7 +12,7 @@
 
         </x-slot>
         <x-slot name="content">
-            @if(isset($rule)&& !empty($rule))
+            @if(isset($rule) && !empty($rule))
                 <div class="relative border-t border-gray-200 dark:border-gray-600 px-4 py-5 sm:px-6">
                     {{-- Content --}}
                     <x-tabs default="connections">
@@ -172,7 +172,17 @@
                                                             <dd>{{$audit->activity}}</dd>
                                                         </dl>
                                                     </x-table.cell>
-                                                    <x-table.cell class="hidden sm:table-cell"> {{$audit->activity}}</x-table.cell>
+                                                    <x-table.cell class="hidden sm:table-cell">
+                                                        @if(!empty($audit->uris))
+                                                            @if($this->filters['own']==1)
+                                                                <a class="hover:underline after:content-['_↗']" href="{{data_get($audit->uris,'frontend')}}" target="_blank">{{$audit->activity}}</a>
+                                                            @else
+                                                                <a class="hover:underline after:content-['_↗']" href="{{data_get($audit->uris,'backend')}}" target="_blank">{{$audit->activity}}</a>
+                                                            @endif
+                                                        @else
+                                                            {{$audit->activity}}
+                                                        @endif
+                                                    </x-table.cell>
                                                     <x-table.cell class="hidden md:table-cell">
                                                         <x-badge class="{{$audit->statusBackground}} {{$audit->statusBorder}} {{$audit->statustext}}">{{$audit->status}}</x-badge>
                                                     </x-table.cell>

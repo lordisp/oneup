@@ -1,9 +1,9 @@
 {
   "result": {
     "status": "Success",
-    "requestNumber": "REQ0032701",
+    "requestNumber": "REQ0135664",
     "requestNumberlink": "https:\/\/lhgroupuat.service-now.com\/sp?id=ticket&table=sc_request&sys_id=e715cee71b740e105c7e744c8b4bcb2c",
-    "requestItemNumber": "RIT0033162",
+    "requestItemNumber": "RITM0156145",
     "requestItemNumberLink": "https:\/\/lhgroupuat.service-now.com\/sp?id=ticket&table=sc_req_item&sys_id=2315cee71b740e105c7e744c8b4bcb2d"
   }
 }

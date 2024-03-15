@@ -3,8 +3,10 @@
 namespace App\Services\AzureArm;
 
 use App\Events\InterfacesReceived;
+use App\Events\NetworkInterfacesCached;
 use App\Exceptions\AzureArm\ResourceGraphException;
 use App\Facades\Redis;
+use App\Traits\HttpRetryConditions;
 use App\Traits\Token;
 use Illuminate\Http\Client\RequestException;
 use Illuminate\Support\Arr;
@@ -14,7 +16,7 @@ use Illuminate\Support\Str;
 
 class ResourceGraph
 {
-    use Token;
+    use Token, HttpRetryConditions;
 
     protected string $provider = 'lhg_arm';
     protected string $withSubscription;
@@ -72,9 +74,9 @@ class ResourceGraph
             Redis::expire($hash, $expireSeconds);
         }
 
-        Log::info(sprintf("ResourceGraph: Caching %s with %s entries", $hash, count($cached)));
+        Log::debug(sprintf("ResourceGraph: Caching %s with %s entries", $hash, count($cached)));
 
-        InterfacesReceived::dispatch( $this->provider);
+        InterfacesReceived::dispatch($this->provider);
 
         return $cached;
     }
@@ -190,7 +192,8 @@ class ResourceGraph
         return Http::withToken(decrypt($token))
             ->retry(10, 0, function ($exception, $request) {
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
-                    sleep($exception->response->header('Retry-After') ?? 10);
+                    $retryAfter = $exception->response->header('Retry-After');
+                    sleep(empty($retryAfter) ? 10 : (int)$retryAfter);
                     return true;
                 }
 

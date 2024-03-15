@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Str;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
 
@@ -55,5 +57,20 @@ class BusinessService extends Model
     public function scopeByOwner(Builder $query): Builder
     {
         return $query->whereRelation('users', 'user_id', auth()->id());
+    }
+
+    protected function trimmedBusinessServiceName(): Attribute
+    {
+        return Attribute::make(
+            get: function ($value) {
+                if (Str::contains($value, '[non-operational]', true)) {
+                    $value = Str::remove('[non-operational]', $value, false);
+                }
+                if (Str::contains($value, '_damaged', true)) {
+                    $value = Str::remove('_damaged', $value, false);
+                }
+                return $value;
+            },
+        );
     }
 }

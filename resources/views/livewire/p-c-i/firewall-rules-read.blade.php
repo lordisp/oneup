@@ -22,7 +22,7 @@
                 <x-icon.spinner class="hidden" wire:loading.class.remove="hidden" wire:target="deleteAll"/>
             </x-btn.danger>
         @endcan
-        @can('serviceNow-firewallRequests-import')
+        @can('serviceNow-firewallRequests-invite')
             <x-btn.secondary wire:loading.class="disabled" wire:click="sendNotification" wire:target="sendNotification">
                 Send Notifications
             </x-btn.secondary>
@@ -39,7 +39,9 @@
             <x-slot name="head">
                 <x-table.heading class="hidden md:table-cell w-5"><span>Rule</span></x-table.heading>
                 <x-table.heading class="hidden md:table-cell">Description</x-table.heading>
-                <x-table.heading class="hidden md:table-cell">Status</x-table.heading>
+                <x-table.heading sortable multiColumn wire:click="sortBy('created_at')"
+                                 :direction="$sorts['created_at'] ?? null" class="hidden md:table-cell">Status
+                </x-table.heading>
             </x-slot>
             <x-slot name="body">
                 <x-table.body>
@@ -94,8 +96,8 @@
 
                             <x-table.cell class="hidden md:table-cell">
                                 <div class="whitespace-normal">
-                                    <div><span class="font-bold mr-1">Source</span>{{\Illuminate\Support\Str::limit($row->sourceString,80)}}</div>
-                                    <div><span class="font-bold mr-1">Destination</span>{{\Illuminate\Support\Str::limit($row->destinationString,80)}}</div>
+                                    <div><span class="font-bold mr-1">Source</span>{{$row->sourceStringShort}}</div>
+                                    <div><span class="font-bold mr-1">Destination</span>{{$row->destinationStringShort}}</div>
                                     <div>{{$row->description}}</div>
                                 </div>
                             </x-table.cell>
@@ -116,12 +118,14 @@
                                         <span class="text-lg">{{__('empty-table.nothing_to_do')}}</span>
                                         <span class="-rotate-6"><x-icon.hand-thumb-up/></span>
                                     </span>
+
                             </x-table.cell>
                             <x-table.cell class="hidden md:table-cell" colspan="3">
                                     <span class="w-full border text-green-900 border-green-200 border bg-green-50 rounded-md flex items-center justify-center space-x-2 py-4">
                                         <span class="text-lg">{{__('empty-table.nothing_to_do')}}</span>
                                         <span class="-rotate-6"><x-icon.hand-thumb-up/></span>
                                     </span>
+                                <p class="text-lg">Do you want to <button class="inline-block text-lhg-yellow hover:underline" @click.prevent="$wire.set('filters.status','open')">see all</button> requests?</p>
                             </x-table.cell>
                         </x-table.row>
                     @endforelse

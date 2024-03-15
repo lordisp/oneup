@@ -33,7 +33,6 @@
         </p>
         <!-- Buttons -->
         <div class="mt-8 flex justify-end items-center space-x-2">
-            <span wire:loading.class.remove="hidden" class="hidden animate-pulse text-gray-500 dark:text-gray-300">Loading ...</span>
             {{ $button }}
         </div>
     </div>

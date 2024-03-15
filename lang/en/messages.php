@@ -30,13 +30,13 @@ return [
     'all_requests_deleted' => 'All Firewall-Rules have been deleted!',
     'start_delete_all_requests' => 'Start deleting all records...',
     'request_description' => [
-        'decommission_request' => 'The connection will be dismantled via the quarterly review for firewall rules through OneUp.',
+        'decommission_request' => 'The connection will be dismantled via the review for firewall-rules through OneUp.',
     ],
     'failed' => [
         'firewall_request_validation' => 'Firewall-Request Validation failed',
         'invalid_operation_argument' => 'Either start or deallocate are allowed arguments',
     ],
     'rule_previously_decommissioned' => 'Rule previously decommissioned!',
-    'rule_decommissioned' => 'Decommissioned Firewall-Rule',
+    'rule_decommissioned' => 'Decommissioned Firewall-Rule :requestNummer',
     'dispatched_firewall_review_mails' => ':email dispatched Firewall-Review Mails',
 ];

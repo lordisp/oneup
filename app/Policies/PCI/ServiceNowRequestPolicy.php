@@ -51,6 +51,13 @@ class ServiceNowRequestPolicy
         );
     }
 
+  public function invite(User $user): bool
+  {
+      return $user->operations()->contains(
+          $this->updateOrCreate('serviceNow/firewall/invite', 'Can invite firewall-reviewers')
+      );
+  }
+
     /**
      * Determine whether the user can update the model.
      *

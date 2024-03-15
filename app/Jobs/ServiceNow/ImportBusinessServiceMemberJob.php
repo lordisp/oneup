@@ -12,6 +12,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Log;
 
 class ImportBusinessServiceMemberJob implements ShouldQueue, ShouldBeUnique
 {
@@ -28,7 +30,7 @@ class ImportBusinessServiceMemberJob implements ShouldQueue, ShouldBeUnique
     {
         $this->businessService = $businessService;
 
-        $this->identifier = $identifier;
+        $this->identifier = md5($identifier);
     }
 
 
@@ -47,6 +49,15 @@ class ImportBusinessServiceMemberJob implements ShouldQueue, ShouldBeUnique
         $emails = $this->getBusinessServiceResponsibles();
 
         if (empty($emails)) {
+            $emails = $this->getBusinessServiceEscalationNotification();
+        }
+
+        if (empty($emails)) {
+            $emails = $this->getBusinessServiceSecurityContacts();
+        }
+
+        if (empty($emails)) {
+            Log::info('No contacts found for business service: ' . $this->businessService);
             return;
         }
 
@@ -55,14 +66,33 @@ class ImportBusinessServiceMemberJob implements ShouldQueue, ShouldBeUnique
 
     protected function getBusinessServiceResponsibles(): array
     {
+        Log::debug('Getting responsibles for business service: ' . $this->businessService);
         return (new GroupMembers($this->businessService, 'Responsibles'))->handle();
     }
 
-    protected function importUserWithBusinessService(array $emails)
+    protected function getBusinessServiceEscalationNotification(): array
     {
+        Log::debug('Getting Escalation for business service: ' . $this->businessService);
+        return (new GroupMembers($this->businessService, 'EscalationNotification'))->handle();
+    }
+
+    protected function getBusinessServiceSecurityContacts(): array
+    {
+        Log::debug('Getting SecurityContacts for business service: ' . $this->businessService);
+        return (new GroupMembers($this->businessService, 'SecurityContacts'))->handle();
+    }
+
+    protected function importUserWithBusinessService(array $emails): void
+    {
+        Log::debug('Importing users with business service: ' . $this->businessService, $emails);
         foreach ($emails as $email) {
-            ImportUserWithBusinessServiceJob::dispatch($email, $this->businessService)
-                ->afterCommit();
+            $jobs[] = new ImportUserWithBusinessServiceJob($email, $this->businessService);
         }
+
+        if (!empty($jobs)) {
+            Bus::chain($jobs)
+                ->dispatch();
+        }
+
     }
 }

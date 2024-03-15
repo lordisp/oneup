@@ -156,7 +156,15 @@ class Scim
                     'provider' => $this->provider,
                 ]);
         } catch (QueryException $exception) {
+            $userInstance = User::whereEmail($user['email'])->first();
+
+            if (isset($userInstance) && $userInstance instanceof User) {
+                Log::debug('Scim: User found: ' . $user['email'], (array)$exception);
+                return $userInstance;
+            }
+
             Log::error("Scim: Failed to updateOrCreate {$user['email']}", (array)$exception);
+
             return User::newModelInstance();
         }
     }

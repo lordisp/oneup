@@ -27,9 +27,12 @@ services:
             AZURE_TEST_TENANT: '${AZURE_TEST_TENANT}'
             AZURE_TEST_CLIENT_ID: '${AZURE_TEST_CLIENT_ID}'
             AZURE_TEST_CLIENT_SECRET: '${AZURE_TEST_CLIENT_SECRET}'
-            SNOW_CLIENT_URI: '${SNOW_CLIENT_URI}'
+            SNOW_PROD_URI: '${SNOW_PROD_URI}'
             SNOW_CLIENT_ID: '${SNOW_CLIENT_ID}'
             SNOW_CLIENT_SECRET: '${SNOW_CLIENT_SECRET}'
+            SNOW_UAT_URI: '${SNOW_UAT_URI}'
+            SNOW_UAT_CLIENT_ID: '${SNOW_UAT_CLIENT_ID}'
+            SNOW_UAT_CLIENT_SECRET: '${SNOW_UAT_CLIENT_SECRET}'
             TELESCOPE_ENABLED: false
         volumes:
             - '.:/var/www/html'

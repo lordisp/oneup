@@ -2,18 +2,11 @@
 
 namespace App\Providers;
 
-use App\Events\FirewallReviewAvailableEvent;
-use App\Events\ImportNewFirewallRequestsEvent;
 use App\Events\InterfacesReceived;
 use App\Events\VmStateChangeEvent;
-use App\Listeners\CleanUpFirewallRulesListener;
-use App\Listeners\ImportNewFirewallRequestsEventListener;
-use App\Listeners\NotifyFirewallImportDispatcherListener;
 use App\Listeners\QueuePrivateDnsSync;
 use App\Listeners\SessionExpiredListener;
 use App\Listeners\VmStateChangeProcessListener;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -24,16 +17,18 @@ class EventServiceProvider extends ServiceProvider
      * @var array<class-string, array<int, class-string>>
      */
     protected $listen = [
-        Registered::class => [
-            SendEmailVerificationNotification::class,
+        \App\Events\FirewallReviewAvailableEvent::class => [
+            \App\Listeners\NotifyFirewallImportDispatcherListener::class,
+            \App\Listeners\CleanUpFirewallRulesListener::class,
         ],
-        FirewallReviewAvailableEvent::class => [
-            NotifyFirewallImportDispatcherListener::class,
-            CleanUpFirewallRulesListener::class,
+        \App\Events\ImportNewFirewallRequestsEvent::class => [
+            \App\Listeners\ImportNewFirewallRequestsEventListener::class,
         ],
-        ImportNewFirewallRequestsEvent::class => [
-            ImportNewFirewallRequestsEventListener::class,
+
+        \App\Events\NotifyFirewallImportCompletedEvent::class => [
+            \App\Listeners\SendFirewallImportCompletedNotification::class
         ],
+
         'session.expire' => [
             SessionExpiredListener::class
         ],

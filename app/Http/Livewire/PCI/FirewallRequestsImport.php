@@ -54,15 +54,13 @@ class FirewallRequestsImport extends Component
             $jobs[] = $this->import($file);
         }
 
-        if (isset($jobs) && !empty($jobs)) {
+        if (!empty($jobs)) {
 
             $jobs = Arr::flatten($jobs);
 
             if (!empty($jobs)) {
 
-                $batch = Bus::batch($jobs)
-                    ->name('import-firewall-reviews')
-                    ->allowFailures();
+                $batch = Bus::batch($jobs);
 
                 event(new ImportNewFirewallRequestsEvent(auth()->user(), $batch));
 
@@ -78,7 +76,6 @@ class FirewallRequestsImport extends Component
     {
         foreach ($file as $value) {
             $jobs[] = new ImportFirewallRequestJob(auth()->user(), $value);
-            //$jobs[] = new ImportServiceNowFirewallRequestsJob(auth()->user(), $value);
         }
 
         $this->reset('attachments');

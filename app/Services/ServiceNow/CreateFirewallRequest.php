@@ -46,15 +46,19 @@ class CreateFirewallRequest
             return $this;
         }
 
-        $audits = FirewallRule::whereId($rule->id)->first()->audits->last();
-
-        if ($audits->activity === __('messages.rule_decommissioned')) {
+        if ($this->ruleIsDismantled($rule)) {
             $this->container['response'] = response(__('messages.rule_previously_decommissioned'), 400);
             return $this;
         }
         $this->container['rule'] = $rule;
 
         return $this;
+    }
+
+    private function ruleIsDismantled($rule): bool
+    {
+        $audits = FirewallRule::whereId($rule->id)->first()->audits->last();
+        return Str::contains($audits->activity, 'decommissioned', true);
     }
 
     private function normalizeRequest(User $user): static
@@ -88,6 +92,7 @@ class CreateFirewallRequest
     {
         if ($this->container['response']->status() != 102) return $this;
 
+        $uri = config('servicenow.uri') . '/api/delag/retrieve_cost_centers/CreateCatalogItem';
         Log::debug('API Payload', $this->container['request']);
 
         $this->container['response'] = Http::withBasicAuth(config('servicenow.client_id'), config('servicenow.client_secret'))
@@ -97,7 +102,7 @@ class CreateFirewallRequest
                 }
                 return $exception instanceof RequestException && $exception->response->status() === 408;
             }, false)
-            ->post(config('servicenow.uri') . '/api/delag/retrieve_cost_centers/CreateCatalogItem',
+            ->post($uri,
                 $this->container['request']
             );
 
@@ -110,20 +115,49 @@ class CreateFirewallRequest
 
         if ($this->container['response']->status() >= 500 || $this->container['response']->status() >= 400 && $this->container['response']->status() < 500) {
             $audits = [
-                'message' => 'Failed to file service-now request',
+                'message' => $this->container['response'] instanceof HttpResponse
+                    ? $this->container['response']->content()
+                    : 'Failed to file service-now request',
                 'status' => 'Error',
             ];
 
             $response = $this->container['response'] instanceof HttpResponse
                 ? $this->container['response']->content()
-                : $this->container['response']->json();
+                : (array)$this->container['response']->json();
 
-            Log::error($audits['message'], (array)$response);
+            Log::error($response, [
+                'message' => $audits['message'],
+                'status' => $this->container['response']->status(),
+                'request' => empty(data_get($this->container, 'request')) ? $rule->toArray() : $this->container['request'],
+                'response' => $response,
+                'trigger' => 'CreateFirewallRequest@setAudit',
+            ]);
         }
 
         if ($this->container['response']->status() >= 200 && $this->container['response']->status() < 300) {
+
+            $requestNumber = data_get($this->container['response']->json('result'), 'requestNumber');
+
+            if (isset($requestNumber)) {
+                $requestNumber = "with {$requestNumber}";
+            }
+
+            $frontend = data_get($this->container['response']->json('result'), 'requestItemNumberLink');
+
+            $parsedUrl = parse_url($frontend);
+            parse_str($parsedUrl['query'], $queryParams);
+            $sysId = $queryParams['sys_id'] ?? null;
+            $backend = "https://lhgroupuat.service-now.com/now/nav/ui/classic/params/target/sc_req_item.do%3Fsys_id%3D{$sysId}%26sysparm_stack%3D%26sysparm_view%3D";
+
             $audits = [
-                'message' => __('messages.rule_decommissioned'),
+                'message' => __('messages.rule_decommissioned', ['requestNummer' => (string)$requestNumber]),
+                'metadata' => [
+                    'rule_id' => $rule->id,
+                    'uris' => [
+                        'frontend' => $frontend,
+                        'backend' => $backend,
+                    ],
+                ],
                 'status' => 'Success',
             ];
             Log::info(sprintf("%s %s", $audits['message'], $user->email), (array)$this->container['response']->json());
@@ -132,8 +166,9 @@ class CreateFirewallRequest
         if ($rule->exists) {
             $rule->audits()->create([
                 'actor' => $user->email,
-                'activity' => $audits['message'],
-                'status' => $audits['status'],
+                'activity' => data_get($audits, 'message'),
+                'metadata' => data_get($audits, 'metadata'),
+                'status' => data_get($audits, 'status'),
             ]);
         }
 
@@ -154,6 +189,7 @@ class CreateFirewallRequest
             Log::error(__('messages.failed.firewall_request_validation'), [
                 'errors' => $validation->errors(),
                 'data' => $validation->getData(),
+                'trigger' => 'CreateFirewallRequest@validateRules',
             ]);
 
             $countErrors = count($validation->errors());

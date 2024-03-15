@@ -83,18 +83,19 @@ class FirewallRulesRead extends Component
 
     public function extend()
     {
-        $this->rule->update([
-            'status' => 'extended',
-            'last_review' => now(),
-        ]);
-
-        $this->rule->audits()->create([
-            'actor' => auth()->user()->email,
-            'activity' => 'Extend Firewall-Rule',
-            'status' => 'Success',
-        ]);
-
-        $this->event('Rule has been extended!', 'success');
+        if (
+            $this->rule->update([
+                'status' => 'extended',
+                'last_review' => now(),
+            ])
+        ) {
+            $this->rule->audits()->create([
+                'actor' => auth()->user()->email,
+                'activity' => 'Extend Firewall-Rule',
+                'status' => 'Success',
+            ]);
+            $this->event('Rule has been extended!', 'success');
+        }
 
         $this->dispatchBrowserEvent('close-modal', ['modal' => 'extendConfirm']);
     }
@@ -128,7 +129,7 @@ class FirewallRulesRead extends Component
             ->added()
             ->visibleTo()
             ->searchBy($this->search);
-
+        $query = $this->applySorting($query);
         $this->applyFiltering($query);
 
         return $this->cache(function () use ($query) {

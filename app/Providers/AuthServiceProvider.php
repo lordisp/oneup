@@ -129,6 +129,7 @@ class AuthServiceProvider extends ServiceProvider
         Gate::define('serviceNow-firewallRequests-readAll', [ServiceNowRequestPolicy::class, 'viewAny']);
         Gate::define('serviceNow-firewallRequests-read', [ServiceNowRequestPolicy::class, 'view']);
         Gate::define('serviceNow-firewallRequests-import', [ServiceNowRequestPolicy::class, 'create']);
+        Gate::define('serviceNow-firewallRequests-invite', [ServiceNowRequestPolicy::class, 'invite']);
         Gate::define('serviceNow-firewallRequests-deleteAll', [ServiceNowRequestPolicy::class, 'deleteAll']);
     }
 

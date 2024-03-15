@@ -39,7 +39,7 @@ return [
             'table' => 'jobs',
             'queue' => 'default',
             'retry_after' => 1800,
-            'after_commit' => false,
+            'after_commit' => true,
         ],
 
         'redis' => [
@@ -48,7 +48,7 @@ return [
             'queue' => env('REDIS_QUEUE', 'default'),
             'retry_after' => 1800,
             'block_for' => 5,
-            'after_commit' => false,
+            'after_commit' => true,
         ],
 
     ],

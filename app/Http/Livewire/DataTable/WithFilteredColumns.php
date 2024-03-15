@@ -42,26 +42,24 @@ trait WithFilteredColumns
     public function applyFiltering($query): void
     {
         foreach ($this->filters as $filter => $value) {
-            switch ($filter) {
-                case $filter == 'status' && $value === 'review' :
-                    $query->when($filter, fn($query) => $query->review());
-                    break;
-                case $filter == 'status' && $value === 'open' :
-                    $query->when($filter, fn($query) => $query->open());
-                    break;
-                case $filter == 'status' && $value === 'extended' :
-                    $query->when($filter, fn($query) => $query->extended());
-                    break;
-                case $filter == 'status' && $value === 'deleted' :
-                    $query->when($filter, fn($query) => $query->deleted());
-                    break;
-                case $filter === 'own' && $value === true:
-                    $query->when($filter, fn($query) => $query->own());
-                    break;
-                case $filter === 'bs' && !empty($value):
-                    $query->when($filter, fn($query) => $query->byBusinessService($value));
-                    break;
+            if ($filter === 'status') {
+                $this->applyStatusFilter($query, $value);
             }
+
+            if ($filter === 'own' && $value === true) {
+                $query->when($filter, fn($query) => $query->own());
+            }
+
+            if ($filter === 'bs' && !empty($value)) {
+                $query->when($filter, fn($query) => $query->byBusinessService($value));
+            }
+        }
+    }
+
+    private function applyStatusFilter($query, $value): void
+    {
+        if (in_array($value, ['review', 'open', 'extended', 'deleted'])) {
+            $query->when('status', fn($query) => $query->{$value}());
         }
     }
 

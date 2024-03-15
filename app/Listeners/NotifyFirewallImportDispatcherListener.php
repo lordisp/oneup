@@ -3,12 +3,12 @@
 namespace App\Listeners;
 
 use App\Events\FirewallReviewAvailableEvent;
-use App\Notifications\FirewallRequestsImportedNotification;
+use App\Events\NotifyFirewallImportCompletedEvent;
 
 class NotifyFirewallImportDispatcherListener
 {
     public function handle(FirewallReviewAvailableEvent $event): void
     {
-        $event->user->notify(new FirewallRequestsImportedNotification($event->event->toArray()));
+        event(new NotifyFirewallImportCompletedEvent($event));
     }
 }

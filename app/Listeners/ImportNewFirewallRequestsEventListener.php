@@ -10,28 +10,44 @@ use Throwable;
 
 class ImportNewFirewallRequestsEventListener
 {
-    public function __construct()
-    {
-    }
+    public const BATCH_NAME = 'import-firewall-reviews';
 
     /**
      * @throws Throwable
      */
     public function handle(ImportNewFirewallRequestsEvent $event): void
     {
+        $this->dispatchBatch($event);
+    }
+
+    /**
+     * @throws Throwable
+     */
+    protected function dispatchBatch(ImportNewFirewallRequestsEvent $event): void
+    {
         $user = $event->user;
         $event->batch
-            ->then(function ($event) use ($user) {
-                event(new FirewallReviewAvailableEvent($event, $user));
-            })
-            ->catch(function (Batch $batch, Throwable $exception) {
-                Log::error(
-                    'Failed to complete ' . $batch->failedJobs . ' Import Firewall-Request Jobs',
-                    [
-                        'error' => $exception->getMessage(),
-                        'failedJobs' => $batch->failedJobIds
-                    ]);
+            ->catch($this->logFailureCallback())
+            ->onQueue(config('firewallmanagement.queues.import', 'default'))
+            ->name(self::BATCH_NAME)
+            ->allowFailures()
+            ->then(function ($batch) use ($user) {
+                event(new FirewallReviewAvailableEvent($batch, $user));
             })
             ->dispatch();
+    }
+
+    private function logFailureCallback(): \Closure
+    {
+        return function (Batch $batch, Throwable $exception) {
+            Log::error(
+                'Failed to complete ' . $batch->failedJobs . ' Import Firewall-Request Jobs',
+                [
+                    'error' => $exception->getMessage(),
+                    'failedJobs' => $batch->failedJobIds,
+                    'trace' => $exception->getTrace(),
+                    'event' => 'ImportNewFirewallRequestsEvent',
+                ]);
+        };
     }
 }

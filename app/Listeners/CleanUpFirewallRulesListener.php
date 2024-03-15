@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Jobs\ServiceNow\CleanUpFirewallRuleJob;
 use App\Models\FirewallRule;
+use Illuminate\Support\Facades\Bus;
 
 class CleanUpFirewallRulesListener
 {
@@ -23,7 +24,13 @@ class CleanUpFirewallRulesListener
             );
 
         foreach ($firewallRules as $firewallRule) {
-            CleanUpFirewallRuleJob::dispatch($firewallRule);
+            $jobs[] = new CleanUpFirewallRuleJob($firewallRule);
+        }
+
+        if (isset($jobs)) {
+            Bus::batch($jobs)
+                ->name('cleanup-firewall-rule-job')
+                ->dispatch();
         }
     }
 }

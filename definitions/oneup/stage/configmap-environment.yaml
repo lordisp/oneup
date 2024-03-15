@@ -45,8 +45,6 @@ data:
   MAIL_PORT: "1025"
   MAIL_FROM_ADDRESS: "oneup@dlh.de"
   MAIL_FROM_NAME: "Lufthansa-Group Cloud OneUp"
-  SNOW_CLIENT_URI: "https://lhgroup.service-now.com"
-  SNOW_CLIENT_ID: "pcifirewall.interface"
   ARM_CACHE_EXPIRE: "540"
   SKIP_PROVIDERS: "aviatar_arm"
   PDNS_CHUNK_ZONES: "200"

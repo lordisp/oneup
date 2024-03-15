@@ -46,8 +46,6 @@ data:
   MAIL_ENCRYPTION: "tls"
   MAIL_FROM_ADDRESS: "oneup@dlh.de"
   MAIL_FROM_NAME: "Lufthansa-Group Cloud OneUp"
-  SNOW_CLIENT_URI: "https://lhgroup.service-now.com"
-  SNOW_CLIENT_ID: "pcifirewall.interface"
   ARM_CACHE_EXPIRE: "1080"
   PDNS_CHUNK_ZONES: "200"
   PDNS_CHUNK_RECORDS: "200"

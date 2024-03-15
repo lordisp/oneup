@@ -39,6 +39,7 @@ class OperationSeeder extends Seeder
         'serviceNow/firewall/request/read' => 'Can read own firewall-requests',
         'serviceNow/firewall/request/readAll' => 'Can read all firewall-requests',
         'serviceNow/firewall/request/deleteAll' => 'Can delete all firewall-requests',
+        'serviceNow/firewall/invite' => 'Can invite firewall-reviewers',
         /* Telescope */
         'admin/telescope/view' => 'Can import firewall-requests from Service-Now',
     ];

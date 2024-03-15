@@ -144,26 +144,27 @@ class Normalizer extends Rule
 
     private function generateHash(): static
     {
-        $source = data_get($this->rule, 'source');
-        $destination = data_get($this->rule, 'destination');
-        $service = data_get($this->rule, 'service');
-        $destination_port = data_get($this->rule, 'destination_port');
+        $properties = ['source', 'destination', 'service', 'destination_port'];
+        $jsonProperty = '';
 
-        $hash = md5(json_encode($source) . json_encode($destination) . $service . json_encode($destination_port));
+        foreach ($properties as $property) {
+            $jsonProperty .= json_encode(data_get($this->rule, $property));
+        }
 
-        data_set($this->rule, 'hash', $hash);
+        data_set($this->rule, 'hash', md5($jsonProperty));
+
         return $this;
     }
 
     private function convertArraysToJson(): static
     {
-        $source = json_encode(data_get($this->rule, 'source'));
-        $destination = json_encode(data_get($this->rule, 'destination'));
-        $destination_port = json_encode(data_get($this->rule, 'destination_port'));
+        $properties = ['source', 'destination', 'destination_port'];
 
-        data_set($this->rule, 'source', $source);
-        data_set($this->rule, 'destination', $destination);
-        data_set($this->rule, 'destination_port', $destination_port);
+        foreach ($properties as $property) {
+            $jsonProperty = json_encode(data_get($this->rule, $property));
+            data_set($this->rule, $property, $jsonProperty);
+        }
+
         return $this;
     }
 

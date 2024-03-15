@@ -36,7 +36,8 @@ class FirewallRulePolicy
             && ($rule->status != 'deleted' && $rule->status != 'extended')
             || $user->operations()->contains(
                 $this->updateOrCreate('serviceNow/firewall/request/extendAll', 'Can extend all firewall rules')
-            );
+            )
+            && ($rule->status != 'deleted' && $rule->status != 'extended');
     }
 
     public function decommission(User $user, FirewallRule $rule): bool

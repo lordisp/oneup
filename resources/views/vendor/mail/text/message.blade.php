@@ -21,7 +21,7 @@
     {{-- Footer --}}
     @slot('footer')
         @component('mail::footer')
-            @lang('by Rafael Camison: [rafael.camison@austrian.com]')
+            @lang('by GI/XI Cloud Team: [cloud.giti@dlh.de]')
         @endcomponent
     @endslot
 @endcomponent

@@ -4,18 +4,22 @@ namespace App\Models;
 
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Casts\Attribute;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 class Audit extends Model
 {
-    use HasFactory, Uuid;
+    use Uuid;
 
     protected $fillable = [
         'actor',
         'activity',
         'status',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'metadata' => 'json',
     ];
 
     public function auditable(): MorphTo
@@ -50,6 +54,13 @@ class Audit extends Model
                 'Error' => 'text-red-800 dark:text-red-100',
                 'Success' => 'text-green-800 dark:text-green-100',
             ][$this->status] ?? '',
+        );
+    }
+
+    public function uris(): Attribute
+    {
+        return Attribute::make(
+            get: fn($value) => data_get($this->metadata, 'uris', ''),
         );
     }
 }
