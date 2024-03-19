@@ -8,8 +8,6 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FirewallRuleFactory extends Factory
 {
-    protected $model = FirewallRule::class;
-
     public function definition(): array
     {
         $noExpiry = $this->faker->boolean(70); // 70% chance to be true

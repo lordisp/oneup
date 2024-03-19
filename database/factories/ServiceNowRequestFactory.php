@@ -8,8 +8,6 @@ use Illuminate\Support\Str;
 
 class ServiceNowRequestFactory extends Factory
 {
-    protected $model = ServiceNowRequest::class;
-
     public function definition(): array
     {
         $firstname = $this->faker->firstName();

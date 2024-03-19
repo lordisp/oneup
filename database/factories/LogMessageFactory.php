@@ -20,9 +20,6 @@ class LogMessageFactory extends Factory
         550 => 'ALERT',
         600 => 'EMERGENCY',
     ];
-
-    protected $model = LogMessage::class;
-
     public function definition(): array
     {
 
