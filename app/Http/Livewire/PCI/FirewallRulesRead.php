@@ -2,7 +2,6 @@
 
 namespace App\Http\Livewire\PCI;
 
-use App\Events\FirewallRequestsDeleteAllEvent;
 use App\Http\Livewire\DataTable\WithBulkActions;
 use App\Http\Livewire\DataTable\WithCachedRows;
 use App\Http\Livewire\DataTable\WithFilteredColumns;
@@ -15,7 +14,7 @@ use App\Jobs\ServiceNowDeleteAllJob;
 use App\Models\BusinessService;
 use App\Models\FirewallRule;
 use App\Models\ServiceNowRequest;
-use App\Providers\RouteServiceProvider;
+use App\Providers\AppServiceProvider;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;
@@ -28,7 +27,7 @@ use Livewire\Component;
  */
 class FirewallRulesRead extends Component
 {
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch, WithCachedRows;
+    use WithBulkActions, WithCachedRows, WithFilteredColumns, WithPerPagePagination, WithSearch, WithSorting;
 
     public ServiceNowRequest $request;
 
@@ -44,16 +43,20 @@ class FirewallRulesRead extends Component
 
     public function mount()
     {
-        if (!Gate::any(['viewAny'], FirewallRule::class)) $this->redirect(RouteServiceProvider::HOME);
+        if (! Gate::any(['viewAny'], FirewallRule::class)) {
+            $this->redirect(AppServiceProvider::HOME);
+        }
     }
 
     public function deleteAll()
     {
-        if (Gate::denies('serviceNow-firewallRequests-deleteAll')) abort(403, __('messages.not_allowed'));
+        if (Gate::denies('serviceNow-firewallRequests-deleteAll')) {
+            abort(403, __('messages.not_allowed'));
+        }
 
         ServiceNowDeleteAllJob::dispatch(auth()->user());
 
-        Log::info(auth()->user()->email . ' deleted all firewall-rules.');
+        Log::info(auth()->user()->email.' deleted all firewall-rules.');
 
         $this->event(__('messages.start_delete_all_requests'), 'success');
     }
@@ -138,6 +141,7 @@ class FirewallRulesRead extends Component
     }
 
     public $searchBs;
+
     public $bs = [];
 
     public function updatedSearchBs()
@@ -145,11 +149,10 @@ class FirewallRulesRead extends Component
         $this->filters['bs'] = $this->searchBs;
     }
 
-
     public function getMyBusinessServiceProperty()
     {
         return auth()->user()->businessServices()
-            ->when(!empty($this->searchBs), fn($query) => $query->byName($this->searchBs))
+            ->when(! empty($this->searchBs), fn ($query) => $query->byName($this->searchBs))
             ->select(['id', 'name'])
             ->get()
             ->map(function ($q) {
@@ -165,7 +168,7 @@ class FirewallRulesRead extends Component
         return $this->filters['own']
             ? $this->myBusinessService
             : BusinessService::query()
-                ->when(!empty($this->searchBs), fn($query) => $query->byName($this->searchBs))
+                ->when(! empty($this->searchBs), fn ($query) => $query->byName($this->searchBs))
                 ->select(['id', 'name'])
                 ->get()
                 ->map(function ($q) {
@@ -175,7 +178,6 @@ class FirewallRulesRead extends Component
                     ];
                 });
     }
-
 
     public function setBs($bs)
     {

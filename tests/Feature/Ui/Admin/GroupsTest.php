@@ -2,18 +2,14 @@
 
 namespace Tests\Feature\Ui\Admin;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class GroupsTest extends TestCase
 {
     /**
      * A basic feature test example.
-     *
-     * @return void
      */
-    public function test_example()
+    public function test_example(): void
     {
         $response = $this->get('/');
 

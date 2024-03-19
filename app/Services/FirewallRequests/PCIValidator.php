@@ -7,7 +7,6 @@ use IPv4\SubnetCalculator;
 
 class PCIValidator
 {
-
     public function __construct(protected array $model)
     {
     }
@@ -17,6 +16,7 @@ class PCIValidator
         $model = [
             'ipAddresses' => $ipAddresses,
         ];
+
         return (new self($model))->handle();
     }
 
@@ -27,6 +27,7 @@ class PCIValidator
                 ->getPciNetworks()
                 ->isInPciScope();
         }
+
         return $this;
     }
 
@@ -50,9 +51,12 @@ class PCIValidator
                     ipAddress: $ipAddress,
                     subnet: $pciSubnet->name,
                     size: $pciSubnet->size
-                )) $this->model['pci_dss'] = true;
+                )) {
+                    $this->model['pci_dss'] = true;
+                }
             }
         }
+
         return $this->model['pci_dss'];
     }
 

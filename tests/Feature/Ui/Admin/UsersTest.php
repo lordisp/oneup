@@ -16,7 +16,7 @@ use Tests\TestCase;
 
 class UsersTest extends TestCase
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -29,7 +29,7 @@ class UsersTest extends TestCase
     }
 
     /** @test */
-    public function is_shows_15_of_30_users()
+    public function is_shows_15_of_30_users(): void
     {
         Livewire::actingAs(User::first())->test(Users::class)
             ->assertViewIs('livewire.rbac.users')
@@ -40,7 +40,7 @@ class UsersTest extends TestCase
     }
 
     /** @test */
-    public function can_search_for_users()
+    public function can_search_for_users(): void
     {
         $otherUser = User::skip(1)->first();
         Livewire::actingAs(User::first())->test(Users::class)
@@ -56,7 +56,7 @@ class UsersTest extends TestCase
     }
 
     /** @test */
-    public function can_login_as_other_user()
+    public function can_login_as_other_user(): void
     {
         $user = User::first();
         $otherUser = User::skip(1)->first();
@@ -68,7 +68,7 @@ class UsersTest extends TestCase
     }
 
     /** @test */
-    public function can_lockout_other_users_sessions()
+    public function can_lockout_other_users_sessions(): void
     {
         $user = User::first();
         $operation = Operation::factory()->state([
@@ -90,7 +90,7 @@ class UsersTest extends TestCase
     }
 
     /** @test */
-    public function can_lockout_users_session_and_disable_account()
+    public function can_lockout_users_session_and_disable_account(): void
     {
         $user = User::first();
         $operation = Operation::factory()->state([
@@ -113,7 +113,7 @@ class UsersTest extends TestCase
     }
 
     /** @test */
-    public function can_abort_lockout_other_users()
+    public function can_abort_lockout_other_users(): void
     {
         $user = User::first();
         $operation = Operation::factory()->state([

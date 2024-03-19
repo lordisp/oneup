@@ -1,57 +1,52 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Create The Application
-|--------------------------------------------------------------------------
-|
-| The first thing we will do is create a new Laravel application instance
-| which serves as the "glue" for all the components of Laravel, and is
-| the IoC container for the system binding all of the various parts.
-|
-*/
+use App\Providers\AppServiceProvider;
+use Illuminate\Foundation\Application;
+use Illuminate\Foundation\Configuration\Exceptions;
+use Illuminate\Foundation\Configuration\Middleware;
 
-$app = new Illuminate\Foundation\Application(
-    $_ENV['APP_BASE_PATH'] ?? dirname(__DIR__)
-);
+return Application::configure(basePath: dirname(__DIR__))
+    ->withProviders([
+        \Barryvdh\Debugbar\ServiceProvider::class,
+    ])
+    ->withRouting(
+        web: __DIR__.'/../routes/web.php',
+        // api: __DIR__.'/../routes/api.php',
+        commands: __DIR__.'/../routes/console.php',
+        // channels: __DIR__.'/../routes/channels.php',
+        health: '/up',
+    )
+    ->withMiddleware(function (Middleware $middleware) {
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(AppServiceProvider::HOME);
 
-if (isset($_ENV['APP_STORAGE'])) $app->useStoragePath($_ENV['APP_STORAGE']);
+        $middleware->web([
+            \Illuminate\Session\Middleware\AuthenticateSession::class,
+            \Laravel\Passport\Http\Middleware\CreateFreshApiToken::class,
+        ]);
 
-/*
-|--------------------------------------------------------------------------
-| Bind Important Interfaces
-|--------------------------------------------------------------------------
-|
-| Next, we need to bind some important interfaces into the container so
-| we will be able to resolve them when needed. The kernels serve the
-| incoming requests to this application from both the web and CLI.
-|
-*/
+        $middleware->api([
+            'throttle:api',
+            'client',
+        ]);
 
-$app->singleton(
-    Illuminate\Contracts\Http\Kernel::class,
-    App\Http\Kernel::class
-);
+        $middleware->group('client', [
+            'throttle:api',
+            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+        ]);
 
-$app->singleton(
-    Illuminate\Contracts\Console\Kernel::class,
-    App\Console\Kernel::class
-);
+        $middleware->replace(\Illuminate\Http\Middleware\TrustProxies::class, \App\Http\Middleware\TrustProxies::class);
 
-$app->singleton(
-    Illuminate\Contracts\Debug\ExceptionHandler::class,
-    App\Exceptions\Handler::class
-);
+        $middleware->replaceInGroup('web', \Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class, \App\Http\Middleware\VerifyCsrfToken::class);
 
-/*
-|--------------------------------------------------------------------------
-| Return The Application
-|--------------------------------------------------------------------------
-|
-| This script returns the application instance. The instance is given to
-| the calling script so we can separate the building of the instances
-| from the actual running of the application and sending responses.
-|
-*/
-
-return $app;
+        $middleware->alias([
+            'client' => \Laravel\Passport\Http\Middleware\CheckClientCredentials::class,
+            'client.scope' => \App\Http\Middleware\ClientScopesMiddleware::class,
+            'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
+            'scopes' => \Laravel\Passport\Http\Middleware\CheckScopes::class,
+            'webhook' => \App\Http\Middleware\WebhookMiddleware::class,
+        ]);
+    })
+    ->withExceptions(function (Exceptions $exceptions) {
+        //
+    })->create();

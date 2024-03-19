@@ -1,4 +1,5 @@
 <?php
+
 $isProduction = config('app.env') === 'production';
 $defaultUri = $isProduction ? 'https://lhgroup.service-now.com' : 'https://lhgroupuat.service-now.com';
 

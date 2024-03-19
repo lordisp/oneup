@@ -13,7 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class UpdateUsersBasedOnBusinessServiceJob implements ShouldQueue, ShouldBeUnique
+class UpdateUsersBasedOnBusinessServiceJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -36,7 +36,6 @@ class UpdateUsersBasedOnBusinessServiceJob implements ShouldQueue, ShouldBeUniqu
 
         $this->removeBusinessServiceMembers($businessService);
     }
-
 
     private function getBusinessServiceMembersFromServiceNow(BusinessService $businessService): void
     {
@@ -90,7 +89,7 @@ class UpdateUsersBasedOnBusinessServiceJob implements ShouldQueue, ShouldBeUniqu
                 'oldValue' => $initialEmails,
                 'newValue' => array_diff($initialEmails, $removedEmails),
                 'diff' => $removedEmails,
-            ]
+            ],
         ]);
     }
 

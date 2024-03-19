@@ -192,5 +192,5 @@ return [
         'cache' => env('TELESCOPE_BATCH_ENTRY', false),
         'query' => env('TELESCOPE_BATCH_QUERY', false),
         'redis' => env('TELESCOPE_BATCH_REDIS', false),
-    ]
+    ],
 ];

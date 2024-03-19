@@ -16,7 +16,7 @@ class MigrationTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function can_seed_users()
+    public function can_seed_users(): void
     {
         $this->seed(UserSeeder::class);
 
@@ -24,7 +24,7 @@ class MigrationTest extends TestCase
     }
 
     /** @test */
-    public function can_seed_azure_test_users()
+    public function can_seed_azure_test_users(): void
     {
         $this->seed(UserAzureSeeder::class);
 
@@ -32,14 +32,14 @@ class MigrationTest extends TestCase
     }
 
     /** @test */
-    public function can_seed_groups()
+    public function can_seed_groups(): void
     {
         $this->seed(GroupSeeder::class);
         $this->assertDatabaseCount('groups', 10);
     }
 
     /** @test */
-    public function can_seed_roles()
+    public function can_seed_roles(): void
     {
         $this->seed(UserAzureSeeder::class);
         $this->seed(RoleSeeder::class);
@@ -48,14 +48,14 @@ class MigrationTest extends TestCase
     }
 
     /** @test */
-    public function can_seed_operations()
+    public function can_seed_operations(): void
     {
         $this->seed(OperationSeeder::class);
         $this->assertDatabaseCount('operations', 26);
     }
 
     /** @test */
-    public function can_seed_all()
+    public function can_seed_all(): void
     {
         $this->seed(DatabaseSeeder::class);
         $this->assertDatabaseCount('users', 4);
@@ -64,5 +64,4 @@ class MigrationTest extends TestCase
         $this->assertDatabaseCount('operations', 26);
         $this->assertDatabaseCount('business_services', 0);
     }
-
 }

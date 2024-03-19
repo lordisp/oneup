@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+<?php
+
+/** @noinspection PhpPossiblePolymorphicInvocationInspection */
 
 namespace Tests\Feature\Models;
 
@@ -14,7 +16,7 @@ class GroupTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function can_create_group()
+    public function can_create_group(): void
     {
         $this->assertDatabaseCount(Group::class, 0);
 
@@ -28,9 +30,8 @@ class GroupTest extends TestCase
         $this->assertIsString($group->first()->description);
     }
 
-
     /** @test */
-    public function can_assign_and_remove_user_from_group()
+    public function can_assign_and_remove_user_from_group(): void
     {
         $user = User::factory()->create();
         $group = Group::factory()->create();
@@ -44,7 +45,7 @@ class GroupTest extends TestCase
     }
 
     /** @test */
-    public function can_assign_and_remove_an_owner_from_group()
+    public function can_assign_and_remove_an_owner_from_group(): void
     {
         $user = User::factory()->create();
         $group = Group::factory()->create();
@@ -58,7 +59,7 @@ class GroupTest extends TestCase
     }
 
     /** @test */
-    public function can_assign_and_remove_role_from_group()
+    public function can_assign_and_remove_role_from_group(): void
     {
         $group = Group::factory()->create();
         $roles = Role::factory()->count(3)->create();
@@ -68,7 +69,7 @@ class GroupTest extends TestCase
         $group->assignRole($roles->first()->name);
         $group->assignRole($roles);
 
-        $this->assertCount(3,$group->roles()->get());
+        $this->assertCount(3, $group->roles()->get());
 
         $group->unassignRole($roles->first()->name);
         $group->unassignRole($roles);

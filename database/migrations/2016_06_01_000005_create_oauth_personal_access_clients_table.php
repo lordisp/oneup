@@ -25,10 +25,8 @@ return new class extends Migration
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $this->schema->create('oauth_personal_access_clients', function (Blueprint $table) {
             $table->uuid('id')->primary();
@@ -39,10 +37,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $this->schema->dropIfExists('oauth_personal_access_clients');
     }

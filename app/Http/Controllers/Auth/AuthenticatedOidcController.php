@@ -5,19 +5,20 @@ namespace App\Http\Controllers\Auth;
 use App\Facades\TokenCache;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
+use App\Providers\AppServiceProvider;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 
 class AuthenticatedOidcController extends Controller
 {
-
     public const provider = 'lhg_graph';
 
     public function signin()
     {
-        if (Auth::check()) return redirect()->intended(RouteServiceProvider::HOME);
+        if (Auth::check()) {
+            return redirect()->intended(AppServiceProvider::HOME);
+        }
 
         auth()->logout();
 
@@ -34,7 +35,9 @@ class AuthenticatedOidcController extends Controller
 
         $request->session()->forget('authState');
 
-        if ($state != $authState) return redirect(route('login'))->with('Invalid AuthState');
+        if ($state != $authState) {
+            return redirect(route('login'))->with('Invalid AuthState');
+        }
 
         $params = [
             'code' => $request->query('code'),
@@ -47,7 +50,9 @@ class AuthenticatedOidcController extends Controller
 
         $user = User::isActive()->where('provider_id', '=', $oid)->first();
 
-        if ($user) return $this->login($user);
+        if ($user) {
+            return $this->login($user);
+        }
 
         return redirect(route('login'))->withErrors(['error_description' => 'Access denied']);
 
@@ -57,7 +62,7 @@ class AuthenticatedOidcController extends Controller
     {
         auth()->login($user);
 
-        return Auth::check() ? redirect()->intended(RouteServiceProvider::HOME) : redirect(route('login'))->withErrors(['error_description' => 'Failed to login.']);
+        return Auth::check() ? redirect()->intended(AppServiceProvider::HOME) : redirect(route('login'))->withErrors(['error_description' => 'Failed to login.']);
     }
 
     public function logout(Request $request)
@@ -76,6 +81,6 @@ class AuthenticatedOidcController extends Controller
 
         Auth::logout();
 
-        return is_string($token) ? redirect('https://login.microsoftonline.com/' . $jwt['tid'] . '/oauth2/logout?post_logout_redirect_uri=' . config('app.url')) : redirect('/');
+        return is_string($token) ? redirect('https://login.microsoftonline.com/'.$jwt['tid'].'/oauth2/logout?post_logout_redirect_uri='.config('app.url')) : redirect('/');
     }
 }

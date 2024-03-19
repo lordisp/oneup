@@ -9,15 +9,13 @@ use Illuminate\Support\Arr;
 trait HttpRetryConditions
 {
     /**
-     * @param Exception $exception
-     * @param string $exceptionClass
-     * @return void
      * @discription The handleRequestExceptionConditions method is used to handle the exceptions thrown by the API.
+     *
      * @throws Exception
      */
     protected function handleRequestExceptionConditions(Exception $exception, string $exceptionClass): void
     {
-        if (!is_subclass_of($exceptionClass, Exception::class)) {
+        if (! is_subclass_of($exceptionClass, Exception::class)) {
             throw new \InvalidArgumentException('The exception class must be a subclass of Exception. Either use the Exception class or an extension of it.');
         }
 
@@ -33,23 +31,20 @@ trait HttpRetryConditions
     }
 
     /**
-     * @param $exception
-     * @param $request
-     * @param Exception|string $options
-     * @return bool
      * @throws Exception
+     *
      * @discription The handleRetryConditions method is used to handle the retry conditions.
      */
     protected function handleRetryConditions($exception, $request, Exception|string $options): bool
     {
-        if (!$exception instanceof RequestException) {
+        if (! $exception instanceof RequestException) {
             return true;
         }
 
         $codeHandlers = [
             401 => 'handleUnauthorizedException',
             404 => 'handleNotFoundException',
-            429 => 'handleTooManyRequestsException'
+            429 => 'handleTooManyRequestsException',
         ];
 
         $handler = $codeHandlers[$exception->getCode()] ?? 'defaultHandler';
@@ -64,6 +59,7 @@ trait HttpRetryConditions
         }
 
         $request->withToken(decrypt($this->newToken($options)));
+
         return true;
     }
 
@@ -87,6 +83,7 @@ trait HttpRetryConditions
     {
         $retryAfter = $exception->response->header('Retry-After');
         sleep(empty($retryAfter) ? 10 : $retryAfter);
+
         return true;
     }
 
@@ -94,5 +91,4 @@ trait HttpRetryConditions
     {
         return true;
     }
-
 }

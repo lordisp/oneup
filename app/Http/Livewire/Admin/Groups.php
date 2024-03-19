@@ -8,7 +8,6 @@ use App\Http\Livewire\DataTable\WithPerPagePagination;
 use App\Http\Livewire\DataTable\WithSearch;
 use App\Http\Livewire\DataTable\WithSorting;
 use App\Models\Group;
-use App\Policies\Policy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Redirector;
@@ -23,13 +22,15 @@ use Livewire\Component;
  */
 class Groups extends Component
 {
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch;
+    use WithBulkActions, WithFilteredColumns, WithPerPagePagination, WithSearch, WithSorting;
 
     public Group $group;
 
     public function mount()
     {
-        if (!Gate::any(['group-readAll', 'group-read'])) abort(403);
+        if (! Gate::any(['group-readAll', 'group-read'])) {
+            abort(403);
+        }
         $this->group = Group::make();
     }
 
@@ -42,7 +43,9 @@ class Groups extends Component
     {
         $id = isset($id) ? (is_array($id) ? $id : [$id]) : $this->selected;
         $this->objects = Group::whereIn('id', $id)->get();
-        if (count($this->objects) >= 1) $this->dispatchBrowserEvent('open-modal', ['modal' => 'delete']); else {
+        if (count($this->objects) >= 1) {
+            $this->dispatchBrowserEvent('open-modal', ['modal' => 'delete']);
+        } else {
             $this->event(__('messages.delete_error', ['attribute' => 'Group']), 'error');
         }
     }
@@ -52,6 +55,7 @@ class Groups extends Component
         if (Gate::denies('group-delete', $this->objects)) {
             $this->event(__('auth.unauthorized', ['value' => 'to delete groups!']), 'error');
             $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
+
             return redirect()->back();
         }
         if (Group::destroy($this->objects->pluck('id'))) {
@@ -60,7 +64,9 @@ class Groups extends Component
                 'Trigger' => $request->user()->getAuthIdentifier(),
                 'Resource' => $this->objects->toArray(),
             ]);
-        } else $this->event(__('messages.delete_error', ['attribute' => 'Group']), 'error');
+        } else {
+            $this->event(__('messages.delete_error', ['attribute' => 'Group']), 'error');
+        }
 
         $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
         $this->resetBulk();
@@ -69,9 +75,9 @@ class Groups extends Component
 
     public function withQuery($query)
     {
-        return $query->when($this->search, fn($query, $search) => $query
-            ->where('name', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('description', 'like', '%' . Str::of($search)->trim() . '%')
+        return $query->when($this->search, fn ($query, $search) => $query
+            ->where('name', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('description', 'like', '%'.Str::of($search)->trim().'%')
         );
     }
 
@@ -88,7 +94,7 @@ class Groups extends Component
     {
         if (Gate::denies('group-readAll')) {
             return auth()->user()->groups('owner')->getQuery();
-        }else {
+        } else {
             return $group->newQuery();
         }
     }
@@ -96,7 +102,7 @@ class Groups extends Component
     public function render()
     {
         return view('livewire.admin.groups', [
-            'rows' => $this->queryRows
+            'rows' => $this->queryRows,
         ]);
     }
 }

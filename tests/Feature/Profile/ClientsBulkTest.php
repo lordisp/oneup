@@ -16,7 +16,7 @@ class ClientsBulkTest extends TestCase implements BulkTest
 {
     use RefreshDatabase;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
@@ -31,7 +31,7 @@ class ClientsBulkTest extends TestCase implements BulkTest
     }
 
     /** @test */
-    public function can_select_one_or_more_rows()
+    public function can_select_one_or_more_rows(): void
     {
         $selected = Client::take(2)->get()->toArray();
 
@@ -48,7 +48,7 @@ class ClientsBulkTest extends TestCase implements BulkTest
     }
 
     /** @test */
-    public function can_unselect_one_or_more_rows()
+    public function can_unselect_one_or_more_rows(): void
     {
         $selected = Client::take(13)->get()->pluck('id')->toArray();
         Livewire::actingAs($this->user)
@@ -66,7 +66,7 @@ class ClientsBulkTest extends TestCase implements BulkTest
     }
 
     /** @test */
-    public function can_select_all_rows_on_first_page()
+    public function can_select_all_rows_on_first_page(): void
     {
         Livewire::actingAs($this->user)
             ->test(Clients::class)
@@ -81,7 +81,7 @@ class ClientsBulkTest extends TestCase implements BulkTest
     }
 
     /** @test */
-    public function can_unselect_all_raws_on_first_page()
+    public function can_unselect_all_raws_on_first_page(): void
     {
         Livewire::actingAs($this->user)
             ->test(Clients::class)
@@ -101,7 +101,7 @@ class ClientsBulkTest extends TestCase implements BulkTest
     }
 
     /** @test */
-    public function can_select_all_rows_on_second_page()
+    public function can_select_all_rows_on_second_page(): void
     {
         Livewire::actingAs($this->user)
             ->test(Clients::class)
@@ -123,7 +123,7 @@ class ClientsBulkTest extends TestCase implements BulkTest
     }
 
     /** @test */
-    public function can_unselect_all_rows_on_second_page()
+    public function can_unselect_all_rows_on_second_page(): void
     {
         Livewire::actingAs($this->user)
             ->test(Clients::class)
@@ -143,7 +143,7 @@ class ClientsBulkTest extends TestCase implements BulkTest
     }
 
     /** @test */
-    public function page_popup_disappears_if_all_rows_are_selected()
+    public function page_popup_disappears_if_all_rows_are_selected(): void
     {
         $reduced = $selected = Client::pluck('id')->toArray();
         Arr::forget($reduced, 0);
@@ -159,7 +159,7 @@ class ClientsBulkTest extends TestCase implements BulkTest
     }
 
     /** @test */
-    public function can_delete_two_selected_clients()
+    public function can_delete_two_selected_clients(): void
     {
         $selected = $this->user->clients()->take(2)->pluck('id')->toArray();
         Log::shouldReceive('info')->once()->withArgs(function ($message, $context) use ($selected) {
@@ -180,7 +180,7 @@ class ClientsBulkTest extends TestCase implements BulkTest
     }
 
     /** @test */
-    public function can_delete_selected_page()
+    public function can_delete_selected_page(): void
     {
         $selected = $this->user->clients()->pluck('id')->toArray();
         Log::shouldReceive('info')->once()->withArgs(function ($message, $context) use ($selected) {

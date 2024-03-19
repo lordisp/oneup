@@ -14,10 +14,9 @@ class ClientPolicy
     /**
      * Determine whether the user can view any models.
      *
-     * @param \App\Models\User $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         //
     }
@@ -25,11 +24,9 @@ class ClientPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Passport\Client $client
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Client $client)
+    public function view(User $user, Client $client): bool
     {
         return $user->id === $client->user_id;
     }
@@ -37,10 +34,9 @@ class ClientPolicy
     /**
      * Determine whether the user can create models.
      *
-     * @param \App\Models\User $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         //
     }
@@ -48,11 +44,9 @@ class ClientPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Passport\Client $client
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Client $client)
+    public function update(User $user, Client $client): bool
     {
         //
     }
@@ -60,10 +54,9 @@ class ClientPolicy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param User $user
      * @return Response|bool
      */
-    public function delete(User $user)
+    public function delete(User $user): bool
     {
         return true; // $user->email != 'rafael.camison@gmail.com';
     }
@@ -71,11 +64,9 @@ class ClientPolicy
     /**
      * Determine whether the user can restore the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Passport\Client $client
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, Client $client)
+    public function restore(User $user, Client $client): bool
     {
         //
     }
@@ -83,11 +74,9 @@ class ClientPolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Passport\Client $client
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, Client $client)
+    public function forceDelete(User $user, Client $client): bool
     {
         //
     }

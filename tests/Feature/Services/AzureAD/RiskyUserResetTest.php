@@ -29,7 +29,7 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function invalid_property_throws_exception()
+    public function invalid_property_throws_exception(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -37,19 +37,19 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function valid_property_returns_its_name()
+    public function valid_property_returns_its_name(): void
     {
         $validProperties = [
-            "@odata.type",
-            "id",
-            "isDeleted",
-            "isProcessing",
-            "riskLastUpdatedDateTime",
-            "riskLevel",
-            "riskState",
-            "riskDetail",
-            "userDisplayName",
-            "userPrincipalName",
+            '@odata.type',
+            'id',
+            'isDeleted',
+            'isProcessing',
+            'riskLastUpdatedDateTime',
+            'riskLevel',
+            'riskState',
+            'riskDetail',
+            'userDisplayName',
+            'userPrincipalName',
         ];
 
         foreach ($validProperties as $property) {
@@ -62,7 +62,7 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function valid_top_returns_its_value()
+    public function valid_top_returns_its_value(): void
     {
         for ($i = 1; $i <= 500; $i++) {
             $this->assertTrue($i == (new RiskyUserTop($i))->get());
@@ -70,7 +70,7 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function invalid_top_throws_an_exception()
+    public function invalid_top_throws_an_exception(): void
     {
         $this->expectException(InvalidArgumentException::class);
 
@@ -89,18 +89,18 @@ class RiskyUserResetTest extends TestCase
         $response = [
             '@odata.context' => 'https://graph.microsoft.com/v1.0/$metadata#identityProtection/riskyUsers(id,riskState,isDeleted)',
             '@odata.nextLink' => 'https://graph.microsoft.com/v1.0/identityProtection/riskyUsers?$select=id%2criskState%2cisDeleted&$top=500&$filter=riskState+eq+%27atRisk%27+and+isDeleted+eq+false+and+isProcessing+eq+false&$skiptoken=389e075f59896e6ef4b385f94e130473edc479c91ecddacbb707404f0343a259_500',
-            'value' => $value ?? []
+            'value' => $value ?? [],
         ];
 
         return Http::response($response);
     }
 
     /** @test */
-    public function can_list_all_risky_users_objectId()
+    public function can_list_all_risky_users_objectId(): void
     {
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
-            'https://graph.microsoft.com/v1.0/identityProtection/*' => $this->fakeListRiskyUsers()
+            'https://graph.microsoft.com/v1.0/identityProtection/*' => $this->fakeListRiskyUsers(),
         ]);
 
         $UserRiskState = (new UserRiskState)
@@ -122,7 +122,7 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function risky_users_returns_request_exception()
+    public function risky_users_returns_request_exception(): void
     {
         Log::shouldReceive('error')->withArgs(function ($message, $context) {
             return $message == 'RiskyUsers API Error' &&
@@ -135,10 +135,9 @@ class RiskyUserResetTest extends TestCase
             return $message == 'No RiskyUsers to dismiss' && $context['service'] == 'risky-users';
         })->once();
 
-
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
-            'https://graph.microsoft.com/v1.0/identityProtection/*' => Http::response(status: 400)
+            'https://graph.microsoft.com/v1.0/identityProtection/*' => Http::response(status: 400),
         ]);
 
         (new UserRiskState)
@@ -151,7 +150,7 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function can_dispatch_dismiss_risky_users_jobs()
+    public function can_dispatch_dismiss_risky_users_jobs(): void
     {
         Bus::fake([DismissRiskyUsersJob::class]);
 
@@ -162,10 +161,10 @@ class RiskyUserResetTest extends TestCase
                     [
                         'id' => Str::uuid()->toString(),
                         'isDeleted' => false,
-                    ]
-                ]
+                    ],
+                ],
             ], 204),
-            'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 204)
+            'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 204),
         ]);
 
         (new UserRiskState)
@@ -181,7 +180,7 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function can_dismiss_risky_users_jobs()
+    public function can_dismiss_risky_users_jobs(): void
     {
         Log::shouldReceive('info')->once();
         Http::fake([
@@ -191,10 +190,10 @@ class RiskyUserResetTest extends TestCase
                     [
                         'id' => Str::uuid()->toString(),
                         'isDeleted' => false,
-                    ]
-                ]
+                    ],
+                ],
             ], 204),
-            'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 204)
+            'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 204),
         ]);
 
         (new UserRiskState)
@@ -208,14 +207,14 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function responds_successfully_if_no_user_required_to_be_dismissed()
+    public function responds_successfully_if_no_user_required_to_be_dismissed(): void
     {
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
             'https://graph.microsoft.com/v1.0/identityProtection/*' => Http::response([
-                'value' => []
+                'value' => [],
             ], 204),
-            'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 204)
+            'https://graph.microsoft.com/beta/riskyUsers/dismiss' => Http::response(status: 204),
         ]);
 
         $batch = (new UserRiskState)
@@ -228,7 +227,7 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function failed_to_dismiss_risky_users()
+    public function failed_to_dismiss_risky_users(): void
     {
         Log::shouldReceive('info')->never();
         Log::shouldReceive('error')->once();
@@ -241,14 +240,14 @@ class RiskyUserResetTest extends TestCase
                         [
                             'id' => Str::uuid()->toString(),
                             'isDeleted' => false,
-                        ]
-                    ]
+                        ],
+                    ],
                 ], 204)
                 ->push(status: 400)
                 ->push(status: 400)
                 ->push(status: 400)
                 ->push(status: 400)
-                ->push(status: 400)
+                ->push(status: 400),
         ]);
 
         /* Act */
@@ -263,7 +262,7 @@ class RiskyUserResetTest extends TestCase
     }
 
     /** @test */
-    public function api_will_retry_on_error()
+    public function api_will_retry_on_error(): void
     {
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('tests/Feature/Stubs/app_access_token.json')), true)),
@@ -277,10 +276,10 @@ class RiskyUserResetTest extends TestCase
                         [
                             'id' => Str::uuid()->toString(),
                             'isDeleted' => false,
-                        ]
-                    ]
+                        ],
+                    ],
                 ], 204)
-                ->push(status: 204)
+                ->push(status: 204),
         ]);
 
         (new UserRiskState)

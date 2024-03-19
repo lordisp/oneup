@@ -3,14 +3,11 @@
 namespace Tests\Feature\Ui\Admin;
 
 use App\Http\Livewire\Admin\GroupsCreate;
-use App\Http\Livewire\Admin\RolesEdit;
 use App\Models\User;
 use Database\Seeders\OperationSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserAzureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\FrontendTest;
 use Tests\Helper;
@@ -18,8 +15,7 @@ use Tests\TestCase;
 
 class GroupsCreateTest extends TestCase implements FrontendTest
 {
-
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -27,18 +23,18 @@ class GroupsCreateTest extends TestCase implements FrontendTest
         $this->seed([
             UserAzureSeeder::class,
             OperationSeeder::class,
-            RoleSeeder::class
+            RoleSeeder::class,
         ]);
     }
 
     /** @test */
-    public function cannot_access_route_as_guest()
+    public function cannot_access_route_as_guest(): void
     {
         $this->get('/admin/group/create')->assertRedirect('/login');
     }
 
     /** @test */
-    public function can_access_route_as_user()
+    public function can_access_route_as_user(): void
     {
         User::first()->assignRole('Group Operator');
         $this->actingAs(User::first())
@@ -47,7 +43,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_render_the_component()
+    public function can_render_the_component(): void
     {
         User::first()->assignRole('Group Operator');
         Livewire::actingAs(User::first())
@@ -56,7 +52,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_view_component()
+    public function can_view_component(): void
     {
         User::first()->assignRole('Group Administrator');
         $this->actingAs(User::first())
@@ -67,7 +63,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_create_a_group()
+    public function can_create_a_group(): void
     {
         User::first()->assignRole('Group Administrator');
         Livewire::actingAs(User::first())

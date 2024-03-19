@@ -31,21 +31,23 @@ class VmStartStopProcess implements ShouldQueue
     {
         $now = now()->setTimezone($this->timezone);
 
-        if ($this->server['week'] == 'mon-fri' && !$now->isWeekday() || $this->server['status'] == 'disabled') {
+        if ($this->server['week'] == 'mon-fri' && ! $now->isWeekday() || $this->server['status'] == 'disabled') {
             return;
         }
 
         $serverState = $this->getServerState();
 
         if (empty($serverState)) {
-            Log::warning(sprintf("Server %s not found!", $this->server['vmName']),['VmStartStop']);
+            Log::warning(sprintf('Server %s not found!', $this->server['vmName']), ['VmStartStop']);
+
             return;
         }
 
         if ($this->shouldStartServer($now, $this->server['from'], $this->server['to'], data_get($serverState, 'powerState'), data_get($serverState, 'provisioningState'))) {
 
             if ($this->server['status'] == 'simulate') {
-                Log::info(sprintf("Simulate start %s", $this->server['vmName']),['VmStartStop']);
+                Log::info(sprintf('Simulate start %s', $this->server['vmName']), ['VmStartStop']);
+
                 return;
             }
 
@@ -57,7 +59,8 @@ class VmStartStopProcess implements ShouldQueue
         if ($this->shouldStopServer($now, $this->server['from'], $this->server['to'], data_get($serverState, 'powerState'), data_get($serverState, 'provisioningState'))) {
 
             if ($this->server['status'] == 'simulate') {
-                Log::info(sprintf("Simulate deallocate %s", $this->server['vmName']),['VmStartStop']);
+                Log::info(sprintf('Simulate deallocate %s', $this->server['vmName']), ['VmStartStop']);
+
                 return;
             }
 
@@ -88,6 +91,7 @@ class VmStartStopProcess implements ShouldQueue
     {
         if ($provisioningState != 'Succeeded') {
             $this->logInvalidProvisioningState();
+
             return false;
         }
 
@@ -102,6 +106,7 @@ class VmStartStopProcess implements ShouldQueue
     {
         if ($provisioningState != 'Succeeded') {
             $this->logInvalidProvisioningState();
+
             return false;
         }
 
@@ -122,6 +127,6 @@ class VmStartStopProcess implements ShouldQueue
 
     private function logInvalidProvisioningState(): void
     {
-        Log::error(sprintf("%s has an invalid provisioning state", $this->server['vmName']),['VmStartStop']);
+        Log::error(sprintf('%s has an invalid provisioning state', $this->server['vmName']), ['VmStartStop']);
     }
 }

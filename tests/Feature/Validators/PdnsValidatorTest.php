@@ -22,7 +22,7 @@ class PdnsValidatorTest extends TestCase
     }
 
     /** @test */
-    public function record_type_validation_successful()
+    public function record_type_validation_successful(): void
     {
         $toValidate = 'A';
 
@@ -32,7 +32,7 @@ class PdnsValidatorTest extends TestCase
     }
 
     /** @test */
-    public function failed_record_type_validation_throws_an_exception()
+    public function failed_record_type_validation_throws_an_exception(): void
     {
         $toValidate = 'B';
 
@@ -42,7 +42,7 @@ class PdnsValidatorTest extends TestCase
     }
 
     /** @test */
-    public function provider_validation_successful()
+    public function provider_validation_successful(): void
     {
         $toValidate = 'lhg_arm';
 
@@ -52,7 +52,7 @@ class PdnsValidatorTest extends TestCase
     }
 
     /** @test */
-    public function failed_provider_validation_throws_an_exception()
+    public function failed_provider_validation_throws_an_exception(): void
     {
         $toValidate = 'foo';
 

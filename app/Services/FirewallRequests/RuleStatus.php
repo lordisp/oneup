@@ -34,6 +34,7 @@ class RuleStatus extends Rule
                 'status' => 'open',
             ]);
         }
+
         return $this;
     }
 }

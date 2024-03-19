@@ -12,7 +12,7 @@ class TokenCacheProviderTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function can_create_a_provider()
+    public function can_create_a_provider(): void
     {
         $provider = TokenCacheProvider::factory()->create();
         $this->assertDatabaseCount(TokenCacheProvider::class, 1);
@@ -27,7 +27,7 @@ class TokenCacheProviderTest extends TestCase
     }
 
     /** @test */
-    public function can_retrieve_a_single_provider()
+    public function can_retrieve_a_single_provider(): void
     {
         $this->seed(TokenCacheProviderSeeder::class);
         $provider = TokenCacheProvider::first();
@@ -35,7 +35,7 @@ class TokenCacheProviderTest extends TestCase
     }
 
     /** @test */
-    public function can_retrieve_all_providers()
+    public function can_retrieve_all_providers(): void
     {
         $this->seed(TokenCacheProviderSeeder::class);
         $provider = TokenCacheProvider::all();

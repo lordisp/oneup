@@ -23,7 +23,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function get_an_user_from_azure_ad_by_user_principal_name()
+    public function get_an_user_from_azure_ad_by_user_principal_name(): void
     {
         $userPrincipal = 'rafael.camison@austrian.com';
 
@@ -33,7 +33,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function get_an_user_from_azure_ad_by_user_id()
+    public function get_an_user_from_azure_ad_by_user_id(): void
     {
         // Arrange
         $userId = '1f4db4e4-93c9-4f58-b060-6757b2e621a3';
@@ -47,7 +47,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function can_select_specific_user_properties()
+    public function can_select_specific_user_properties(): void
     {
         // Arrange
         $userPrincipal = 'rafael.camison@austrian.com';
@@ -75,7 +75,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_an_error_badge_if_user_was_not_found()
+    public function it_returns_an_error_badge_if_user_was_not_found(): void
     {
         $user = User::get(new UserPrincipal('first.name@domain.com'));
 
@@ -84,7 +84,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function it_tries_again_to_call_the_api_if_an_unknown_error_occurs()
+    public function it_tries_again_to_call_the_api_if_an_unknown_error_occurs(): void
     {
         $userPrincipal = 'rafael.camison@austrian.com';
 

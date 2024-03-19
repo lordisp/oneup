@@ -24,18 +24,19 @@ class CleanUpFirewallRuleJob implements ShouldQueue
 
     /**
      * @throws CleanUpFirewallRuleJobException
+     *
      * @description This job will clean up the firewall rule that was created by the previous Service-Now request.
      */
-    public function handle()
+    public function handle(): void
     {
-        $rule = FirewallRule::with(['request' => fn($request) => $request
+        $rule = FirewallRule::with(['request' => fn ($request) => $request
             ->where('created_at', '<', $this->firewallRule['created_at'])
             ->select('id', 'created_at')])
             ->select('id', 'hash', 'action', 'service_now_request_id')
             ->where('hash', $this->firewallRule['hash'])
             ->where('action', 'add');
 
-        if (!$rule->count()) {
+        if (! $rule->count()) {
             return;
         }
 
@@ -46,6 +47,7 @@ class CleanUpFirewallRuleJob implements ShouldQueue
 
     /**
      * @throws CleanUpFirewallRuleJobException
+     *
      * @description This method will update the status of the firewall rule to deleted.
      */
     protected function updateStatus($rule): bool
@@ -58,8 +60,6 @@ class CleanUpFirewallRuleJob implements ShouldQueue
     }
 
     /**
-     * @param $rule
-     * @return void
      * @description This method will create an audit log for the firewall rule that was decommissioned by a previous Service-Now request.
      */
     protected function setAudit($rule): void
@@ -67,7 +67,7 @@ class CleanUpFirewallRuleJob implements ShouldQueue
         $rule->first()->audits()->create([
             'actor' => 'Previous Service-Now Request',
             'activity' => 'Decommission Rule',
-            'status' => 'Success'
+            'status' => 'Success',
         ]);
     }
 }

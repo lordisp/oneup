@@ -41,7 +41,7 @@ class ImportNewFirewallRequestsEventListener
     {
         return function (Batch $batch, Throwable $exception) {
             Log::error(
-                'Failed to complete ' . $batch->failedJobs . ' Import Firewall-Request Jobs',
+                'Failed to complete '.$batch->failedJobs.' Import Firewall-Request Jobs',
                 [
                     'error' => $exception->getMessage(),
                     'failedJobs' => $batch->failedJobIds,

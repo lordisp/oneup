@@ -8,7 +8,6 @@ use Illuminate\Database\Seeder;
 
 class GlobalAdminSeeder extends Seeder
 {
-
     protected array $operations = [
         'admin/rbac/operations/read' => 'Can read operations',
         'admin/rbac/operations/create' => 'Can create operations',
@@ -22,22 +21,20 @@ class GlobalAdminSeeder extends Seeder
         'admin/tokenCacheProvider/create' => 'Can create Provider',
         'admin/tokenCacheProvider/delete' => 'Can delete Provider',
         'admin/tokenCacheProvider/readAll' => 'Can read all Providers',
-        'serviceNow-firewallRequests-invite' => 'Can invite firewall-reviewers'
+        'serviceNow-firewallRequests-invite' => 'Can invite firewall-reviewers',
     ];
 
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $role = Role::factory()->state([
-            'name' => 'Global Administrator', 'description' => 'Can manage all features in ' . config('app.name')
+            'name' => 'Global Administrator', 'description' => 'Can manage all features in '.config('app.name'),
         ])->create();
         foreach ($this->operations as $key => $value) {
             $operation = Operation::factory()->state([
-                'operation' => $key, 'description' => $value
+                'operation' => $key, 'description' => $value,
             ])->create();
             $role->attach($operation);
         }

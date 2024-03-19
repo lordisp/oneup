@@ -9,7 +9,7 @@ use Tests\TestCase;
 class MailTestCommandTest extends TestCase
 {
     /** @test */
-    public function can_send_an_email()
+    public function can_send_an_email(): void
     {
         Mail::fake();
 

@@ -18,7 +18,7 @@ use Tests\TestCase;
 
 class OperationsTest extends TestCase implements FrontendTest
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -27,13 +27,13 @@ class OperationsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function cannot_access_route_as_guest()
+    public function cannot_access_route_as_guest(): void
     {
         $this->get('/admin/operations')->assertRedirect('/login');
     }
 
     /** @test */
-    public function can_access_route_as_user()
+    public function can_access_route_as_user(): void
     {
         User::first()->assignRole('Operations reader');
         $this->actingAs(User::first())
@@ -42,14 +42,14 @@ class OperationsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_render_the_component()
+    public function can_render_the_component(): void
     {
         User::first()->assignRole('Operations reader');
         Livewire::actingAs(User::first())->test(Operations::class)->assertOk();
     }
 
     /** @test */
-    public function can_view_component()
+    public function can_view_component(): void
     {
         User::first()->assignRole('Operations reader');
         $this->actingAs(User::first())
@@ -60,7 +60,7 @@ class OperationsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_create_new_operation()
+    public function can_create_new_operation(): void
     {
         User::first()->assignRole('Operations operator');
         $this->assertDatabaseCount(Operation::class, 26);
@@ -77,7 +77,7 @@ class OperationsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function create_new_operation_has_errors()
+    public function create_new_operation_has_errors(): void
     {
         User::first()->assignRole('Operations operator');
         Livewire::actingAs(User::first())
@@ -92,7 +92,7 @@ class OperationsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function reader_cannot_edit_or_create_operations()
+    public function reader_cannot_edit_or_create_operations(): void
     {
         User::first()->assignRole('Operations reader');
         User::first()->unassignRole('Global Administrator');
@@ -105,7 +105,7 @@ class OperationsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_delete_a_operation()
+    public function can_delete_a_operation(): void
     {
         $this->assertDatabaseCount(Operation::class, 26);
         $operationId = Operation::whereOperation('admin/tokenCacheProvider/read')->first()->id;
@@ -130,9 +130,9 @@ class OperationsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_edit_a_operation()
+    public function can_edit_a_operation(): void
     {
-        $operation = Operation::where('operation', 'like','%token%')->first();
+        $operation = Operation::where('operation', 'like', '%token%')->first();
         User::first()->assignRole('Operations operator');
         Livewire::actingAs(User::first())
             ->test(Operations::class)
@@ -140,8 +140,8 @@ class OperationsTest extends TestCase implements FrontendTest
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'edit'])
             ->assertSee($operation->operation)
             ->assertSee($operation->description)
-            ->set('operation.operation',Str::random(10))
-            ->set('operation.description',Str::random(10))
+            ->set('operation.operation', Str::random(10))
+            ->set('operation.description', Str::random(10))
             ->call('save')
             ->assertHasNoErrors()
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'edit'])
@@ -149,7 +149,7 @@ class OperationsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function test_search_bar()
+    public function test_search_bar(): void
     {
         User::first()->assignRole('Operations reader');
         Livewire::actingAs(User::first())
@@ -165,7 +165,7 @@ class OperationsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function test_pagination()
+    public function test_pagination(): void
     {
         User::first()->assignRole('Operations reader');
         Livewire::actingAs(User::first())

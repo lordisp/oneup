@@ -27,7 +27,7 @@ class UpdateUsersBasedOnBusinessServiceTest extends TestCase
     }
 
     /** @test */
-    public function can_add_audit_log_for_user()
+    public function can_add_audit_log_for_user(): void
     {
         $user = User::factory()->create();
 
@@ -45,10 +45,10 @@ class UpdateUsersBasedOnBusinessServiceTest extends TestCase
     }
 
     /** @test */
-    public function it_remove_user_from_business_service()
+    public function it_remove_user_from_business_service(): void
     {
         $fake = json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true);
-        Http::fake([config('servicenow.uri') . '/*' => Http::response($fake)]);
+        Http::fake([config('servicenow.uri').'/*' => Http::response($fake)]);
 
         $businessService = BusinessService::factory()->create();
         $userEmails = Arr::flatten($fake['result']);
@@ -71,7 +71,7 @@ class UpdateUsersBasedOnBusinessServiceTest extends TestCase
     }
 
     /** @test */
-    public function it_adds_user_to_business_service()
+    public function it_adds_user_to_business_service(): void
     {
         $businessServices = BusinessService::factory()
             ->hasUsers(3)
@@ -92,13 +92,13 @@ class UpdateUsersBasedOnBusinessServiceTest extends TestCase
     }
 
     /** @test */
-    public function job_scheduled_run_every_ten_minutes()
+    public function job_scheduled_run_every_ten_minutes(): void
     {
         $this->app->make(Kernel::class)->bootstrap();
         $events = $this->app[Schedule::class]->events();
 
         $classnames = [
-            UpdateUsersBasedOnBusinessServiceScheduler::class
+            UpdateUsersBasedOnBusinessServiceScheduler::class,
         ];
         foreach ($classnames as $classname) {
             $this->assertTrue(

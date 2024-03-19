@@ -12,20 +12,19 @@ use Illuminate\Support\Str;
 use Laravel\Passport\TokenRepository;
 use Tests\Helper;
 use Tests\TestCase;
-use function PHPUnit\Framework\classHasAttribute;
 
 class ClientTest extends TestCase
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     /** @test */
-    public function cannot_access_create_client_as_guest()
+    public function cannot_access_create_client_as_guest(): void
     {
         $this->post('/oauth/clients')->assertRedirect('/login');
     }
 
     /** @test */
-    public function api_returns_validation_errors()
+    public function api_returns_validation_errors(): void
     {
         $user = User::factory()->create();
 
@@ -35,7 +34,7 @@ class ClientTest extends TestCase
     }
 
     /** @test */
-    public function user_can_create_a_client_while_logged_in()
+    public function user_can_create_a_client_while_logged_in(): void
     {
         $user = User::factory()->create();
         $client = $this->actingAs($user)->post('/oauth/clients', [
@@ -70,9 +69,9 @@ class ClientTest extends TestCase
     /** @test
      * @depends  user_can_create_a_client_while_logged_in
      */
-    public function can_request_an_access_token()
+    public function can_request_an_access_token(): void
     {
-        list($client, $scope) = $this->getPassportClientWithScopes('subnets-create');
+        [$client, $scope] = $this->getPassportClientWithScopes('subnets-create');
 
         $data = [
             'grant_type' => 'client_credentials',
@@ -102,7 +101,7 @@ class ClientTest extends TestCase
     /** @test
      * @depends can_request_an_access_token
      */
-    public function can_revoke_access_token()
+    public function can_revoke_access_token(): void
     {
         $this->requestToken();
 
@@ -118,7 +117,7 @@ class ClientTest extends TestCase
     /** @test
      * @depends can_request_an_access_token
      */
-    public function can_decode_jwt($token)
+    public function can_decode_jwt($token): void
     {
         $decoded = app()->accessor::jwt_decode($token);
 
@@ -131,11 +130,10 @@ class ClientTest extends TestCase
         $this->assertArrayHasKey('scopes', get_object_vars($decoded));
     }
 
-
     /** @test
      * @throws BindingResolutionException
      */
-    public function passports_run_hourly()
+    public function passports_run_hourly(): void
     {
         $schedule = app()->make(Schedule::class);
 

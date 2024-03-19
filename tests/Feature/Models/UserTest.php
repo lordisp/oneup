@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+<?php
+
+/** @noinspection PhpPossiblePolymorphicInvocationInspection */
 
 namespace Tests\Feature\Models;
 
@@ -13,7 +15,7 @@ class UserTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function can_create_user()
+    public function can_create_user(): void
     {
         $this->assertDatabaseCount(User::class, 0);
 
@@ -23,7 +25,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function test_groups_and_roles_relations()
+    public function test_groups_and_roles_relations(): void
     {
         $user = User::factory()->make();
 
@@ -32,7 +34,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function user_is_owner_of_a_group()
+    public function user_is_owner_of_a_group(): void
     {
         $user = User::factory()->withGroup()->create();
         $user->groups()->first()->attachOwners($user);
@@ -44,7 +46,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function can_remove_role_from_user_by_name()
+    public function can_remove_role_from_user_by_name(): void
     {
         $user = User::factory()->withRole()->create();
 
@@ -54,7 +56,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function can_remove_group_from_user_by_name()
+    public function can_remove_group_from_user_by_name(): void
     {
         $user = User::factory()->withGroup()->create();
 
@@ -64,7 +66,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function can_create_user_with_roles_and_groups()
+    public function can_create_user_with_roles_and_groups(): void
     {
         User::factory()
             ->count(2)
@@ -78,7 +80,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function can_list_all_roles_attached_to_a_user()
+    public function can_list_all_roles_attached_to_a_user(): void
     {
         $user = User::factory()->withRole(2)->create();
 
@@ -86,7 +88,7 @@ class UserTest extends TestCase
     }
 
     /** @test */
-    public function can_list_all_operations_assigned_to_a_user()
+    public function can_list_all_operations_assigned_to_a_user(): void
     {
         $user = User::factory()->create();
 

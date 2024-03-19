@@ -20,13 +20,26 @@ use Livewire\Component;
 
 /**
  * @method event(array|Application|Translator|string|null $__, string $string)
+ *
  * @property mixed $clients
  */
 class Clients extends Component
 {
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions;
+    use WithBulkActions, WithFilteredColumns, WithPerPagePagination, WithSorting;
 
-    public $clients = [], $search, $showModal = false, $name, $redirect, $confidential = false, $secret;
+    public $clients = [];
+
+    public $search;
+
+    public $showModal = false;
+
+    public $name;
+
+    public $redirect;
+
+    public $confidential = false;
+
+    public $secret;
 
     public function createClient()
     {
@@ -39,7 +52,7 @@ class Clients extends Component
         $clients = new ClientRepository();
         $client = $clients->create(
             auth()->user()->getAuthIdentifier(), $data['name'], $data['redirect'],
-            null, false, false, !$data['confidential']
+            null, false, false, ! $data['confidential']
         );
         $this->secret = Passport::$hashesClientSecrets ? ['secret' => $client->plainSecret] + $client->toArray() : $client->makeVisible('secret');
         $this->dispatchBrowserEvent('close-modal', ['modal' => 'create']);
@@ -90,10 +103,10 @@ class Clients extends Component
 
     public function withQuery($query)
     {
-        return $query->when($this->search, fn($query, $search) => $query
-            ->where('name', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('id', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('redirect', 'like', '%' . Str::of($search)->trim() . '%')
+        return $query->when($this->search, fn ($query, $search) => $query
+            ->where('name', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('id', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('redirect', 'like', '%'.Str::of($search)->trim().'%')
         );
     }
 

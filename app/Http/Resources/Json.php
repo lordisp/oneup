@@ -12,15 +12,19 @@ trait Json
         string $attribute,
         null|string|array $hidden = null,
         null|string|array $decrypt = null
-    )
-    {
+    ) {
         $json = json_decode($attribute, true);
-        if (isset($hidden)) $json = $this->hiddenJsonProperty($json, $hidden);
-        if (isset($decrypt)) $json = $this->decryptJsonProperty($json, $decrypt);
+        if (isset($hidden)) {
+            $json = $this->hiddenJsonProperty($json, $hidden);
+        }
+        if (isset($decrypt)) {
+            $json = $this->decryptJsonProperty($json, $decrypt);
+        }
+
         return $json;
     }
 
-    protected function decryptJsonProperty(array $json, string|array $properties = null): array
+    protected function decryptJsonProperty(array $json, string|array|null $properties = null): array
     {
         if (is_string($properties)) {
             $json[$properties] = decrypt($json[$properties]);
@@ -29,6 +33,7 @@ trait Json
                 $json[$property] = decrypt($json[$property]);
             }
         }
+
         return $json;
     }
 
@@ -37,11 +42,13 @@ trait Json
         switch ($hidden) {
             case is_string($hidden):
                 unset($json[$hidden]);
+
                 return $json;
-            case is_array($hidden);
+            case is_array($hidden):
                 foreach ($hidden as $value) {
                     unset($json[$value]);
-                };
+                }
+
                 return $json;
         }
     }

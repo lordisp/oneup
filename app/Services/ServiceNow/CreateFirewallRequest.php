@@ -22,10 +22,9 @@ class CreateFirewallRequest
         $this->container = [
             'cost-center' => '068111',
             'id' => Str::random(40),
-            'response' => response('Processing...', 102)
+            'response' => response('Processing...', 102),
         ];
     }
-
 
     public static function process(FirewallRule $rule, User $user): ClientResponse|HttpResponse
     {
@@ -41,13 +40,15 @@ class CreateFirewallRequest
     private function getRule(FirewallRule $rule): static
     {
 
-        if (!$rule->exists) {
-            $this->container['response'] = response("Rule was not found!", 400);
+        if (! $rule->exists) {
+            $this->container['response'] = response('Rule was not found!', 400);
+
             return $this;
         }
 
         if ($this->ruleIsDismantled($rule)) {
             $this->container['response'] = response(__('messages.rule_previously_decommissioned'), 400);
+
             return $this;
         }
         $this->container['rule'] = $rule;
@@ -58,12 +59,15 @@ class CreateFirewallRequest
     private function ruleIsDismantled($rule): bool
     {
         $audits = FirewallRule::whereId($rule->id)->first()->audits->last();
+
         return Str::contains($audits->activity, 'decommissioned', true);
     }
 
     private function normalizeRequest(User $user): static
     {
-        if ($this->container['response']->status() != 102) return $this;
+        if ($this->container['response']->status() != 102) {
+            return $this;
+        }
 
         $rule = $this->container['rule'];
         $rule = $rule->toArray();
@@ -72,7 +76,7 @@ class CreateFirewallRequest
         $rule['source'] = $this->normalizeConnections($rule['source']);
         $rule['destination_port'] = $this->normalizeConnections($rule['destination_port']);
         $rule['end_date'] = ($rule['no_expiry'] === 'No') ? Carbon::parse($rule['end_date'])->toDateString() : '';
-        $rule['pci_dss'] = $rule['pci_dss'] ? "Yes" : "No";
+        $rule['pci_dss'] = $rule['pci_dss'] ? 'Yes' : 'No';
 
         $this->container['request']['business_service'] = $rule['business_service']['name'];
         $this->container['request']['request_description'] = __('messages.request_description.decommission_request');
@@ -90,9 +94,11 @@ class CreateFirewallRequest
 
     protected function callServiceNowApi(User $user): static
     {
-        if ($this->container['response']->status() != 102) return $this;
+        if ($this->container['response']->status() != 102) {
+            return $this;
+        }
 
-        $uri = config('servicenow.uri') . '/api/delag/retrieve_cost_centers/CreateCatalogItem';
+        $uri = config('servicenow.uri').'/api/delag/retrieve_cost_centers/CreateCatalogItem';
         Log::debug('API Payload', $this->container['request']);
 
         $this->container['response'] = Http::withBasicAuth(config('servicenow.client_id'), config('servicenow.client_secret'))
@@ -100,6 +106,7 @@ class CreateFirewallRequest
                 if ($exception->response->status() === 400) {
                     return false;
                 }
+
                 return $exception instanceof RequestException && $exception->response->status() === 408;
             }, false)
             ->post($uri,
@@ -123,7 +130,7 @@ class CreateFirewallRequest
 
             $response = $this->container['response'] instanceof HttpResponse
                 ? $this->container['response']->content()
-                : (array)$this->container['response']->json();
+                : (array) $this->container['response']->json();
 
             Log::error($response, [
                 'message' => $audits['message'],
@@ -150,7 +157,7 @@ class CreateFirewallRequest
             $backend = "https://lhgroupuat.service-now.com/now/nav/ui/classic/params/target/sc_req_item.do%3Fsys_id%3D{$sysId}%26sysparm_stack%3D%26sysparm_view%3D";
 
             $audits = [
-                'message' => __('messages.rule_decommissioned', ['requestNummer' => (string)$requestNumber]),
+                'message' => __('messages.rule_decommissioned', ['requestNummer' => (string) $requestNumber]),
                 'metadata' => [
                     'rule_id' => $rule->id,
                     'uris' => [
@@ -160,7 +167,7 @@ class CreateFirewallRequest
                 ],
                 'status' => 'Success',
             ];
-            Log::info(sprintf("%s %s", $audits['message'], $user->email), (array)$this->container['response']->json());
+            Log::info(sprintf('%s %s', $audits['message'], $user->email), (array) $this->container['response']->json());
         }
 
         if ($rule->exists) {
@@ -178,6 +185,7 @@ class CreateFirewallRequest
     private function notifyUser(User $user): static
     {
         $user->notify(new CreateFirewallRequestNotification($this->container['response']));
+
         return $this;
     }
 

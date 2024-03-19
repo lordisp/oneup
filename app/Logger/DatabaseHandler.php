@@ -9,7 +9,6 @@ use Monolog\LogRecord;
 
 class DatabaseHandler extends AbstractProcessingHandler
 {
-
     public function __construct($level = Level::Debug, bool $bubble = true)
     {
         parent::__construct($level, $bubble);

@@ -76,7 +76,7 @@ class Request
 
     private function setRequestorName(): static
     {
-        $requestorName = sprintf("%s %s",
+        $requestorName = sprintf('%s %s',
             Str::title(data_get($this->request, 'RequestorFirstName')),
             Str::title(data_get($this->request, 'RequestorLastName'))
         );

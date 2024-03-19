@@ -17,36 +17,35 @@ use Tests\TestCase;
 
 class ProviderTest extends TestCase implements FrontendTest
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
         $this->user = User::factory()->create();
     }
 
-
     /** @test */
-    public function cannot_access_route_as_guest()
+    public function cannot_access_route_as_guest(): void
     {
         $this->get('/admin/provider')->assertRedirect('/login');
     }
 
     /** @test */
-    public function can_access_route_as_user()
+    public function can_access_route_as_user(): void
     {
         $this->actingAs($this->user)->get('/admin/provider')->assertOk();
     }
 
     /** @test */
-    public function can_render_the_component()
+    public function can_render_the_component(): void
     {
         Livewire::actingAs($this->user)->test(Provider::class)->assertOk();
     }
 
     /** @test */
-    public function can_view_component()
+    public function can_view_component(): void
     {
         $this->actingAs($this->user)->get('/admin/provider')
             ->assertSeeLivewire('admin.provider')
@@ -56,7 +55,7 @@ class ProviderTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_create_new_provider()
+    public function can_create_new_provider(): void
     {
         $this->assertDatabaseCount(TokenCacheProvider::class, 0);
 
@@ -86,7 +85,7 @@ class ProviderTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function create_new_provider_has_errors()
+    public function create_new_provider_has_errors(): void
     {
         $this->actingAs($this->user);
 
@@ -114,7 +113,7 @@ class ProviderTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_delete_a_provider()
+    public function can_delete_a_provider(): void
     {
         $this->seed(TokenCacheProviderSeeder::class);
 
@@ -144,7 +143,7 @@ class ProviderTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_edit_a_provider()
+    public function can_edit_a_provider(): void
     {
         $this->seed(TokenCacheProviderSeeder::class);
 
@@ -164,11 +163,10 @@ class ProviderTest extends TestCase implements FrontendTest
             ->assertDispatchedBrowserEvent('notify', ['message' => 'Saved', 'type' => 'success'])
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'edit']);
 
-
     }
 
     /** @test */
-    public function test_search_bar()
+    public function test_search_bar(): void
     {
         $this->seed(TokenCacheProviderSeeder::class);
 
@@ -189,7 +187,7 @@ class ProviderTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function test_pagination()
+    public function test_pagination(): void
     {
         TokenCacheProvider::factory()->count(16)->create();
 

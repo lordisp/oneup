@@ -23,10 +23,9 @@ class DeveloperNotification extends Notification
     /**
      * Get the notification's delivery channels.
      *
-     * @param mixed $notifiable
-     * @return array
+     * @param  mixed  $notifiable
      */
-    public function via($notifiable)
+    public function via($notifiable): array
     {
         return ['mail'];
     }
@@ -34,17 +33,15 @@ class DeveloperNotification extends Notification
     /**
      * Get the mail representation of the notification.
      *
-     * @param mixed $notifiable
-     * @return \Illuminate\Notifications\Messages\MailMessage
+     * @param  mixed  $notifiable
      */
-    public function toMail($notifiable)
+    public function toMail($notifiable): MailMessage
     {
         return (new MailMessage)
             ->greeting($notifiable->firstName)
-            ->line('Message: ' . $this->exception->getMessage())
-            ->line('File: ' . $this->exception->getFile())
-            ->line('Line: ' . $this->exception->getLine())
-            ->line('Code: ' . $this->exception->getCode());
+            ->line('Message: '.$this->exception->getMessage())
+            ->line('File: '.$this->exception->getFile())
+            ->line('Line: '.$this->exception->getLine())
+            ->line('Code: '.$this->exception->getCode());
     }
-
 }

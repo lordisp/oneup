@@ -15,7 +15,7 @@ class Operation extends Model
 
     protected $fillable = [
         'operation',
-        'description'
+        'description',
     ];
 
     /**
@@ -41,8 +41,8 @@ class Operation extends Model
         }
 
         return self::where(function ($query) use ($search) {
-            return $query->where('operation', 'like', '%' . $search . '%')
-                ->orWhere('description', 'like', '%' . $search . '%');
+            return $query->where('operation', 'like', '%'.$search.'%')
+                ->orWhere('description', 'like', '%'.$search.'%');
         })->get();
     }
 }

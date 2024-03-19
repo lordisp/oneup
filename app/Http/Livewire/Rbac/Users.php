@@ -6,7 +6,7 @@ use App\Http\Livewire\DataTable\WithFilteredColumns;
 use App\Http\Livewire\DataTable\WithPerPagePagination;
 use App\Http\Livewire\DataTable\WithSorting;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
+use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
@@ -15,12 +15,14 @@ use Log;
 
 class Users extends component
 {
-    use WithPerPagePagination, WithSorting, WithFilteredColumns;
+    use WithFilteredColumns, WithPerPagePagination, WithSorting;
 
     public $search;
+
     public $modalUser;
 
     public $modalLock = false;
+
     protected $listeners = ['refresh' => '$refresh'];
 
     public function mount()
@@ -45,16 +47,19 @@ class Users extends component
 
         session()->put('fromUser', auth()->id());
 
-        Log::info(auth()->user()->email . ' logged in as ' . $asUser->email);
+        Log::info(auth()->user()->email.' logged in as '.$asUser->email);
 
         auth()->login($asUser);
         $this->emit('refresh');
-        return redirect(RouteServiceProvider::HOME);
+
+        return redirect(AppServiceProvider::HOME);
     }
 
     public function openLogoutUserModal($userId)
     {
-        if (Gate::denies('user-lock')) abort(403, "You're not authorizes to logout other user's sessions.");
+        if (Gate::denies('user-lock')) {
+            abort(403, "You're not authorizes to logout other user's sessions.");
+        }
         $this->modalLock = false;
         $this->modalUser = User::find($userId);
 
@@ -86,10 +91,10 @@ class Users extends component
 
     public function withQuery($query)
     {
-        return $query->when($this->search, fn($query, $search) => $query
-            ->where('firstName', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('lastName', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('email', 'like', '%' . Str::of($search)->trim() . '%')
+        return $query->when($this->search, fn ($query, $search) => $query
+            ->where('firstName', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('lastName', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('email', 'like', '%'.Str::of($search)->trim().'%')
         );
     }
 
@@ -98,6 +103,7 @@ class Users extends component
         $query = User::query();
         $query = $this->withQuery($query);
         $query = $this->applySorting($query);
+
         return $this->applyPagination($query);
     }
 

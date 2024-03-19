@@ -68,8 +68,8 @@ class TelescopeServiceProvider extends TelescopeApplicationServiceProvider
             return $user->operations()->contains(
                 cache()->tags('rbac')->remember('viewTelescope', 1440, function () {
                     return Operation::updateOrCreate([
-                        "operation" => "admin/telescope/view",
-                        "description" => "Can import firewall-requests from Service-Now"
+                        'operation' => 'admin/telescope/view',
+                        'description' => 'Can import firewall-requests from Service-Now',
                     ])->operation;
                 })
             );

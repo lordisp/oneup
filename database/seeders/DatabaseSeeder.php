@@ -8,10 +8,8 @@ class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         $this->call([
             //UserSeeder::class,
@@ -20,7 +18,7 @@ class DatabaseSeeder extends Seeder
             OperationSeeder::class,
             RoleSeeder::class,
             //BusinessServiceSeeder::class
-            SubnetSeeder::class
+            SubnetSeeder::class,
         ]);
     }
 }

@@ -24,7 +24,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function the_users_endpoint_returns_max_100_values_with_expected_fields()
+    public function the_users_endpoint_returns_max_100_values_with_expected_fields(): void
     {
         $results = MsGraph::get('/users')
             ->call();
@@ -49,7 +49,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function the_users_beta_endpoint_returns_max_100()
+    public function the_users_beta_endpoint_returns_max_100(): void
     {
         $results = MsGraph::get('/users')
             ->beta()
@@ -59,11 +59,10 @@ class MsGraphTest extends TestCase
         $this->assertCount(100, data_get($results, 'value'));
     }
 
-
     /** @test
      * @throws MsGraphException
      */
-    public function it_uses_specified_provider_to_fetch_data_from_another_tenant()
+    public function it_uses_specified_provider_to_fetch_data_from_another_tenant(): void
     {
         cache()->flush();
         $results = MsGraph::get('/users')
@@ -84,7 +83,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function fetching_all_users_with_take_attribute_returns_expected_fields()
+    public function fetching_all_users_with_take_attribute_returns_expected_fields(): void
     {
         $results = MsGraph::get('/users')
             ->all(1001)
@@ -106,7 +105,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function an_invalid_top_parameter_throws_error_exception()
+    public function an_invalid_top_parameter_throws_error_exception(): void
     {
         $this->expectException(ValidationException::class);
         $this->expectExceptionMessage(__('validation.max.numeric', ['attribute' => 'top', 'max' => 999]));
@@ -119,7 +118,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function it_returns_only_the_amount_of_top_n_results_of_the_first_iteration()
+    public function it_returns_only_the_amount_of_top_n_results_of_the_first_iteration(): void
     {
         $results = MsGraph::get('/users')
             ->top(3)
@@ -129,7 +128,7 @@ class MsGraphTest extends TestCase
     }
 
     /** @test */
-    public function it_applies_multiple_filters_to_users_query()
+    public function it_applies_multiple_filters_to_users_query(): void
     {
         $results = MsGraph::get('/Users')
             ->filter("startswith(surname,'Camison')")
@@ -143,7 +142,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function it_retrieves_users_based_on_displayName_search()
+    public function it_retrieves_users_based_on_displayName_search(): void
     {
         $results = MsGraph::get('/Users')
             ->search('displayName', 'Camison')
@@ -164,12 +163,12 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function test_the_next_link_method()
+    public function test_the_next_link_method(): void
     {
         Http::fake([
             'https://graph.microsoft.com/*' => Http::sequence()
                 ->push(status: 429, headers: ['Retry-After' => 0])
-                ->push(['value' => []], 200)
+                ->push(['value' => []], 200),
         ]);
 
         $results = MsGraph::get('/users')
@@ -181,7 +180,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function can_revoke_sessions_from_an_given_user_by_id()
+    public function can_revoke_sessions_from_an_given_user_by_id(): void
     {
         cache()->flush();
 
@@ -195,7 +194,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function can_revoke_sessions_from_an_given_user_by_principal_name()
+    public function can_revoke_sessions_from_an_given_user_by_principal_name(): void
     {
         cache()->flush();
 
@@ -207,10 +206,10 @@ class MsGraphTest extends TestCase
     }
 
     /** @test */
-    public function request_is_not_retried_when_404_received()
+    public function request_is_not_retried_when_404_received(): void
     {
         Http::fake([
-            'https://graph.microsoft.com/*' => Http::response([], 404)
+            'https://graph.microsoft.com/*' => Http::response([], 404),
         ]);
 
         $response = MsGraph::get('/users/67ca2374-1e95-4b38-b2b6-45bf89ced946')
@@ -221,11 +220,11 @@ class MsGraphTest extends TestCase
     }
 
     /** @test */
-    public function it_throws_MsGraphException_on_403_request_exception()
+    public function it_throws_MsGraphException_on_403_request_exception(): void
     {
         cache()->flush();
         Http::fake([
-            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 403)
+            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 403),
         ]);
 
         $this->expectException(MsGraphException::class);
@@ -239,11 +238,11 @@ class MsGraphTest extends TestCase
     }
 
     /** @test */
-    public function it_throws_MsGraphException_on_400_request_exception()
+    public function it_throws_MsGraphException_on_400_request_exception(): void
     {
         cache()->flush();
         Http::fake([
-            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 400)
+            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 400),
         ]);
 
         $this->expectException(MsGraphException::class);
@@ -256,16 +255,15 @@ class MsGraphTest extends TestCase
         $this->assertEmpty($result);
     }
 
-
     /** @test */
-    public function test_expired_token_is_refreshed()
+    public function test_expired_token_is_refreshed(): void
     {
         cache()->flush();
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('tests/Feature/Stubs/app_access_token.json')), true)),
             'https://graph.microsoft.com/*' => Http::sequence()
                 ->push(['error' => 'message'], 401)
-                ->push(['value' => []], 200)
+                ->push(['value' => []], 200),
         ]);
 
         $result = MsGraph::get('/users/1710802e-dc0e-4794-b9b8-a24349c27627')
@@ -276,11 +274,11 @@ class MsGraphTest extends TestCase
     }
 
     /** @test */
-    public function it_throws_MsGraphException_on_500_request_exception()
+    public function it_throws_MsGraphException_on_500_request_exception(): void
     {
         cache()->flush();
         Http::fake([
-            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 500)
+            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 500),
         ]);
 
         $this->expectException(MsGraphException::class);
@@ -294,13 +292,13 @@ class MsGraphTest extends TestCase
     }
 
     /** @test */
-    public function test_request_timeout_exception_is_retried()
+    public function test_request_timeout_exception_is_retried(): void
     {
         cache()->flush();
         Http::fake([
             'https://graph.microsoft.com/*' => Http::sequence()
                 ->push(status: 408)
-                ->push(['value' => []], 200)
+                ->push(['value' => []], 200),
         ]);
 
         $result = MsGraph::get('/users/1710802e-dc0e-4794-b9b8-a24349c27627')
@@ -313,7 +311,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function it_retrieves_the_specified_number_of_users_across_multiple_links()
+    public function it_retrieves_the_specified_number_of_users_across_multiple_links(): void
     {
         cache()->flush();
         $result = MsGraph::get('/users')
@@ -328,7 +326,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function it_returns_the_body_of_the_response_without_error()
+    public function it_returns_the_body_of_the_response_without_error(): void
     {
         cache()->flush();
         $result = MsGraph::get('/users/rafael.camison@austrian.com/photos/120x120/$value')
@@ -340,7 +338,7 @@ class MsGraphTest extends TestCase
     /** @test
      * @throws MsGraphException
      */
-    public function it_returns_the_body_of_the_response_with_error()
+    public function it_returns_the_body_of_the_response_with_error(): void
     {
         cache()->flush();
         $result = MsGraph::get('/users/stephan.abel@dlh.de/photos/120x120/$value')
@@ -349,5 +347,4 @@ class MsGraphTest extends TestCase
         $this->assertIsString($result);
         $this->assertStringContainsString('ImageNotFoundException', $result);
     }
-
 }

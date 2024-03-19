@@ -25,10 +25,8 @@ return new class extends Migration
 
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         $this->schema->create('oauth_access_tokens', function (Blueprint $table) {
             $table->string('id', 100)->primary();
@@ -44,10 +42,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         $this->schema->dropIfExists('oauth_access_tokens');
     }

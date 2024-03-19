@@ -18,9 +18,12 @@ class Audit extends Model
         'metadata',
     ];
 
-    protected $casts = [
-        'metadata' => 'json',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'metadata' => 'json',
+        ];
+    }
 
     public function auditable(): MorphTo
     {
@@ -30,7 +33,7 @@ class Audit extends Model
     public function statusBackground(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => [
+            get: fn ($value) => [
                 'Error' => 'bg-red-100 dark:bg-red-800',
                 'Success' => 'bg-green-100 dark:bg-green-800',
             ][$this->status] ?? '',
@@ -40,7 +43,7 @@ class Audit extends Model
     public function statusBorder(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => [
+            get: fn ($value) => [
                 'Error' => 'border-red-500',
                 'Success' => 'border-green-500',
             ][$this->status] ?? '',
@@ -50,7 +53,7 @@ class Audit extends Model
     public function statusText(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => [
+            get: fn ($value) => [
                 'Error' => 'text-red-800 dark:text-red-100',
                 'Success' => 'text-green-800 dark:text-green-100',
             ][$this->status] ?? '',
@@ -60,7 +63,7 @@ class Audit extends Model
     public function uris(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => data_get($this->metadata, 'uris', ''),
+            get: fn ($value) => data_get($this->metadata, 'uris', ''),
         );
     }
 }

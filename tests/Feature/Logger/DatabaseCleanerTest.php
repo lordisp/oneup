@@ -13,7 +13,7 @@ class DatabaseCleanerTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function it_force_delete_all_debug_logs_at_a_given_age()
+    public function it_force_delete_all_debug_logs_at_a_given_age(): void
     {
         LogMessage::factory()->level(100)->deleted()->create();
 
@@ -27,7 +27,7 @@ class DatabaseCleanerTest extends TestCase
     }
 
     /** @test */
-    public function it_force_delete_all_logs_at_a_given_age()
+    public function it_force_delete_all_logs_at_a_given_age(): void
     {
         LogMessage::factory()->deleted()->count(10)->create();
 
@@ -41,7 +41,7 @@ class DatabaseCleanerTest extends TestCase
     }
 
     /** @test */
-    public function an_invalid_level_name_throws_an_exception()
+    public function an_invalid_level_name_throws_an_exception(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Invalid log level!');
@@ -53,7 +53,7 @@ class DatabaseCleanerTest extends TestCase
     }
 
     /** @test */
-    public function an_invalid_age_throws_an_exception()
+    public function an_invalid_age_throws_an_exception(): void
     {
 
         $this->expectException(InvalidArgumentException::class);

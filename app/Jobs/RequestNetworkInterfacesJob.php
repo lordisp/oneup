@@ -13,7 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class RequestNetworkInterfacesJob implements ShouldQueue, ShouldBeUnique
+class RequestNetworkInterfacesJob implements ShouldBeUnique, ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -31,7 +31,7 @@ class RequestNetworkInterfacesJob implements ShouldQueue, ShouldBeUnique
      */
     public function handle(): void
     {
-        info(sprintf("RequestNetworkInterfaces with batchId: %s for %s", $this->batchId, $this->provider));
+        info(sprintf('RequestNetworkInterfaces with batchId: %s for %s', $this->batchId, $this->provider));
 
         $hash = "networkinterfaces:{$this->provider}";
 

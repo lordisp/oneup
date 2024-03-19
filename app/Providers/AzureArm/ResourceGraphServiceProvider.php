@@ -14,7 +14,7 @@ class ResourceGraphServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        $this->app->singleton('resourcegraph', function (){
+        $this->app->singleton('resourcegraph', function () {
             return new ResourceGraph();
         });
     }

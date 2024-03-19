@@ -4,7 +4,6 @@ namespace Tests\Feature\Auth;
 
 use App\Http\Controllers\AuthController;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
 use Database\Seeders\TokenCacheProviderSeeder;
 use Database\Seeders\UserAzureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -15,7 +14,7 @@ class AuthenticationTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function login_screen_can_be_rendered()
+    public function login_screen_can_be_rendered(): void
     {
         $response = $this->get('/login');
 
@@ -23,7 +22,7 @@ class AuthenticationTest extends TestCase
     }
 
     /** @test */
-    public function users_will_be_redirected_if_unauthenticated()
+    public function users_will_be_redirected_if_unauthenticated(): void
     {
         $response = $this->get('dashboard');
 
@@ -31,7 +30,7 @@ class AuthenticationTest extends TestCase
     }
 
     /** @test */
-    public function user_can_logout_over_auth_controller()
+    public function user_can_logout_over_auth_controller(): void
     {
         $user = User::factory()->create();
 
@@ -43,13 +42,12 @@ class AuthenticationTest extends TestCase
     }
 
     /** @test */
-    public function user_can_log_out_over_api()
+    public function user_can_log_out_over_api(): void
     {
-        $this->seed([TokenCacheProviderSeeder::class,UserAzureSeeder::class]);
+        $this->seed([TokenCacheProviderSeeder::class, UserAzureSeeder::class]);
 
         $user = User::first();
 
         $this->actingAs($user)->post(route('logout'))->assertRedirect('/');
     }
-
 }

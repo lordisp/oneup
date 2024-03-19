@@ -22,10 +22,14 @@ use Livewire\Component;
  */
 class Provider extends Component
 {
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions;
+    use WithBulkActions, WithFilteredColumns, WithPerPagePagination, WithSorting;
 
     public array $client = [];
-    public string $search = '', $type = '';
+
+    public string $search = '';
+
+    public string $type = '';
+
     public TokenCacheProvider $provider;
 
     protected $rules = [
@@ -38,17 +42,18 @@ class Provider extends Component
         'client.client_secret' => 'required|string|min:16',
         'client.resource' => 'required_without:client.scope|active_url',
         'client.scope' => 'required_without:client.resource|min:3',
-        'type' => 'required'
+        'type' => 'required',
     ];
 
-    public function mount(){
-        $this->provider=TokenCacheProvider::make();
+    public function mount()
+    {
+        $this->provider = TokenCacheProvider::make();
     }
 
     public function openCreateModal()
     {
         $this->provider = TokenCacheProvider::make();
-        $this->reset('client','type');
+        $this->reset('client', 'type');
         $this->dispatchBrowserEvent('open-modal', ['modal' => 'create']);
     }
 
@@ -76,7 +81,6 @@ class Provider extends Component
         $this->event('Saved', 'success');
     }
 
-
     public function deleteModal($id = null)
     {
         $id = isset($id) ? (is_array($id) ? $id : [$id]) : $this->selected;
@@ -87,7 +91,6 @@ class Provider extends Component
             $this->event(__('messages.delete_error', ['attribute' => 'Provider']), 'error');
         }
     }
-
 
     public function deleteProvider(Request $request)
     {
@@ -108,7 +111,6 @@ class Provider extends Component
         $this->resetBulk();
         $this->resetPage();
     }
-
 
     public function closeModal()
     {
@@ -131,13 +133,13 @@ class Provider extends Component
 
     public function withQuery($query)
     {
-        return $query->when($this->search, fn($query, $search) => $query
-            ->where('name', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('id', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('auth_url', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('token_url', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('auth_endpoint', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('client', 'like', '%' . Str::of($search)->trim() . '%')
+        return $query->when($this->search, fn ($query, $search) => $query
+            ->where('name', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('id', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('auth_url', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('token_url', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('auth_endpoint', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('client', 'like', '%'.Str::of($search)->trim().'%')
         );
     }
 

@@ -6,11 +6,11 @@ use InvalidArgumentException;
 
 /**
  * It validates the provided properties for use of the azure graph api to get specific user properties
+ *
  * @link  https://learn.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0#properties
  */
 class UserProperties
 {
-
     protected string $properties;
 
     protected array $validProperties = [
@@ -98,7 +98,7 @@ class UserProperties
         }
 
         foreach ($properties as $property) {
-            if (!in_array($property, $this->validProperties)) {
+            if (! in_array($property, $this->validProperties)) {
                 throw new InvalidArgumentException(sprintf('"%s" property is not allowed. For more information, please visit: https://learn.microsoft.com/en-us/graph/api/resources/user?view=graph-rest-1.0#properties', $property));
             }
         }
@@ -111,7 +111,3 @@ class UserProperties
         return $this->properties;
     }
 }
-
-
-
-

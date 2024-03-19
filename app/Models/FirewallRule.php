@@ -11,7 +11,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 
-
 /**
  * @property mixed $request
  */
@@ -41,13 +40,16 @@ class FirewallRule extends Model
         'business_service_id',
     ];
 
-    protected $casts = [
-        'end_date' => 'datetime',
-        'last_review' => 'datetime',
-        'destination' => 'json',
-        'source' => 'json',
-        'destination_port' => 'json',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'end_date' => 'datetime',
+            'last_review' => 'datetime',
+            'destination' => 'json',
+            'source' => 'json',
+            'destination_port' => 'json',
+        ];
+    }
 
     public function request(): BelongsTo
     {
@@ -72,7 +74,7 @@ class FirewallRule extends Model
     public function statusName(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => [
+            get: fn ($value) => [
                 'review' => __('lines.statuses.status'),
                 'extended' => __('lines.statuses.extended'),
                 'deleted' => __('lines.statuses.deleted'),
@@ -84,7 +86,7 @@ class FirewallRule extends Model
     public function expires(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => [
+            get: fn ($value) => [
                 'Yes' => 'never',
                 'No' => $this->end_date->format('d.m.Y'),
             ][$this->no_expiry] ?? '',
@@ -94,7 +96,7 @@ class FirewallRule extends Model
     public function lastStatusName(): Attribute
     {
         return Attribute::make(
-            get: fn() => [
+            get: fn () => [
                 'review' => __('lines.statuses.status'),
                 'extended' => __('lines.statuses.extended'),
                 'deleted' => __('lines.statuses.deleted'),
@@ -103,19 +105,18 @@ class FirewallRule extends Model
         );
     }
 
-
     public function businessServiceName(): Attribute
     {
         return Attribute::make(
-            get: fn() => cache()->rememberForever("business_service_name-{$this->id}",
-                fn() => $this->businessService()->get('name')->first()->name),
+            get: fn () => cache()->rememberForever("business_service_name-{$this->id}",
+                fn () => $this->businessService()->get('name')->first()->name),
         );
     }
 
     public function statusBackground(): Attribute
     {
         return Attribute::make(
-            get: fn() => [
+            get: fn () => [
                 'open' => 'bg-gray-100',
                 'extended' => 'bg-green-100',
                 'deleted' => 'bg-red-100',
@@ -127,7 +128,7 @@ class FirewallRule extends Model
     public function statusText(): Attribute
     {
         return Attribute::make(
-            get: fn() => [
+            get: fn () => [
                 'open' => 'text-gray-500',
                 'extended' => 'text-green-500',
                 'deleted' => 'text-red-500',
@@ -138,11 +139,10 @@ class FirewallRule extends Model
 
     /**
      * Change the Status for PCI to 'review' if its value is unequal to `delete` and `last_review` is behind 6 months or `null`
-     * @return Attribute
      */
     public function newStatus(): Attribute
     {
-        return Attribute::make(fn() => $this->status != 'deleted' && $this->pci_dss
+        return Attribute::make(fn () => $this->status != 'deleted' && $this->pci_dss
             ? ($this->last_review <= now()->subQuarter() || $this->last_review == null
                 ? 'review'
                 : $this->status)
@@ -153,21 +153,21 @@ class FirewallRule extends Model
     public function pci(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->pci_dss ? 'Yes' : 'No',
+            get: fn () => $this->pci_dss ? 'Yes' : 'No',
         );
     }
 
     public function sourceString(): Attribute
     {
         return Attribute::make(
-            get: fn() => implode(', ', json_decode($this->source, true)),
+            get: fn () => implode(', ', json_decode($this->source, true)),
         );
     }
 
     public function destinationString(): Attribute
     {
         return Attribute::make(
-            get: fn() => implode(', ', json_decode($this->destination, true)),
+            get: fn () => implode(', ', json_decode($this->destination, true)),
         );
     }
 
@@ -179,15 +179,13 @@ class FirewallRule extends Model
 
     /**
      * Show only PCI Relevant values which where never reviewed or its last review is behind 6 Month.
-     * @param $query
-     * @return void
      */
     public function scopeReview($query, $pci = false, $all = false): void
     {
         $query->where(function ($query) use ($all, $pci) {
             $query->where('action', '=', 'add');
-            if (!$all) {
-                $query->where('pci_dss', '=', !$pci);
+            if (! $all) {
+                $query->where('pci_dss', '=', ! $pci);
             }
             $query->where('status', '!=', 'deleted');
             $query->where('end_date', '>', now());
@@ -201,8 +199,8 @@ class FirewallRule extends Model
 
     public function scopeForFirewallRequest($query)
     {
-        return $query->with(['businessService' => fn($request) => $request->select('id', 'name')])
-            ->select(['action', 'type_destination', 'destination', 'type_source', 'source', 'service', 'destination_port', 'description', 'no_expiry', 'end_date', 'pci_dss', 'nat_required', 'application_id', 'contact', 'business_purpose', 'business_service_id',])
+        return $query->with(['businessService' => fn ($request) => $request->select('id', 'name')])
+            ->select(['action', 'type_destination', 'destination', 'type_source', 'source', 'service', 'destination_port', 'description', 'no_expiry', 'end_date', 'pci_dss', 'nat_required', 'application_id', 'contact', 'business_purpose', 'business_service_id'])
             ->first();
     }
 
@@ -275,8 +273,8 @@ class FirewallRule extends Model
     public function scopeSearchBy($query, $terms = null)
     {
         collect(explode(' ', $terms))->filter()->each(function ($term) use ($query) {
-            $term = '%' . $term . '%';
-            $query->when($term, fn($query, $term) => $query
+            $term = '%'.$term.'%';
+            $query->when($term, fn ($query, $term) => $query
                 ->whereIn('service_now_request_id', ServiceNowRequest::query()
                     ->where('ritm_number', 'like', $term)
                     ->orWhere('subject', 'like', $term)
@@ -294,8 +292,8 @@ class FirewallRule extends Model
     public function scopeVisibleTo($query, $own = false)
     {
         if (auth()->user()->operations()->contains(
-                $this->updateOrCreate('serviceNow/firewall/request/readAll', 'Can read all firewall-requests')
-            ) && !$own) {
+            $this->updateOrCreate('serviceNow/firewall/request/readAll', 'Can read all firewall-requests')
+        ) && ! $own) {
             return;
         }
         $query->own();
@@ -304,14 +302,14 @@ class FirewallRule extends Model
     public function sourceStringShort($length = 80): Attribute
     {
         return Attribute::make(
-            get: fn() => Str::limit(implode(', ', json_decode($this->source, true)), $length),
+            get: fn () => Str::limit(implode(', ', json_decode($this->source, true)), $length),
         );
     }
 
     public function destinationStringShort($length = 80): Attribute
     {
         return Attribute::make(
-            get: fn() => Str::limit(implode(', ', json_decode($this->destination, true)), $length),
+            get: fn () => Str::limit(implode(', ', json_decode($this->destination, true)), $length),
         );
     }
 }

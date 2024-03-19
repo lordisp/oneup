@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 class UserIdTest extends TestCase
 {
     /** @test */
-    public function it_must_be_a_valid_uuid()
+    public function it_must_be_a_valid_uuid(): void
     {
         $userId = new UserId('87d349ed-44d7-43e1-9a83-5f2406dee5bd');
 
@@ -17,7 +17,7 @@ class UserIdTest extends TestCase
     }
 
     /** @test */
-    public function invalid_uuid_throws_exception()
+    public function invalid_uuid_throws_exception(): void
     {
         $this->expectException(InvalidArgumentException::class);
 

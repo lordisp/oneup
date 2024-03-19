@@ -9,15 +9,17 @@ use Tests\TestCase;
 class EnrollementApiTests extends TestCase
 {
     const billingAccountName = '82133742';
+
     const enrollmentAccountName = '287118';
 
     /**
      * Get Role-Assigment, associated to an Enrollment-Account
      * This is to figure out what service principals have been associated to a given Enrollment-Account
      * An Enrollment-Account is a personalized user account. The same account must be a local account in the target tenant. Guest account won't work.
+     *
      * @test
      */
-    public function billing_role_assignments_get_by_enrollment_account()
+    public function billing_role_assignments_get_by_enrollment_account(): void
     {
         $billingAccountName = self::billingAccountName;
         $enrollmentAccountName = self::enrollmentAccountName;
@@ -30,9 +32,10 @@ class EnrollementApiTests extends TestCase
     /**
      * Authorize a service-principal to programmatically provision subscription on behalf of an enrollment-account
      * The Enrollment account must be a local user account in the target tenant. Guest account won't work.
+     *
      * @test
      */
-    public function authorize_service_principal_for_managing_subscriptions()
+    public function authorize_service_principal_for_managing_subscriptions(): void
     {
         $token = env('TOKEN');
         $billingAccountName = self::billingAccountName; // Deutsche Lufthansa AG (82133742)
@@ -55,11 +58,10 @@ class EnrollementApiTests extends TestCase
         $this->assertEquals(200, $response->status());
     }
 
-
     /** @test */
-    public function list_subscription_by_service_principal()
+    public function list_subscription_by_service_principal(): void
     {
-        $url = "https://management.azure.com/providers/Microsoft.Subscription/operations?api-version=2021-10-01";
+        $url = 'https://management.azure.com/providers/Microsoft.Subscription/operations?api-version=2021-10-01';
         $response = Http::withToken($this->accessToken())->get($url);
         dd(
             $response->status(),
@@ -70,9 +72,10 @@ class EnrollementApiTests extends TestCase
     /**
      * @test
      * Create Azure Subscription
-     * @var string $workload Allowed values for Workload are Production and DevTest.
+     *
+     * @var string Allowed values for Workload are Production and DevTest.
      */
-    public function can_create_subscription_by_service_principal()
+    public function can_create_subscription_by_service_principal(): void
     {
         $displayName = 'LHG_SM_CAMISON_N';
         $workload = 'DevTest';
@@ -86,7 +89,7 @@ class EnrollementApiTests extends TestCase
                 'billingScope' => "/providers/Microsoft.Billing/BillingAccounts/{$billingAccount}/enrollmentAccounts/{$enrollmentAccount}",
                 'DisplayName' => $displayName,
                 'Workload' => $workload,
-            ]
+            ],
         ];
 
         $response = Http::withToken($this->accessToken())->put($url, $body);
@@ -108,8 +111,7 @@ class EnrollementApiTests extends TestCase
             'client_secret' => env('AZURE_TEST_CLIENT_SECRET'),
             'resource' => 'https://management.azure.com',
         ];
+
         return Http::asForm()->post($url, $body)->json('access_token');
     }
-
-
 }

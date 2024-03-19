@@ -17,7 +17,7 @@ class ServiceNowGroupMembersTest extends TestCase
     }
 
     /** @test */
-    public function returns_array_of_email_addresses_from_one_business_service()
+    public function returns_array_of_email_addresses_from_one_business_service(): void
     {
         $members = (new GroupMembers('LHG_AZUREFOUNDATION_P', 'Responsibles'))->handle();
 
@@ -27,7 +27,7 @@ class ServiceNowGroupMembersTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_unique_email_addresses_from_more_business_service()
+    public function it_returns_unique_email_addresses_from_more_business_service(): void
     {
         $members = (new GroupMembers(['LHG_SOAR_T', 'LHG_GAC_P', 'LHG_AZUREFOUNDATION_P'], 'Responsibles'))->handle();
 
@@ -37,7 +37,7 @@ class ServiceNowGroupMembersTest extends TestCase
     }
 
     /** @test */
-    public function returns_array_of_same_emails_from_api_and_cache()
+    public function returns_array_of_same_emails_from_api_and_cache(): void
     {
         $response = (new GroupMembers('LHG_GAC_P', 'Responsibles'))->handle();
 
@@ -50,7 +50,7 @@ class ServiceNowGroupMembersTest extends TestCase
     }
 
     /** @test */
-    public function it_trims_inactive_business_service_names()
+    public function it_trims_inactive_business_service_names(): void
     {
         cache()->flush();
 
@@ -63,9 +63,8 @@ class ServiceNowGroupMembersTest extends TestCase
         $this->assertEquals($response, $cache);
     }
 
-
     /** @test */
-    public function invalid_group_types_throw_an_http_exception()
+    public function invalid_group_types_throw_an_http_exception(): void
     {
         $this->expectException(\InvalidArgumentException::class);
 

@@ -16,7 +16,13 @@ class Pdns
 {
     use Token;
 
-    protected string $hub = 'lhg_arm', $spoke = 'lhg_arm', $subscriptionId, $resourceGroup;
+    protected string $hub = 'lhg_arm';
+
+    protected string $spoke = 'lhg_arm';
+
+    protected string $subscriptionId;
+
+    protected string $resourceGroup;
 
     protected array $recordType = ['A', 'AAAA', 'MX', 'PTR', 'SRV', 'TXT'];
 
@@ -36,7 +42,6 @@ class Pdns
         $this->resourceGroup = config('dnssync.resource_group');
     }
 
-
     /**
      * @throws DnsZonesException|\Throwable
      */
@@ -48,10 +53,11 @@ class Pdns
 
         if (empty($zones)) {
             Log::info("No zones found for {$this->spoke}");
+
             return;
         }
 
-        Log::debug(sprintf("Processing %s Zones for %s", count($zones), $this->spoke));
+        Log::debug(sprintf('Processing %s Zones for %s', count($zones), $this->spoke));
         $jobs = [];
 
         foreach ($zones as $zone) {
@@ -81,7 +87,7 @@ class Pdns
     protected function getReferenceZones(): array
     {
         return DnsSyncZone::query()
-            ->when($this->zones, fn($query) => $query->whereIn('name', $this->zones))
+            ->when($this->zones, fn ($query) => $query->whereIn('name', $this->zones))
             ->get()
             ->pluck('name')
             ->toArray();
@@ -96,23 +102,24 @@ class Pdns
                         info(sprintf("Retry 'Pdns::getZones' because of %s", $exception->response->reason()));
                     }
 
-                    if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                    if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
                         return true;
                     }
                     $request->withToken(decrypt($this->newToken($this->hub)));
+
                     return true;
                 }, false)
                 ->post(
                     'https://management.azure.com/providers/Microsoft.ResourceGraph/resources?api-version=2021-03-01',
-                    ["query" => sprintf(
-                        "resources | project  zones = pack_array(%s) | mv-expand zones to typeof(string) | join kind = innerunique ( resources | where type == \"microsoft.network/privatednszones\" and subscriptionId  != \"%s\" %s %s| project name, id, subscriptionId) on \$left.zones == \$right.name | project id",
+                    ['query' => sprintf(
+                        'resources | project  zones = pack_array(%s) | mv-expand zones to typeof(string) | join kind = innerunique ( resources | where type == "microsoft.network/privatednszones" and subscriptionId  != "%s" %s %s| project name, id, subscriptionId) on $left.zones == $right.name | project id',
                         $this->toString($this->getReferenceZones()),
                         $this->subscriptionId,
                         $this->getWithSubscriptionsQuery(),
                         $this->getSkippedSubscriptionsQuery()
                     )]
                 )
-                ->onError(fn($exception) => throw new DnsZonesException($exception->reason(), $exception->status()))
+                ->onError(fn ($exception) => throw new DnsZonesException($exception->reason(), $exception->status()))
                 ->json('data')
         );
     }
@@ -122,48 +129,55 @@ class Pdns
         $this->hub = $provider;
         $this->subscriptionId = $subscriptionId;
         $this->resourceGroup = $resourceGroup;
+
         return $this;
     }
 
     public function withSpoke(string $provider): static
     {
         $this->spoke = $provider;
+
         return $this;
     }
 
     public function withRecordType(string|array $type): static
     {
         $this->recordType = is_array($type) ? $type : [$type];
+
         return $this;
     }
 
     public function withZones(string|array $zones): static
     {
         $this->zones = is_array($zones) ? $zones : [$zones];
+
         return $this;
     }
 
     public function withSubscriptions(string|array $subscriptionIds): static
     {
-        $this->withSubscriptions = (array)$subscriptionIds;
+        $this->withSubscriptions = (array) $subscriptionIds;
+
         return $this;
     }
 
     public function skipSubscriptions(string|array $subscriptionIds): static
     {
         $this->skippedSubscriptions = is_array($subscriptionIds) ? $subscriptionIds : [$subscriptionIds];
+
         return $this;
     }
 
     public function skipZonesForValidation(string|array $zones): static
     {
         $this->skippedZonesForValidation = is_array($zones) ? $zones : [$zones];
+
         return $this;
     }
 
     protected function toString(array $array): string
     {
-        return '"' . implode('","', $array) . '"';
+        return '"'.implode('","', $array).'"';
     }
 
     protected function tokenProvider(): string
@@ -173,14 +187,14 @@ class Pdns
 
     protected function getWithSubscriptionsQuery(): ?string
     {
-        return !empty($this->withSubscriptions)
+        return ! empty($this->withSubscriptions)
             ? Normalize::withSubscriptionsQuery($this->withSubscriptions)
             : null;
     }
 
     protected function getSkippedSubscriptionsQuery(): ?string
     {
-        return !empty($this->skippedSubscriptions)
+        return ! empty($this->skippedSubscriptions)
             ? Normalize::skippedSubscriptionsQuery($this->skippedSubscriptions)
             : null;
     }

@@ -15,41 +15,39 @@ class GroupPolicy
     /**
      * Determine whether the user can view any models.
      *
-     * @param \App\Models\User $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
-        return $user->operations()->contains($this->updateOrCreate('admin/rbac/group/readAll', 'Can read all groups',));
+        return $user->operations()->contains($this->updateOrCreate('admin/rbac/group/readAll', 'Can read all groups'));
     }
 
     /**
      * Determine whether the user can view the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Group $group
+     * @param  \App\Models\Group  $group
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user)
+    public function view(User $user): bool
     {
         $owners = [];
         $groups = cache()->tags('rbac')->remember('groups', 3600, function () {
             return Group::all();
         });
         foreach ($groups as $item) {
-            $owners[] = cache()->tags('rbac')->remember($user->id . $item->id, 3600, fn() => $item->owners()->pluck('id')->flatten()->toArray());
+            $owners[] = cache()->tags('rbac')->remember($user->id.$item->id, 3600, fn () => $item->owners()->pluck('id')->flatten()->toArray());
         }
-        return $user->operations()->contains($this->updateOrCreate('admin/rbac/group/readAll', 'Can read all groups',))
+
+        return $user->operations()->contains($this->updateOrCreate('admin/rbac/group/readAll', 'Can read all groups'))
             || in_array($user->id, Arr::flatten($owners));
     }
 
     /**
      * Determine whether the user can create models.
      *
-     * @param \App\Models\User $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/group/create', 'Can create a group')
@@ -59,11 +57,9 @@ class GroupPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Group $group
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Group $group)
+    public function update(User $user, Group $group): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/group/update', 'Can update groups')
@@ -73,11 +69,10 @@ class GroupPolicy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Group $group
+     * @param  \App\Models\Group  $group
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user/*, Collection|Group|null $group*/)
+    public function delete(User $user/*, Collection|Group|null $group*/): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/group/delete', 'Can delete groups')
@@ -113,33 +108,30 @@ class GroupPolicy
             $this->updateOrCreate('admin/rbac/group/detachRoles', 'Can detach roles from a group')
         );
 
-
     }
 
     public function attachOwners(User $user, Group $group): bool
     {
         return $user->operations()->contains(
-                $this->updateOrCreate('admin/rbac/group/attachOwners', 'Can add owners to groups')
-            )
+            $this->updateOrCreate('admin/rbac/group/attachOwners', 'Can add owners to groups')
+        )
             || in_array($user->id, $group->owners()->pluck('id')->flatten()->toArray());
     }
 
     public function detachOwners(User $user, Group $group): bool
     {
         return $user->operations()->contains(
-                $this->updateOrCreate('admin/rbac/group/detachOwners', 'Can remove owners from groups')
-            )
+            $this->updateOrCreate('admin/rbac/group/detachOwners', 'Can remove owners from groups')
+        )
             || in_array($user->id, $group->owners()->pluck('id')->flatten()->toArray());
     }
 
     /**
      * Determine whether the user can restore the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Group $group
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, Group $group)
+    public function restore(User $user, Group $group): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/group/restore', 'Can restore groups')
@@ -149,11 +141,9 @@ class GroupPolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Group $group
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, Group $group)
+    public function forceDelete(User $user, Group $group): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/group/forceDelete', 'Can force-delete groups')

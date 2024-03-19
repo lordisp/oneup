@@ -18,8 +18,7 @@ use Illuminate\Support\Facades\Validator;
 
 class QueryZoneRecords implements ShouldQueue
 {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, DeveloperNotification;
-
+    use Batchable, DeveloperNotification, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
     use Token;
 
     protected array $attributes;
@@ -60,15 +59,16 @@ class QueryZoneRecords implements ShouldQueue
                 Log::info('Skipping wildcard record', [
                     'Trigger' => 'PdnsQueryZoneRecordsJob',
                     'Resource' => $this->attributes['zone'],
-                    'record' => $record
+                    'record' => $record,
                 ]);
+
                 return;
             }
             if ($this->isRecordType($record)) {
 
                 $type = basename($record['type']);
 
-                $this->attributes['uri'] = 'https://management.azure.com/subscriptions/' . $this->attributes['subscriptionId'] . '/resourceGroups/' . $this->attributes['resourceGroup'] . '/providers/Microsoft.Network/privateDnsZones/' . $zoneName . '/' . $type . '/' . $record['name'] . '?api-version=2018-09-01';
+                $this->attributes['uri'] = 'https://management.azure.com/subscriptions/'.$this->attributes['subscriptionId'].'/resourceGroups/'.$this->attributes['resourceGroup'].'/providers/Microsoft.Network/privateDnsZones/'.$zoneName.'/'.$type.'/'.$record['name'].'?api-version=2018-09-01';
 
                 $this->attributes['message'] = "Update {$type} record {$record['name']} from {$spokeSubscriptionId} to {$this->attributes['subscriptionId']}";
 
@@ -77,7 +77,7 @@ class QueryZoneRecords implements ShouldQueue
                 $jobs[] = new UpdateRecordJob($this->attributes);
             } else {
                 if (basename($record['type']) != 'SOA') {
-                    Log::info(sprintf("Skipping record from spoke %s", $this->attributes['spoke']), [
+                    Log::info(sprintf('Skipping record from spoke %s', $this->attributes['spoke']), [
                         'Trigger' => 'PdnsQueryZoneRecordsJob',
                         'Resource' => $this->attributes['zone'],
                         'Record' => $record,
@@ -97,7 +97,7 @@ class QueryZoneRecords implements ShouldQueue
                 ->name('records')
                 ->dispatch();
 
-            Log::info(sprintf("Updating %s records for %s", count($jobs), $this->attributes['zone']), [
+            Log::info(sprintf('Updating %s records for %s', count($jobs), $this->attributes['zone']), [
                 'Trigger' => 'PdnsQueryZoneRecordsJob',
                 'Resource' => $this->attributes['zone'],
                 'Jobs' => count($jobs),
@@ -107,7 +107,7 @@ class QueryZoneRecords implements ShouldQueue
             return;
         }
 
-        Log::info(sprintf("No records found for %s", basename($this->attributes['zone'])), [
+        Log::info(sprintf('No records found for %s', basename($this->attributes['zone'])), [
             'Trigger' => 'PdnsQueryZoneRecordsJob',
             'Resource' => $this->attributes['zone'],
         ]);
@@ -120,16 +120,17 @@ class QueryZoneRecords implements ShouldQueue
 
     protected function getRecords(): array
     {
-        return (array)Http::withToken(decrypt($this->attributes['spoke_token']))
+        return (array) Http::withToken(decrypt($this->attributes['spoke_token']))
             ->retry(100, 10, function ($exception, $request) {
-                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
                 }
                 $request->withToken(decrypt($this->token($this->attributes['spoke'])));
+
                 return true;
             }, throw: false)
-            ->get('https://management.azure.com' . $this->attributes['zone'] . '/ALL?api-version=2018-09-01&$top=1000')
-            ->onError(fn() => [])
+            ->get('https://management.azure.com'.$this->attributes['zone'].'/ALL?api-version=2018-09-01&$top=1000')
+            ->onError(fn () => [])
             ->json('value');
     }
 

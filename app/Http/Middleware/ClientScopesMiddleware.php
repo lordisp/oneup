@@ -5,15 +5,17 @@ namespace App\Http\Middleware;
 use App\Models\Passport\Client;
 use Closure;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class ClientScopesMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         if ($this->isClientCredentialsGrant($request)) {
             $clientScopes = $this->validateClientScopes($request);
             if (count($clientScopes) > 0) {
                 $request->request->set('scope', implode(' ', $clientScopes));
+
                 return $next($request);
             }
         }
@@ -27,7 +29,7 @@ class ClientScopesMiddleware
             ? $this->getAllApprovedScopesFromCurrentClient($request)
             : $this->getScopesFromRequest($request);
 
-        return !empty($scopes)
+        return ! empty($scopes)
             ? Client::whereId($request->get('client_id'))
                 ->whereRelation('approvedClientScopes', function ($query) use ($scopes) {
                     foreach ($scopes as $scope) {

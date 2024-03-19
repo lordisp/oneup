@@ -11,13 +11,21 @@ use Livewire\Component;
 
 class Avatar extends Component
 {
-    use Token, HttpRetryConditions;
+    use HttpRetryConditions, Token;
 
     const PROVIDER = 'lhg_graph';
 
     public $userId;
-    public string $class = '', $alt = '', $size = '48x48';
-    public bool $isLoaded = false, $noCache = false;
+
+    public string $class = '';
+
+    public string $alt = '';
+
+    public string $size = '48x48';
+
+    public bool $isLoaded = false;
+
+    public bool $noCache = false;
 
     public function loadAvatar(): void
     {
@@ -26,12 +34,10 @@ class Avatar extends Component
 
     /**
      * Get the avatar image
-     *
-     * @return string
      */
     public function getAvatarProperty(): string
     {
-        if (!$this->noCache) {
+        if (! $this->noCache) {
             $avatar = cache()->tags([$this->userId])->get('avatar');
 
             if (is_string($avatar)) {
@@ -48,39 +54,35 @@ class Avatar extends Component
     /**
      * Call the API to fetch the avatar image.
      *
-     * @return string
      * @throws MsGraphException
      */
     protected function callAvatarApi(): string
     {
         $this->isLoaded = true;
 
-        if (!isset($this->userId)) {
+        if (! isset($this->userId)) {
             return $this->generateFallbackAvatar();
         }
 
-        $body = MsGraph::get(sprintf("/users/%s/photos/%s/\$value", $this->userId, $this->size))->body();
+        $body = MsGraph::get(sprintf('/users/%s/photos/%s/$value', $this->userId, $this->size))->body();
 
         return Str::contains($body, 'error')
             ? $this->generateFallbackAvatar()
-            : 'data:image/jpeg;base64,' . base64_encode($body);
+            : 'data:image/jpeg;base64,'.base64_encode($body);
     }
 
     /**
      * Generate a fallback avatar URL based on user's alternative text.
-     *
-     * @return string
      */
     protected function generateFallbackAvatar(): string
     {
         $alt = str_replace(['(', ')', '-', '#', '_', 'Extern'], '', $this->alt);
-        return 'https://ui-avatars.com/api/?name=' . urlencode($alt) . '&color=7F9CF5&background=random';
+
+        return 'https://ui-avatars.com/api/?name='.urlencode($alt).'&color=7F9CF5&background=random';
     }
 
     /**
      * Render the component.
-     *
-     * @return string
      */
     public function render(): string
     {

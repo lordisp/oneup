@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use App\Traits\Uuid;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -24,7 +23,10 @@ class TokenCacheProvider extends Model
         'client',
     ];
 
-    protected $casts = [
-        'client' => 'json'
-    ];
+    protected function casts(): array
+    {
+        return [
+            'client' => 'json',
+        ];
+    }
 }

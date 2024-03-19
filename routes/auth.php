@@ -12,7 +12,7 @@ Route::middleware('guest')->group(function () {
 
     Route::get('callback', [AuthenticatedOidcController::class, 'callback'])->name('callback');
 
-//    Route::post('login', [AuthenticatedSessionController::class, 'store']);
+    //    Route::post('login', [AuthenticatedSessionController::class, 'store']);
 
 });
 

@@ -17,5 +17,4 @@ namespace App\Facades;
  */
 class Redis extends \Illuminate\Support\Facades\Redis
 {
-
 }

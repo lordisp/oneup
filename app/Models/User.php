@@ -14,7 +14,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Laravel\Passport\HasApiTokens;
 
-
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, Uuid;
@@ -46,13 +45,16 @@ class User extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
+     * Get the attributes that should be cast.
      *
-     * @var array<string, string>
+     * @return array<string, string>
      */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'email_verified_at' => 'datetime',
+        ];
+    }
 
     public function audits(): MorphMany
     {
@@ -62,16 +64,16 @@ class User extends Authenticatable
     public function firstName(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => Str::title($value),
-            set: fn($value) => Str::title($value),
+            get: fn ($value) => Str::title($value),
+            set: fn ($value) => Str::title($value),
         );
     }
 
     public function lastName(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => Str::title($value),
-            set: fn($value) => Str::title($value),
+            get: fn ($value) => Str::title($value),
+            set: fn ($value) => Str::title($value),
         );
     }
 
@@ -174,6 +176,7 @@ class User extends Authenticatable
         if ($rules) {
             return $rules->exists;
         }
+
         return false;
     }
 

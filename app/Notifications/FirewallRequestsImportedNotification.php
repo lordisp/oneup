@@ -24,8 +24,9 @@ class FirewallRequestsImportedNotification extends Notification implements Shoul
 
     public function toMail($notifiable): MailMessage
     {
-        $duration = (string)CarbonInterval::make($this->event['createdAt']->diff($this->event['finishedAt']));
+        $duration = (string) CarbonInterval::make($this->event['createdAt']->diff($this->event['finishedAt']));
         $firstName = Str::title($notifiable->firstName);
+
         return (new MailMessage)
             ->greeting("Hello {$firstName}!")
             ->line("{$this->event['totalJobs']} Firewall-Requests have been imported or updated in {$duration}.")

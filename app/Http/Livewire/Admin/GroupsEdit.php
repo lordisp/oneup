@@ -26,32 +26,46 @@ use Livewire\Component;
  */
 class GroupsEdit extends Component
 {
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch, WithRbacCache;
+    use WithBulkActions, WithFilteredColumns, WithPerPagePagination, WithRbacCache, WithSearch, WithSorting;
 
     // WithEditPage
     public Model $edit;
+
     public string $rowId;
 
-
     public string $tab;
-    public $searchMember, $checkbox;
+
+    public $searchMember;
+
+    public $checkbox;
+
     public int $paginate = 5;
+
     public bool $active = false;
 
     public array|Collection $results;
+
     public array $selectedResults = [];
 
     public function mount()
     {
-        if (empty($this->rowId)) $this->rowId = request()->route('id');
+        if (empty($this->rowId)) {
+            $this->rowId = request()->route('id');
+        }
 
         $this->setEdit(Group::make(), $this->rowId);
 
-        if (!Gate::any(['group-update', 'group-read'], $this->edit)) abort(403);
+        if (! Gate::any(['group-update', 'group-read'], $this->edit)) {
+            abort(403);
+        }
 
-        if (Gate::denies('group-detach-members', $this->edit)) $this->active = false;
+        if (Gate::denies('group-detach-members', $this->edit)) {
+            $this->active = false;
+        }
 
-        if (empty($this->tab)) $this->tab = request()->route('tab');
+        if (empty($this->tab)) {
+            $this->tab = request()->route('tab');
+        }
     }
 
     public function updatedSelected()
@@ -62,7 +76,7 @@ class GroupsEdit extends Component
             ? false
             : $this->selectPage;
 
-        $this->active = Gate::any(['group-attach-members', 'group-detach-members'], $this->edit) && !empty($this->selected);
+        $this->active = Gate::any(['group-attach-members', 'group-detach-members'], $this->edit) && ! empty($this->selected);
     }
 
     //WithEditPage
@@ -94,33 +108,39 @@ class GroupsEdit extends Component
 
         $this->results = match ($this->tab) {
             'members' => User::where(function ($query) {
-                $query->where('email', 'like', '%' . $this->search . '%')
-                    ->orwhere('displayName', 'like', '%' . $this->search . '%');
+                $query->where('email', 'like', '%'.$this->search.'%')
+                    ->orwhere('displayName', 'like', '%'.$this->search.'%');
             })
                 ->where(function ($query) use ($selected) {
                     $query->whereNotIn('id', $this->edit->users()->pluck('id')->toArray());
-                    if (isset($selected)) $query->whereNotIn('id', $selected);
+                    if (isset($selected)) {
+                        $query->whereNotIn('id', $selected);
+                    }
                 })
                 ->select(['id', 'email', 'displayName', 'firstName', 'lastName', 'avatar'])
                 ->get(),
             'owners' => User::where(function ($query) {
-                $query->where('email', 'like', '%' . $this->search . '%')
-                    ->orwhere('displayName', 'like', '%' . $this->search . '%');
+                $query->where('email', 'like', '%'.$this->search.'%')
+                    ->orwhere('displayName', 'like', '%'.$this->search.'%');
             })
                 ->where(function ($query) use ($selected) {
                     $query->whereNotIn('id', $this->edit->owners()->pluck('id')->toArray());
-                    if (isset($selected)) $query->whereNotIn('id', $selected);
+                    if (isset($selected)) {
+                        $query->whereNotIn('id', $selected);
+                    }
                 })
                 ->select(['id', 'email', 'displayName', 'firstName', 'lastName', 'avatar'])
                 ->get(),
 
             'roles' => Role::where(function ($query) {
-                $query->where('name', 'like', '%' . $this->search . '%')
-                    ->orwhere('description', 'like', '%' . $this->search . '%');
+                $query->where('name', 'like', '%'.$this->search.'%')
+                    ->orwhere('description', 'like', '%'.$this->search.'%');
             })
                 ->where(function ($query) use ($selected) {
                     $query->whereNotIn('id', $this->edit->roles()->pluck('id')->toArray());
-                    if (isset($selected)) $query->whereNotIn('id', $selected);
+                    if (isset($selected)) {
+                        $query->whereNotIn('id', $selected);
+                    }
                 })
                 ->select(['id', 'name', 'description'])
                 ->get(),
@@ -151,7 +171,7 @@ class GroupsEdit extends Component
                 if (Gate::allows('group-attach-members', $this->edit)) {
                     $this->edit->attachUsers(array_unique($ids));
                     $this->clearSideOver();
-                    $this->event(Str::ucfirst(count(array_unique($ids)) > 1 ? Str::plural($this->tab) . ' have ' : Str::singular($this->tab) . ' has ') . 'been assigned!', 'success');
+                    $this->event(Str::ucfirst(count(array_unique($ids)) > 1 ? Str::plural($this->tab).' have ' : Str::singular($this->tab).' has ').'been assigned!', 'success');
                 } else {
                     $this->notAllowed();
                 }
@@ -160,7 +180,7 @@ class GroupsEdit extends Component
                 if (Gate::allows('group-attach-roles')) {
                     $this->edit->attachRoles(array_unique($ids));
                     $this->clearSideOver();
-                    $this->event(Str::ucfirst(count(array_unique($ids)) > 1 ? Str::plural($this->tab) . ' have ' : Str::singular($this->tab) . ' has ') . 'been assigned!', 'success');
+                    $this->event(Str::ucfirst(count(array_unique($ids)) > 1 ? Str::plural($this->tab).' have ' : Str::singular($this->tab).' has ').'been assigned!', 'success');
                 } else {
                     $this->notAllowed();
                 }
@@ -169,7 +189,7 @@ class GroupsEdit extends Component
                 if (Gate::allows('group-attach-owners', $this->edit)) {
                     $this->edit->attachOwners(array_unique($ids));
                     $this->clearSideOver();
-                    $this->event(Str::ucfirst(count(array_unique($ids)) > 1 ? Str::plural($this->tab) . ' have ' : Str::singular($this->tab) . ' has ') . 'been assigned!', 'success');
+                    $this->event(Str::ucfirst(count(array_unique($ids)) > 1 ? Str::plural($this->tab).' have ' : Str::singular($this->tab).' has ').'been assigned!', 'success');
                 } else {
                     $this->notAllowed();
                 }
@@ -191,7 +211,9 @@ class GroupsEdit extends Component
 
     public function detach()
     {
-        if (Gate::denies('group-detach-members', [$this->edit])) abort(403);
+        if (Gate::denies('group-detach-members', [$this->edit])) {
+            abort(403);
+        }
         switch ($this->tab) {
             case 'members':
                 $this->edit->detachUsers($this->selected);
@@ -204,32 +226,29 @@ class GroupsEdit extends Component
                 }
                 $this->edit->detachOwners($this->selected);
                 break;
-            case
-            'roles':
+            case 'roles':
                 $this->edit->unassignRole($this->selected);
                 break;
         }
-        if (!$this->dispatchQueue) {
+        if (! $this->dispatchQueue) {
             $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
-            $this->event('Successfully removed selected ' . Str::ucfirst($this->tab) . '!', 'success');
+            $this->event('Successfully removed selected '.Str::ucfirst($this->tab).'!', 'success');
             $this->flushRbacCache();
         }
         $this->clearSideOver();
     }
 
-    public
-    function withQuery($query)
+    public function withQuery($query)
     {
-        return $this->tab == 'roles' ? $query->when($this->search, fn($query, $search) => $query
-            ->where('name', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('description', 'like', '%' . Str::of($search)->trim() . '%'))
-            : $query->when($this->search, fn($query, $search) => $query
-                ->where('displayName', 'like', '%' . Str::of($search)->trim() . '%')
-                ->orWhere('email', 'like', '%' . Str::of($search)->trim() . '%'));
+        return $this->tab == 'roles' ? $query->when($this->search, fn ($query, $search) => $query
+            ->where('name', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('description', 'like', '%'.Str::of($search)->trim().'%'))
+            : $query->when($this->search, fn ($query, $search) => $query
+                ->where('displayName', 'like', '%'.Str::of($search)->trim().'%')
+                ->orWhere('email', 'like', '%'.Str::of($search)->trim().'%'));
     }
 
-    public
-    function getQueryRowsProperty()
+    public function getQueryRowsProperty()
     {
         $query = $this->withQuery($this->rows);
 
@@ -237,7 +256,6 @@ class GroupsEdit extends Component
 
         return ($query instanceof Collection) ? $query : $this->applyPagination($query);
     }
-
 
     public function getRowsProperty(): Collection|BelongsToMany
     {
@@ -258,7 +276,7 @@ class GroupsEdit extends Component
     public function render()
     {
         return view('livewire.admin.groups-edit', [
-            'rows' => $this->queryRows
+            'rows' => $this->queryRows,
         ]);
     }
 }

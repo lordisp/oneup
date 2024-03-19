@@ -16,13 +16,17 @@ class Policy
 
     ];
 
-    static function gateDenies(string $ability, $arguments = []): void
+    public static function gateDenies(string $ability, $arguments = []): void
     {
-        if (Gate::denies($ability, auth()->user())) abort(403);
+        if (Gate::denies($ability, auth()->user())) {
+            abort(403);
+        }
     }
 
-    static function gateAnyDenies(array $abilities): void
+    public static function gateAnyDenies(array $abilities): void
     {
-        if (Gate::any($abilities, auth()->user())) abort(403);
+        if (Gate::any($abilities, auth()->user())) {
+            abort(403);
+        }
     }
 }

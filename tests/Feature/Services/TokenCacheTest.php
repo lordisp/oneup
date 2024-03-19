@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 class TokenCacheTest extends TestCase
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -20,10 +20,10 @@ class TokenCacheTest extends TestCase
     }
 
     /** @test */
-    public function can_acquire_an_access_token()
+    public function can_acquire_an_access_token(): void
     {
         Http::fake([
-            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/stubs/provider_lhg_arm_token_response.json'), true))
+            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/provider_lhg_arm_token_response.json'), true)),
         ]);
         $token = TokenCache::provider('lhg_arm')->get();
         $this->assertIsString($token);
@@ -32,24 +32,24 @@ class TokenCacheTest extends TestCase
     }
 
     /** @test */
-    public function can_disable_token_encryption()
+    public function can_disable_token_encryption(): void
     {
         Http::fake([
-            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/stubs/provider_lhg_arm_token_response.json'), true))
+            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/provider_lhg_arm_token_response.json'), true)),
         ]);
 
         $token = TokenCache::provider('lhg_arm')->withoutEncryption()->get();
         $token = TokenCache::jwt($token);
 
-        $this->assertArrayHasKey('aud',$token);
-        $this->assertArrayHasKey('appid',$token);
+        $this->assertArrayHasKey('aud', $token);
+        $this->assertArrayHasKey('appid', $token);
     }
 
     /** @test */
-    public function can_reuse_a_token()
+    public function can_reuse_a_token(): void
     {
         Http::fake([
-            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/stubs/provider_lhg_arm_token_response.json'), true))
+            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/provider_lhg_arm_token_response.json'), true)),
         ]);
         $first = TokenCache::provider('lhg_arm')->get();
         $second = TokenCache::provider('lhg_arm')->get();
@@ -57,10 +57,10 @@ class TokenCacheTest extends TestCase
     }
 
     /** @test */
-    public function can_acquire_an_azure_arm_token()
+    public function can_acquire_an_azure_arm_token(): void
     {
         Http::fake([
-            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/stubs/provider_lhg_arm_token_response.json'), true))
+            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/provider_lhg_arm_token_response.json'), true)),
         ]);
         $instance = TokenCache::provider('lhg_arm');
         $this->assertEquals('lhg_arm', $this->accessProtected($instance, 'provider'));
@@ -68,12 +68,12 @@ class TokenCacheTest extends TestCase
     }
 
     /** @test */
-    public function can_acquire_token_from_different_providers()
+    public function can_acquire_token_from_different_providers(): void
     {
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::sequence()
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/provider_lhg_arm_token_response.json'), true))
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/provider_lhgtest_arm_token_response.json'), true)),
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/provider_lhg_arm_token_response.json'), true))
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/provider_lhgtest_arm_token_response.json'), true)),
         ]);
         $first = TokenCache::provider('lhtest_arm')->get();
         $second = TokenCache::provider('lhg_graph')->get();

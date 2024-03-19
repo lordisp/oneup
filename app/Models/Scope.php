@@ -15,7 +15,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class Scope extends Model
 {
-    use Uuid, HasSlug, HasFactory;
+    use HasFactory, HasSlug, Uuid;
 
     protected $fillable = [
         'scope',
@@ -30,7 +30,7 @@ class Scope extends Model
 
     public function clients(): BelongsToMany
     {
-        return $this->belongsToMany(Client::class,'oauth_client_scope','oauth_client_id','scope_id')
-            ->withPivot(['approved_at','approved_by']);
+        return $this->belongsToMany(Client::class, 'oauth_client_scope', 'oauth_client_id', 'scope_id')
+            ->withPivot(['approved_at', 'approved_by']);
     }
 }

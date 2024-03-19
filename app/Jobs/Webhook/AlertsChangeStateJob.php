@@ -21,31 +21,32 @@ class AlertsChangeStateJob implements ShouldQueue
         public string $alertState,
         public string $scope,
         public string $comment = ''
-    )
-    {
+    ) {
     }
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $provider = 'lhg_arm';
         $alertId = basename($this->alertId);
-        $url = 'https://management.azure.com/' . $this->scope . '/providers/Microsoft.AlertsManagement/alerts/' . $alertId . '/changestate?api-version=2019-03-01&newState=' . $this->alertState;
+        $url = 'https://management.azure.com/'.$this->scope.'/providers/Microsoft.AlertsManagement/alerts/'.$alertId.'/changestate?api-version=2019-03-01&newState='.$this->alertState;
         $response = Http::withToken(decrypt($this->token($provider)))
             ->retry(20, 200, function ($exception, $request) use ($provider) {
-                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
                     return false;
                 }
                 $request->withToken($this->token($provider));
+
                 return true;
             }, throw: false)
             ->post($url, ['comment' => $this->comment]);
-        if ($response->status() === 200) Log::debug('Close alert with the Id: ' . $response->json('id'));
-        if ($response->failed()) Log::error(data_get($response->json('error'), 'message'));
+        if ($response->status() === 200) {
+            Log::debug('Close alert with the Id: '.$response->json('id'));
+        }
+        if ($response->failed()) {
+            Log::error(data_get($response->json('error'), 'message'));
+        }
     }
-
 }

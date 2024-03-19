@@ -17,16 +17,16 @@ class UserFactory extends Factory
      *
      * @return array<string, mixed>
      */
-    public function definition()
+    public function definition(): array
     {
 
         return [
-            'firstName' => $this->faker->firstName,
-            'lastName' => $this->faker->lastName,
-            'displayName' => $this->faker->name,
+            'firstName' => $this->faker->firstName(),
+            'lastName' => $this->faker->lastName(),
+            'displayName' => $this->faker->name(),
             'provider_id' => $this->faker->unique()->uuid(),
             'provider' => 'oneup_aad',
-            'email' => $this->faker->unique()->safeEmail,
+            'email' => $this->faker->unique()->safeEmail(),
         ];
     }
 

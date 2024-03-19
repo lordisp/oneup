@@ -15,10 +15,9 @@ class FirewallRequestsRule implements InvokableRule
     /**
      * Run the validation rule.
      *
-     * @param string $attribute
-     * @param mixed $attachments
-     * @param Closure(string): \Illuminate\Translation\PotentiallyTranslatedString $fail
-     * @return void
+     * @param  string  $attribute
+     * @param  mixed  $attachments
+     * @param  Closure(string): \Illuminate\Translation\PotentiallyTranslatedString  $fail
      */
     public function __invoke($attribute, $attachments, $fail): void
     {
@@ -28,37 +27,27 @@ class FirewallRequestsRule implements InvokableRule
 
             $rows = $this->getRows($contents, $fail, $attribute);
 
-            foreach ($rows as $row) if (!Arr::has((array)$row, [
-                'RITMNumber', 'Subject',
-                'opened_by', 'tag', 'rules',
-            ])) $this->extracted($fail, $attribute, 'is missing mandatory attributes.');
+            foreach ($rows as $row) {
+                if (! Arr::has((array) $row, [
+                    'RITMNumber', 'Subject',
+                    'opened_by', 'tag', 'rules',
+                ])) {
+                    $this->extracted($fail, $attribute, 'is missing mandatory attributes.');
+                }
+            }
         }
     }
 
-    /**
-     * @param string $attribute
-     * @return int
-     */
     protected function getFileNumber(string $attribute): int
     {
-        return (int)substr($attribute, strpos($attribute, ".") + 1) + 1;
+        return (int) substr($attribute, strpos($attribute, '.') + 1) + 1;
     }
 
-    /**
-     * @param mixed $attachments
-     * @return false|string
-     */
     protected function getContents(mixed $attachments): string|false
     {
         return file_get_contents($attachments->path());
     }
 
-    /**
-     * @param string $contents
-     * @param Closure $fail
-     * @param string $attribute
-     * @return mixed
-     */
     protected function getRows(string $contents, Closure $fail, string $attribute): mixed
     {
         try {
@@ -66,18 +55,12 @@ class FirewallRequestsRule implements InvokableRule
         } catch (JsonException) {
             $this->extracted($fail, $attribute, 'has an invalid file format.');
         }
+
         return $rows;
     }
 
-    /**
-     * @param Closure $fail
-     * @param string $attribute
-     * @param string $message
-     * @return void
-     */
     protected function extracted(Closure $fail, string $attribute, string $message): void
     {
         $fail("Attachment {$this->getFileNumber($attribute)} {$message}");
     }
-
 }

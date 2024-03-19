@@ -12,13 +12,14 @@ use Illuminate\Support\Str;
 class GroupMembers
 {
     protected string|array $businessServiceNames;
+
     protected string|array $groupNames;
 
     public function __construct(string|array $businessServiceNames, string|array $groupNames, protected int $ttl = 3600)
     {
         $this->validateGroupNames($groupNames);
 
-        $this->businessServiceNames = (array)$businessServiceNames;
+        $this->businessServiceNames = (array) $businessServiceNames;
     }
 
     public function handle(): array
@@ -30,7 +31,7 @@ class GroupMembers
 
     private function generateCacheKey(): string
     {
-        return implode('_', $this->groupNames) . '_' . implode('_', $this->businessServiceNames);
+        return implode('_', $this->groupNames).'_'.implode('_', $this->businessServiceNames);
     }
 
     private function logError(RequestException $exception): array
@@ -41,7 +42,7 @@ class GroupMembers
             'groupNames' => $this->groupNames,
             'status' => $exception->response->status(),
             'trigger' => 'GroupMembers',
-            'api' => 'ServiceNow'
+            'api' => 'ServiceNow',
         ]);
 
         return [];
@@ -54,18 +55,20 @@ class GroupMembers
             'types' => $this->groupNames,
         ];
         $results = Http::withBasicAuth(config('servicenow.client_id'), config('servicenow.client_secret'))
-            ->retry(5, 50, function ($exception) use ($body) {
+            ->retry(5, 50, function ($exception) {
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
                     $retryAfter = $exception->response->header('Retry-After');
-                    sleep(empty($retryAfter) ? 10 : (int)$retryAfter);
+                    sleep(empty($retryAfter) ? 10 : (int) $retryAfter);
+
                     return true;
                 }
                 if ($exception instanceof RequestException and $exception->getCode() === 400) {
                     return false;
                 }
+
                 return $exception instanceof ConnectionException;
             })
-            ->post(config('servicenow.uri') . '/api/delag/retrieve_cost_centers/GetGroupFromBsandType', $body)
+            ->post(config('servicenow.uri').'/api/delag/retrieve_cost_centers/GetGroupFromBsandType', $body)
             ->json();
 
         return $this->trimResults($results);
@@ -103,22 +106,21 @@ class GroupMembers
     private function validateGroupNames(string|array $groupNames): void
     {
         $allowedGroups = [
-            "EscalationNotification",
-            "Responsibles",
-            "SecurityContacts"
+            'EscalationNotification',
+            'Responsibles',
+            'SecurityContacts',
         ];
 
-        $groupNamesArr = (array)$groupNames;
+        $groupNamesArr = (array) $groupNames;
 
         foreach ($groupNamesArr as $groupName) {
-            if (!in_array($groupName, $allowedGroups)) {
-                throw new \InvalidArgumentException(sprintf("Group name %s is not allowed.", $groupName));
+            if (! in_array($groupName, $allowedGroups)) {
+                throw new \InvalidArgumentException(sprintf('Group name %s is not allowed.', $groupName));
             }
         }
 
         $this->groupNames = $groupNamesArr;
     }
-
 
     private function getGroupMembers(): array
     {

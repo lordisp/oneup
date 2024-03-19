@@ -26,10 +26,8 @@ class BusinessServiceSeeder extends Seeder
 
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
-    public function run()
+    public function run(): void
     {
         foreach ($this->businessServices as $businessService) {
             BusinessService::firstOrCreate(['name' => $businessService], ['name' => $businessService]);

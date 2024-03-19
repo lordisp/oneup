@@ -17,8 +17,7 @@ use Tests\TestCase;
 
 class RolesCreateTest extends TestCase implements FrontendTest
 {
-
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -26,18 +25,18 @@ class RolesCreateTest extends TestCase implements FrontendTest
         $this->seed([
             UserAzureSeeder::class,
             OperationSeeder::class,
-            RoleSeeder::class
+            RoleSeeder::class,
         ]);
     }
 
     /** @test */
-    public function cannot_access_route_as_guest()
+    public function cannot_access_route_as_guest(): void
     {
         $this->get('/admin/roles/create')->assertRedirect('/login');
     }
 
     /** @test */
-    public function can_access_route_as_user()
+    public function can_access_route_as_user(): void
     {
         User::first()->assignRole('Roles operator');
         $this->actingAs(User::first())
@@ -46,7 +45,7 @@ class RolesCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_render_the_component()
+    public function can_render_the_component(): void
     {
         User::first()->assignRole('Roles operator');
         Livewire::actingAs(User::first())
@@ -55,7 +54,7 @@ class RolesCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_view_component()
+    public function can_view_component(): void
     {
         User::first()->assignRole('Roles administrator');
         $this->actingAs(User::first())
@@ -66,7 +65,7 @@ class RolesCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_create_a_new_role()
+    public function can_create_a_new_role(): void
     {
         $this->assertDatabaseCount(Role::class, 19);
         User::first()->assignRole('Roles operator');
@@ -83,7 +82,7 @@ class RolesCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function create_a_new_role_has_errors()
+    public function create_a_new_role_has_errors(): void
     {
         $this->assertDatabaseCount(Role::class, 19);
         User::first()->assignRole('Roles administrator');

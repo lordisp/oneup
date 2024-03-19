@@ -15,5 +15,4 @@ interface FrontendTest
 
     /** test */
     public function can_view_component();
-
 }

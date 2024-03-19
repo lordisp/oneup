@@ -12,11 +12,12 @@ use Spatie\Sluggable\SlugOptions;
 
 /**
  * @property mixed $requestor_mail
+ *
  * @method static where(string $string, mixed $email)
  */
 class ServiceNowRequest extends Model
 {
-    use Uuid, HasSlug;
+    use HasSlug, Uuid;
 
     public function getSlugOptions(): SlugOptions
     {
@@ -45,7 +46,7 @@ class ServiceNowRequest extends Model
     public function requestor_name(): Attribute
     {
         return Attribute::make(
-            set: fn() => Str::title($this->requestor_firstName) . ' ' . Str::title($this->requestor_lastName)
+            set: fn () => Str::title($this->requestor_firstName).' '.Str::title($this->requestor_lastName)
         );
     }
 }

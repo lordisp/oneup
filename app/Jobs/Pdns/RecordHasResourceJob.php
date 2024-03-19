@@ -21,7 +21,7 @@ class RecordHasResourceJob
             return $this->aRecords();
         }
 
-        Log::debug("Handle other Records");
+        Log::debug('Handle other Records');
 
         return true;
     }
@@ -34,17 +34,19 @@ class RecordHasResourceJob
             array_map(function ($key) use ($ptrRecords) {
                 $resource = json_decode($key, true);
                 $fqdns = Arr::flatten(data_get($resource, '*.properties.privateLinkConnectionProperties.fqdns')) ?: [];
+
                 return count(array_intersect($ptrRecords, $fqdns));
             }, $this->resources)
         );
 
-        Log::debug(sprintf("PTR Records: %s", $resourceMatch));
+        Log::debug(sprintf('PTR Records: %s', $resourceMatch));
+
         return $resourceMatch > 0;
     }
 
     private function aRecords(): bool
     {
-        Log::debug("A Records", [
+        Log::debug('A Records', [
             'records' => $this->records,
         ]);
 
@@ -54,7 +56,7 @@ class RecordHasResourceJob
             array_map(function ($key) use ($ipv4Address) {
                 $resourceIPAddress = data_get(json_decode($key, true), '*.properties.privateIPAddress') ?: [];
 
-                Log::debug("Debug aRecords", [
+                Log::debug('Debug aRecords', [
                     'resourceIPAddress' => $resourceIPAddress,
                     'ipv4Address' => $ipv4Address,
                     'intersect' => array_intersect($ipv4Address, $resourceIPAddress),
@@ -64,7 +66,8 @@ class RecordHasResourceJob
             }, $this->resources)
         );
 
-        Log::debug(sprintf("A Records: %s", $resourceMatch));
+        Log::debug(sprintf('A Records: %s', $resourceMatch));
+
         return $resourceMatch > 0;
     }
 }

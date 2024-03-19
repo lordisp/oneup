@@ -33,13 +33,13 @@ class WebhookJob implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         foreach ($this->jobs as $key => $job) {
-            if ($this->validateJob($job, $key, $this->data)) $job::dispatch($this->data)->onQueue('webhook');
+            if ($this->validateJob($job, $key, $this->data)) {
+                $job::dispatch($this->data)->onQueue('webhook');
+            }
         }
     }
 
@@ -64,21 +64,25 @@ class WebhookJob implements ShouldQueue
         $linkToSearchResultsAPI = Arr::first(data_get($this->data, 'alertContext.condition.allOf.*.linkToSearchResultsAPI'));
         $tables = Http::withToken(decrypt($token))
             ->retry(20, 200, function ($exception, $request) {
-                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
                     return false;
                 }
                 $request->withToken($this->token($this->armProvider));
+
                 return true;
             }, throw: false)
             ->get($linkToSearchResultsAPI)->json('tables');
-        return $this->getUsersById(!empty($tables) ? $this->members($tables, $this->rowKey($tables)) : []);
+
+        return $this->getUsersById(! empty($tables) ? $this->members($tables, $this->rowKey($tables)) : []);
     }
 
     protected function rowKey($tables)
     {
         $values = Arr::first(data_get($tables, '*.columns'));
         foreach ($values as $key => $value) {
-            if ($value['name'] === 'TargetResources') return $key;
+            if ($value['name'] === 'TargetResources') {
+                return $key;
+            }
         }
     }
 
@@ -89,6 +93,7 @@ class WebhookJob implements ShouldQueue
         foreach ($rows as $row) {
             $member[] = data_get(json_decode($row[$rowKey], true), '*.id');
         }
+
         return array_unique(Arr::flatten($member));
     }
 
@@ -99,13 +104,14 @@ class WebhookJob implements ShouldQueue
             foreach ($memberIds as $memberId) {
                 $pool->withToken(decrypt($token))
                     ->retry(20, 200, function ($exception, $request) {
-                        if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                        if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
                             return false;
                         }
                         $request->withToken($this->token($this->graphProvider));
+
                         return true;
                     }, throw: false)
-                    ->get('https://graph.microsoft.com/v1.0/users/' . $memberId . '?$select=id,displayName,givenName,surname,mail,userPrincipalName');
+                    ->get('https://graph.microsoft.com/v1.0/users/'.$memberId.'?$select=id,displayName,givenName,surname,mail,userPrincipalName');
             }
         });
         $members = [];
@@ -113,9 +119,10 @@ class WebhookJob implements ShouldQueue
             if ($response->successful()) {
                 $members[] = $response->json();
             } elseif ($response->failed()) {
-                Log::error('WebhookJob getUsersById error: ' . data_get($response->json('error'), 'message'));
+                Log::error('WebhookJob getUsersById error: '.data_get($response->json('error'), 'message'));
             }
         }
+
         return $members;
     }
 }

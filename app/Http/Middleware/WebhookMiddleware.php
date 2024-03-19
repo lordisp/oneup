@@ -21,28 +21,29 @@ class WebhookMiddleware
     /**
      * Handle an incoming request.
      *
-     * @param Request $request
-     * @param Closure(Request): (Response|RedirectResponse) $next
+     * @param  Closure(Request): (Response|RedirectResponse)  $next
      * @return RedirectResponse|Response|mixed|void
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): \Symfony\Component\HttpFoundation\Response
     {
-        if ($request->filled('data') && !empty($this->config) && $this->validateBody($request->data)) {
+        if ($request->filled('data') && ! empty($this->config) && $this->validateBody($request->data)) {
             return $next($request);
         } else {
             Log::error('Invalid webhook body');
+
             return response(status: 400);
         }
     }
 
     protected function validateBody($body): bool
     {
-        $inArray = Arr::has((array)$body, [
+        $inArray = Arr::has((array) $body, [
             'essentials.alertId',
             'essentials.alertRule',
         ]);
         $inConfig = $inArray && $this->inConfig($body);
-        $isString = is_string(Arr::first(data_get((array)$body, 'alertContext.condition.allOf.*.linkToSearchResultsAPI')));
+        $isString = is_string(Arr::first(data_get((array) $body, 'alertContext.condition.allOf.*.linkToSearchResultsAPI')));
+
         return $inArray && $isString && $inConfig;
     }
 

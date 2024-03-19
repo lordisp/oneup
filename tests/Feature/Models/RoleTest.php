@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+<?php
+
+/** @noinspection PhpPossiblePolymorphicInvocationInspection */
 
 namespace Tests\Feature\Models;
 
@@ -15,7 +17,7 @@ class RoleTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function can_create_role()
+    public function can_create_role(): void
     {
         $role = Role::factory()->create();
 
@@ -28,7 +30,7 @@ class RoleTest extends TestCase
     }
 
     /** @test */
-    public function can_list_roles_users()
+    public function can_list_roles_users(): void
     {
         $role = Role::factory()->create();
         $users = User::factory()->count(2)->create();
@@ -40,7 +42,7 @@ class RoleTest extends TestCase
     }
 
     /** @test */
-    public function can_assign_and_remove_user_a_role()
+    public function can_assign_and_remove_user_a_role(): void
     {
         $user = User::factory()->create();
         $role = Role::factory()->create();
@@ -54,7 +56,7 @@ class RoleTest extends TestCase
     }
 
     /** @test */
-    public function can_create_role_with_group()
+    public function can_create_role_with_group(): void
     {
         Role::factory()->withGroup()->create()->groups();
         $this->assertDatabaseCount(Role::class, 1);
@@ -62,7 +64,7 @@ class RoleTest extends TestCase
     }
 
     /** @test */
-    public function can_create_role_with_operation()
+    public function can_create_role_with_operation(): void
     {
         Role::factory()->withOperations()->create();
         $this->assertDatabaseCount(Role::class, 1);
@@ -70,7 +72,7 @@ class RoleTest extends TestCase
     }
 
     /** @test */
-    public function can_remove_operation_from_role()
+    public function can_remove_operation_from_role(): void
     {
         $role = Role::factory()->withOperations()->create();
 

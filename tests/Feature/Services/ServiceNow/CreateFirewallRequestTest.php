@@ -30,7 +30,7 @@ class CreateFirewallRequestTest extends TestCase
     }
 
     /** @test */
-    public function a_firewall_request_returns_a_successful_response()
+    public function a_firewall_request_returns_a_successful_response(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -38,8 +38,8 @@ class CreateFirewallRequestTest extends TestCase
 
         Notification::fake();
 
-        Http::fake([config('servicenow.uri') . '/*' => Http::sequence()
-            ->push(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true))
+        Http::fake([config('servicenow.uri').'/*' => Http::sequence()
+            ->push(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true)),
         ]);
 
         // Act
@@ -55,16 +55,16 @@ class CreateFirewallRequestTest extends TestCase
     }
 
     /** @test */
-    public function a_connection_timeout_force_a_call_retry()
+    public function a_connection_timeout_force_a_call_retry(): void
     {
         // Arrange
         $user = User::factory()->create();
         $rule = FirewallRule::with('businessService')->first();
 
         Notification::fake();
-        Http::fake([config('servicenow.uri') . '/*' => Http::sequence()
+        Http::fake([config('servicenow.uri').'/*' => Http::sequence()
             ->pushStatus(408)
-            ->push(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true))
+            ->push(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true)),
         ]);
 
         // Act
@@ -76,15 +76,15 @@ class CreateFirewallRequestTest extends TestCase
     }
 
     /** @test */
-    public function bad_requests()
+    public function bad_requests(): void
     {
         // Arrange
         $user = User::factory()->create();
         $rule = FirewallRule::with('businessService')->first();
 
         Notification::fake();
-        Http::fake([config('servicenow.uri') . '/*' => Http::sequence()
-            ->pushStatus(400)
+        Http::fake([config('servicenow.uri').'/*' => Http::sequence()
+            ->pushStatus(400),
         ]);
 
         // Act
@@ -96,15 +96,14 @@ class CreateFirewallRequestTest extends TestCase
     }
 
     /** @test */
-    public function it_sends_a_mail_notification_to_the_user()
+    public function it_sends_a_mail_notification_to_the_user(): void
     {
         // Arrange
         $user = User::factory()->create();
         $rule = new FirewallRule;
 
         Notification::fake();
-        Http::fake([config('servicenow.uri') . '/*' =>
-            Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true))
+        Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true)),
         ]);
 
         // Act
@@ -115,9 +114,8 @@ class CreateFirewallRequestTest extends TestCase
         $this->assertStringContainsString($response->content(), 'Rule was not found!');
     }
 
-
     /** @test */
-    public function only_the_first_attempt_to_delete_a_rule_files_a_snow_request()
+    public function only_the_first_attempt_to_delete_a_rule_files_a_snow_request(): void
     {
         $user1 = User::first();
         $user1->businessServices()->attach(
@@ -137,8 +135,7 @@ class CreateFirewallRequestTest extends TestCase
 
         Notification::fake();
 
-        Http::fake([config('servicenow.uri') . '/*' =>
-            Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true))
+        Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true)),
         ]);
 
         Livewire::actingAs($user1)->test(FirewallRulesRead::class)
@@ -150,12 +147,12 @@ class CreateFirewallRequestTest extends TestCase
             $user1,
             function (CreateFirewallRequestNotification $notification) {
                 return $notification->getBody() === [
-                        "status" => "Success",
-                        "requestNumber" => "REQ0032701",
-                        'requestNumberlink'=>'https://lhgroupuat.service-now.com/sp?id=ticket&table=sc_request&sys_id=e715cee71b740e105c7e744c8b4bcb2c',
-                        "requestItemNumber" => "RIT0033162",
-                        'requestItemNumberLink'=>'https://lhgroupuat.service-now.com/sp?id=ticket&table=sc_req_item&sys_id=2315cee71b740e105c7e744c8b4bcb2d'
-                    ];
+                    'status' => 'Success',
+                    'requestNumber' => 'REQ0032701',
+                    'requestNumberlink' => 'https://lhgroupuat.service-now.com/sp?id=ticket&table=sc_request&sys_id=e715cee71b740e105c7e744c8b4bcb2c',
+                    'requestItemNumber' => 'RIT0033162',
+                    'requestItemNumberLink' => 'https://lhgroupuat.service-now.com/sp?id=ticket&table=sc_req_item&sys_id=2315cee71b740e105c7e744c8b4bcb2d',
+                ];
             }
         );
 
@@ -182,7 +179,7 @@ class CreateFirewallRequestTest extends TestCase
 
         Queue::fake(ImportBusinessServiceMemberJob::class);
 
-        $fileContents = json_decode(file_get_contents(base_path() . '/tests/Feature/Stubs/firewallImport/valid.json'), true);;
+        $fileContents = json_decode(file_get_contents(base_path().'/tests/Feature/Stubs/firewallImport/valid.json'), true);
 
         foreach ($fileContents as $fileContent) {
             ImportFirewallRequestJob::dispatch(User::factory()->create(), $fileContent);

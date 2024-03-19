@@ -8,13 +8,13 @@ class IPAddressFilter
 {
     public static function process(array $ip_array): array
     {
-        $valid_ips = array_filter($ip_array, function ($ip_address){
+        $valid_ips = array_filter($ip_array, function ($ip_address) {
 
             $parts = explode('/', $ip_address);
 
             if (
                 count($parts) === 2 &&
-                !empty(filter_var(Arr::first($parts), FILTER_VALIDATE_IP))
+                ! empty(filter_var(Arr::first($parts), FILTER_VALIDATE_IP))
             ) {
                 return true;
             }

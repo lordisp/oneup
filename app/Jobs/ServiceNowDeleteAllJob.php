@@ -30,26 +30,24 @@ class ServiceNowDeleteAllJob implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $all = ServiceNowRequest::all();
         if ($all->count() > 0) {
             $all->map->delete();
 
-            Audit::where('auditable_type','App\Models\FirewallRule')
+            Audit::where('auditable_type', \App\Models\FirewallRule::class)
                 ->delete();
-            Log::info($this->user->email . ' Deleted all Firewall-Rule Records');
+            Log::info($this->user->email.' Deleted all Firewall-Rule Records');
             $message = [
                 'titel' => 'Action completed',
-                'message' => __('messages.all_requests_deleted')
+                'message' => __('messages.all_requests_deleted'),
             ];
         } else {
             $message = [
                 'titel' => 'Nothing to do',
-                'message' => 'There were no records to delete.'
+                'message' => 'There were no records to delete.',
             ];
         }
         $this->user->notify(new UserActionNotification($message['titel'], $message['message']));
@@ -58,7 +56,7 @@ class ServiceNowDeleteAllJob implements ShouldQueue
 
     public function failed($exception)
     {
-        Log::error('Failed to delete ServiceNowRequests', (array)$exception);
+        Log::error('Failed to delete ServiceNowRequests', (array) $exception);
         foreach ($this->developers as $developer) {
             $developer->notify(new DeveloperNotification($exception));
         }

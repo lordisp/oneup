@@ -15,10 +15,9 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Log;
 
-class ImportBusinessServiceMemberJob implements ShouldQueue, ShouldBeUnique
+class ImportBusinessServiceMemberJob implements ShouldBeUnique, ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
-
 
     protected string $businessService;
 
@@ -33,7 +32,6 @@ class ImportBusinessServiceMemberJob implements ShouldQueue, ShouldBeUnique
         $this->identifier = md5($identifier);
     }
 
-
     public function retryUntil(): Carbon
     {
         return now()->addMinutes(20);
@@ -44,7 +42,7 @@ class ImportBusinessServiceMemberJob implements ShouldQueue, ShouldBeUnique
         return $this->identifier;
     }
 
-    public function handle()
+    public function handle(): void
     {
         $emails = $this->getBusinessServiceResponsibles();
 
@@ -57,7 +55,8 @@ class ImportBusinessServiceMemberJob implements ShouldQueue, ShouldBeUnique
         }
 
         if (empty($emails)) {
-            Log::info('No contacts found for business service: ' . $this->businessService);
+            Log::info('No contacts found for business service: '.$this->businessService);
+
             return;
         }
 
@@ -66,30 +65,33 @@ class ImportBusinessServiceMemberJob implements ShouldQueue, ShouldBeUnique
 
     protected function getBusinessServiceResponsibles(): array
     {
-        Log::debug('Getting responsibles for business service: ' . $this->businessService);
+        Log::debug('Getting responsibles for business service: '.$this->businessService);
+
         return (new GroupMembers($this->businessService, 'Responsibles'))->handle();
     }
 
     protected function getBusinessServiceEscalationNotification(): array
     {
-        Log::debug('Getting Escalation for business service: ' . $this->businessService);
+        Log::debug('Getting Escalation for business service: '.$this->businessService);
+
         return (new GroupMembers($this->businessService, 'EscalationNotification'))->handle();
     }
 
     protected function getBusinessServiceSecurityContacts(): array
     {
-        Log::debug('Getting SecurityContacts for business service: ' . $this->businessService);
+        Log::debug('Getting SecurityContacts for business service: '.$this->businessService);
+
         return (new GroupMembers($this->businessService, 'SecurityContacts'))->handle();
     }
 
     protected function importUserWithBusinessService(array $emails): void
     {
-        Log::debug('Importing users with business service: ' . $this->businessService, $emails);
+        Log::debug('Importing users with business service: '.$this->businessService, $emails);
         foreach ($emails as $email) {
             $jobs[] = new ImportUserWithBusinessServiceJob($email, $this->businessService);
         }
 
-        if (!empty($jobs)) {
+        if (! empty($jobs)) {
             Bus::chain($jobs)
                 ->dispatch();
         }

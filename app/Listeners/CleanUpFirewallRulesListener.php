@@ -8,13 +8,13 @@ use Illuminate\Support\Facades\Bus;
 
 class CleanUpFirewallRulesListener
 {
-    public function handle()
+    public function handle(): void
     {
-        $firewallRules = FirewallRule::with(['request' => fn($q) => $q->select('id', 'created_at')])
+        $firewallRules = FirewallRule::with(['request' => fn ($q) => $q->select('id', 'created_at')])
             ->select('id', 'hash', 'action', 'service_now_request_id')
             ->whereAction('delete')
             ->get()
-            ->map(fn($rule) => [
+            ->map(fn ($rule) => [
                 'id' => $rule->id,
                 'hash' => $rule->hash,
                 'action' => $rule->action,

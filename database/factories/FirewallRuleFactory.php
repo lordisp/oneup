@@ -3,19 +3,17 @@
 namespace Database\Factories;
 
 use App\Models\BusinessService;
-use App\Models\FirewallRule;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class FirewallRuleFactory extends Factory
 {
-    protected $model = FirewallRule::class;
-
     public function definition(): array
     {
         $noExpiry = $this->faker->boolean(70); // 70% chance to be true
         $wellKnownPorts = [20, 21, 22, 23, 25, 53, 80, 110, 443]; // Example well-known ports
         $created_at = $this->faker->dateTimeBetween('-1 year', 'now');
         $updated_at = $this->faker->dateTimeBetween($created_at, 'now');
+
         return [
             'action' => $this->faker->boolean(70) ? 'add' : 'delete',
             'type_destination' => 'ip_address_dest',
@@ -29,9 +27,9 @@ class FirewallRuleFactory extends Factory
             'end_date' => $noExpiry ? null : $this->faker->dateTimeBetween('+1 year', '+5 years')->format('Y-m-d\TH:i:s.000000\Z'),
             'pci_dss' => $this->faker->boolean(),
             'nat_required' => $this->faker->randomElement(['Yes', 'No']),
-            'application_id' => $this->faker->uuid,
-            'contact' => $this->faker->email,
-            'business_purpose' => $this->faker->text,
+            'application_id' => $this->faker->uuid(),
+            'contact' => $this->faker->email(),
+            'business_purpose' => $this->faker->text(),
             'status' => $this->faker->word(),
             'last_review' => null,
             'created_at' => $created_at,
@@ -49,7 +47,7 @@ class FirewallRuleFactory extends Factory
 
         $IPs = [];
         for ($i = 0; $i < $count; $i++) {
-            $IPs[] = $this->faker->ipv4;
+            $IPs[] = $this->faker->ipv4();
         }
 
         return $IPs;
@@ -60,12 +58,13 @@ class FirewallRuleFactory extends Factory
         $ips = [];
         for ($i = 0; $i < $count; $i++) {
             if ($privateOnly) {
-                $ips[] = $this->faker->localIpv4;
+                $ips[] = $this->faker->localIpv4();
             } else {
                 // Randomly choose between private and public IPs
-                $ips[] = $this->faker->boolean ? $this->faker->localIpv4 : $this->faker->ipv4;
+                $ips[] = $this->faker->boolean() ? $this->faker->localIpv4() : $this->faker->ipv4();
             }
         }
+
         return $ips;
     }
 }

@@ -11,7 +11,7 @@ class CacheTest extends TestCase
     /** @test
      * @throws InvalidArgumentException
      */
-    public function can_rwd_cache()
+    public function can_rwd_cache(): void
     {
         cache()->add('name', 'Rafael');
 
@@ -23,7 +23,7 @@ class CacheTest extends TestCase
     }
 
     /** @test */
-    public function can_add_key_to_redis_db()
+    public function can_add_key_to_redis_db(): void
     {
         Redis::shouldReceive('set')->andReturn(true);
 
@@ -32,7 +32,7 @@ class CacheTest extends TestCase
     }
 
     /** @test */
-    public function can_read_key_from_redis_db()
+    public function can_read_key_from_redis_db(): void
     {
         Redis::shouldReceive('get')->andReturn('Rafael');
 
@@ -40,7 +40,7 @@ class CacheTest extends TestCase
     }
 
     /** @test */
-    public function can_delete_key_from_redis_db()
+    public function can_delete_key_from_redis_db(): void
     {
         Redis::shouldReceive('del')->once()->andReturn('1');
         Redis::shouldReceive('get')->once()->andReturn(null);

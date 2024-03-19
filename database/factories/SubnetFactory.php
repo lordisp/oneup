@@ -16,14 +16,12 @@ class SubnetFactory extends Factory
         ];
     }
 
-    /**
-     * @return string
-     */
     protected function getFakeNetwork(): string
     {
         $ip_address = $this->faker->localIpv4();
-        $ip_parts = explode(".", $ip_address);
-        $ip_parts[3] = "0";
-        return implode(".", $ip_parts);
+        $ip_parts = explode('.', $ip_address);
+        $ip_parts[3] = '0';
+
+        return implode('.', $ip_parts);
     }
 }

@@ -6,7 +6,7 @@ return [
         'status' => 'Review outstanding',
         'extended' => 'Rule extended',
         'deleted' => 'Decommissioned',
-        'open' => 'Open (optional)'
+        'open' => 'Open (optional)',
     ],
     'are_you_sure' => 'Are you sure?',
     'rule' => [

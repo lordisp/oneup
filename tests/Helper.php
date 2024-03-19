@@ -29,14 +29,14 @@ trait Helper
 
         return $this->actingAs($user)->post('/oauth/clients', [
             'name' => 'TestClient',
-            'redirect' => config('app.url') . '/callback',
+            'redirect' => config('app.url').'/callback',
             '_token' => csrf_token(),
         ]);
     }
 
     protected function requestToken(string $scopes = 'subnets-create'): string
     {
-        list($client, $scope) = $this->getPassportClientWithScopes($scopes);
+        [$client, $scope] = $this->getPassportClientWithScopes($scopes);
 
         return $this->createPassportClientToken(
             $client->id,
@@ -67,6 +67,7 @@ trait Helper
     {
         $property = (new ReflectionClass($obj))->getProperty($prop);
         $property->setAccessible(true);
+
         return $property->getValue($obj);
     }
 
@@ -86,7 +87,7 @@ trait Helper
         ])->create()->name;
     }
 
-    protected function createPassportClient(string $name = null): \Laravel\Passport\Client
+    protected function createPassportClient(?string $name = null): \Laravel\Passport\Client
     {
         $name = $name ?: config('app.name');
 
@@ -121,6 +122,7 @@ trait Helper
         if ($response->isSuccessful()) {
             return $response->json()['access_token'];
         }
+
         return response(status: $response->status());
     }
 
@@ -131,19 +133,20 @@ trait Helper
         $client->clientScopes()->attach($scope->id);
         ClientScope::whereClientScope($client->id, $scope->id)
             ->approveScope(User::factory()->create());
-        return array($client, $scope);
+
+        return [$client, $scope];
     }
 
     protected function getStub(string $name)
     {
-        return json_decode(file_get_contents(base_path() . '/tests/Feature/Stubs/' . $name), true);
+        return json_decode(file_get_contents(base_path().'/tests/Feature/Stubs/'.$name), true);
     }
 
     protected function importOneFile(string $file = '')
     {
-        $file = !empty($file) ? $file : 'valid.json';
+        $file = ! empty($file) ? $file : 'valid.json';
         Storage::fake('tmp-for-tests');
-        $first = file_get_contents(base_path() . '/tests/Feature/Stubs/firewallImport/' . $file);
+        $first = file_get_contents(base_path().'/tests/Feature/Stubs/firewallImport/'.$file);
         $files[] = UploadedFile::fake()->createWithContent('file.json', $first);
 
         $user = User::first();
@@ -157,7 +160,7 @@ trait Helper
     protected function getFakeToken(): array
     {
         return [
-            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/Feature/Services/stubs/provider_lhg_arm_token_response.json'), true))
+            'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__.'/Feature/Services/stubs/provider_lhg_arm_token_response.json'), true)),
         ];
     }
 }

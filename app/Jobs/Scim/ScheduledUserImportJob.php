@@ -4,7 +4,6 @@ namespace App\Jobs\Scim;
 
 use App\Services\Scim;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
@@ -15,7 +14,6 @@ class ScheduledUserImportJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected Scim $scim;
-
 
     /**
      * Create a new job instance.
@@ -29,10 +27,8 @@ class ScheduledUserImportJob implements ShouldQueue
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $this->scim->provider('lhg_graph')
             ->groups(['64a289f8-7430-40b4-830f-f64ffd6452fc']);

@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 class FirewallRequestValidation
 {
     protected array $rules;
+
     protected array $messages;
 
     public static function validate(array $request)
@@ -28,14 +29,16 @@ class FirewallRequestValidation
             $attributes = Arr::flatten($validator->errors()->getMessages());
 
             Log::debug(sprintf(
-                "%s/%s has %s invalid attributes: %s",
+                '%s/%s has %s invalid attributes: %s',
                 data_get($request, 'Subject'),
                 data_get($request, 'RITMNumber'),
                 $validator->errors()->count(),
                 implode(', ', $attributes)
             ));
+
             return [];
         }
+
         return $validator->getData();
     }
 
@@ -46,10 +49,10 @@ class FirewallRequestValidation
             'tag' => 'required|array',
             'rules.*.action' => 'required|string|min:1',
             'rules.*.destination' => [
-                'required_without:rules.*.destination_url'
+                'required_without:rules.*.destination_url',
             ],
             'rules.*.destination_url' => [
-                'required_without:rules.*.destination'
+                'required_without:rules.*.destination',
             ],
             'rules.*.type_destination' => 'required|string',
             'rules.*.type_source' => 'required|string',
@@ -69,6 +72,7 @@ class FirewallRequestValidation
             'tag.request_description' => 'required|string',
             'tag.business_service' => 'required|string',
         ];
+
         return $this;
     }
 
@@ -99,7 +103,7 @@ class FirewallRequestValidation
             'tag.business_service' => 'tag business_service',
             'tag.request_description' => 'tag request_description',
         ]];
+
         return $this;
     }
-
 }

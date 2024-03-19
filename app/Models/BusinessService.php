@@ -19,7 +19,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class BusinessService extends Model
 {
-    use Uuid, HasSlug, HasFactory;
+    use HasFactory, HasSlug, Uuid;
 
     protected $fillable = ['name', 'pci_dss'];
 
@@ -76,6 +76,7 @@ class BusinessService extends Model
                 if (Str::contains($value, '_damaged', true)) {
                     $value = Str::remove('_damaged', $value, false);
                 }
+
                 return $value;
             },
         );

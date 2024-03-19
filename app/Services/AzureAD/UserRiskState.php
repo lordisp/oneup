@@ -18,9 +18,12 @@ class UserRiskState
     const PROVIDER = 'lhg_graph';
 
     protected string $userId;
+
     protected string $url;
+
     protected string|array $filter;
-    protected array|null $properties = null;
+
+    protected ?array $properties = null;
 
     public function __construct()
     {
@@ -35,7 +38,7 @@ class UserRiskState
     {
         $properties = $properties->get();
 
-        $this->properties[] = $properties ? "\$select=" . $properties : null;
+        $this->properties[] = $properties ? '$select='.$properties : null;
 
         return $this;
     }
@@ -44,7 +47,7 @@ class UserRiskState
     {
         $properties = $top->get();
 
-        $this->properties[] = $properties ? "\$top=" . $properties : null;
+        $this->properties[] = $properties ? '$top='.$properties : null;
 
         return $this;
     }
@@ -60,12 +63,14 @@ class UserRiskState
                 }
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
                     sleep($exception->response->header('Retry-After') ?? 10);
+
                     return true;
                 }
                 if ($exception instanceof RequestException and $exception->getCode() === 400) {
                     return false;
                 }
                 $request->withToken(decrypt($this->newToken(self::PROVIDER)));
+
                 return true;
             }, false)
             ->get($url)
@@ -76,6 +81,7 @@ class UserRiskState
                         'message' => $response->reason(),
                         'status' => $response->status(),
                     ]);
+
                     return [];
                 })
             ->json();
@@ -83,7 +89,7 @@ class UserRiskState
 
     protected function queryBuilder(): string
     {
-        $url = "https://graph.microsoft.com/v1.0/identityProtection/riskyUsers";
+        $url = 'https://graph.microsoft.com/v1.0/identityProtection/riskyUsers';
         $query = [];
         if (isset($this->userId)) {
             $query[] = $this->userId;
@@ -96,9 +102,10 @@ class UserRiskState
         }
 
         $query = implode('&', $query);
-        if (!empty($query)) {
-            $url = sprintf("%s?%s", $url, $query);
+        if (! empty($query)) {
+            $url = sprintf('%s?%s', $url, $query);
         }
+
         return $url;
     }
 
@@ -106,19 +113,20 @@ class UserRiskState
     {
         $this->filter[] = "riskState eq 'atRisk' and isDeleted eq false and isProcessing eq false";
 
-        $this->filter = "\$filter=" . implode(' and ', $this->filter);
+        $this->filter = '$filter='.implode(' and ', $this->filter);
 
         return $this;
     }
 
     public function dismiss(): void
     {
-        $userIds = (array)data_get($this->list(), 'value.*.id');
+        $userIds = (array) data_get($this->list(), 'value.*.id');
 
         if (empty($userIds)) {
             Log::info('No RiskyUsers to dismiss', [
-                'service' => 'risky-users'
+                'service' => 'risky-users',
             ]);
+
             return;
         }
 

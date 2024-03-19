@@ -17,9 +17,9 @@ class ClearCommand extends Command
 
     protected $description = 'Clear logs from database';
 
-    protected string|null $level;
+    protected ?string $level;
 
-    protected Carbon|null $age;
+    protected ?Carbon $age;
 
     public function handle(): void
     {
@@ -27,6 +27,7 @@ class ClearCommand extends Command
 
         if ($this->option('job')) {
             DatabaseCleanerJob::dispatch($this->level, $this->age)->afterCommit();
+
             return;
         }
 
@@ -34,11 +35,11 @@ class ClearCommand extends Command
 
         $logMessage = $this->withProgressBar(LogMessage::query()
             ->withTrashed()
-            ->when($this->level, fn($query) => $query->where('level_name', '=', $this->level))
-            ->when($this->age, fn($query) => $query->where('deleted_at', '<', $this->age))
+            ->when($this->level, fn ($query) => $query->where('level_name', '=', $this->level))
+            ->when($this->age, fn ($query) => $query->where('deleted_at', '<', $this->age))
             ->get(), function (LogMessage $logMessage) {
-            $logMessage->forceDelete();
-        });
+                $logMessage->forceDelete();
+            });
 
         $this->newLine();
 
@@ -51,7 +52,7 @@ class ClearCommand extends Command
 
     private function normalizeArguments()
     {
-        $this->level = $this->option('level')?Str::upper($this->option('level')):null;
-        $this->age = $this->option('age')?Carbon::parse($this->option('age')):now();
+        $this->level = $this->option('level') ? Str::upper($this->option('level')) : null;
+        $this->age = $this->option('age') ? Carbon::parse($this->option('age')) : now();
     }
 }

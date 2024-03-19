@@ -47,11 +47,11 @@ trait WithFilteredColumns
             }
 
             if ($filter === 'own' && $value === true) {
-                $query->when($filter, fn($query) => $query->own());
+                $query->when($filter, fn ($query) => $query->own());
             }
 
-            if ($filter === 'bs' && !empty($value)) {
-                $query->when($filter, fn($query) => $query->byBusinessService($value));
+            if ($filter === 'bs' && ! empty($value)) {
+                $query->when($filter, fn ($query) => $query->byBusinessService($value));
             }
         }
     }
@@ -59,7 +59,7 @@ trait WithFilteredColumns
     private function applyStatusFilter($query, $value): void
     {
         if (in_array($value, ['review', 'open', 'extended', 'deleted'])) {
-            $query->when('status', fn($query) => $query->{$value}());
+            $query->when('status', fn ($query) => $query->{$value}());
         }
     }
 

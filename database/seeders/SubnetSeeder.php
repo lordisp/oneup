@@ -36,11 +36,11 @@ class SubnetSeeder extends Seeder
             '10.254.120.64' => '27',
             '10.254.120.8' => '29',
             '10.253.254.0' => '26',
-            '10.253.254.64' => '28'
+            '10.253.254.64' => '28',
         ];
     }
 
-    public function run()
+    public function run(): void
     {
         foreach ($this->subnets as $name => $size) {
             Subnet::firstOrCreate([
