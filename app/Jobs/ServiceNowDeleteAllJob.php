@@ -39,7 +39,7 @@ class ServiceNowDeleteAllJob implements ShouldQueue
         if ($all->count() > 0) {
             $all->map->delete();
 
-            Audit::where('auditable_type', 'App\Models\FirewallRule')
+            Audit::where('auditable_type', \App\Models\FirewallRule::class)
                 ->delete();
             Log::info($this->user->email.' Deleted all Firewall-Rule Records');
             $message = [
