@@ -17,8 +17,7 @@ use Tests\TestCase;
 
 class RolesCreateTest extends TestCase implements FrontendTest
 {
-
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -26,7 +25,7 @@ class RolesCreateTest extends TestCase implements FrontendTest
         $this->seed([
             UserAzureSeeder::class,
             OperationSeeder::class,
-            RoleSeeder::class
+            RoleSeeder::class,
         ]);
     }
 

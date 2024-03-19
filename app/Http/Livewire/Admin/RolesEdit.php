@@ -23,17 +23,19 @@ use Livewire\Component;
 class RolesEdit extends Component
 {
     public Operation $operation;
+
     public Role $role;
+
     public $roleId;
 
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch, WithRbacCache;
+    use WithBulkActions, WithFilteredColumns, WithPerPagePagination, WithRbacCache, WithSearch, WithSorting;
 
     protected function rules(): array
     {
         return [
-            'role.name' => 'required|string|min:5|unique:roles,name,' . $this->role->id,
+            'role.name' => 'required|string|min:5|unique:roles,name,'.$this->role->id,
             'role.description' => 'required|string|min:5',
-            'selected' => 'required'
+            'selected' => 'required',
         ];
     }
 
@@ -53,7 +55,9 @@ class RolesEdit extends Component
     protected function setRole($id)
     {
         $this->role = $id ? Role::findOrFail($id) : Role::make();
-        if ($id) $this->selected = $this->role->operations->pluck('id')->flatten()->toArray();
+        if ($id) {
+            $this->selected = $this->role->operations->pluck('id')->flatten()->toArray();
+        }
     }
 
     public function save()
@@ -64,6 +68,7 @@ class RolesEdit extends Component
         $this->role = Role::make();
         $this->event('Saved', 'success');
         $this->flushRbacCache();
+
         return redirect()->to(route('admin.roles'));
     }
 
@@ -74,9 +79,9 @@ class RolesEdit extends Component
 
     public function withQuery($query)
     {
-        return $query->when($this->search, fn($query, $search) => $query
-            ->where('operation', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('description', 'like', '%' . Str::of($search)->trim() . '%')
+        return $query->when($this->search, fn ($query, $search) => $query
+            ->where('operation', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('description', 'like', '%'.Str::of($search)->trim().'%')
         );
     }
 
@@ -84,6 +89,7 @@ class RolesEdit extends Component
     {
         $query = $this->withQuery($this->rows);
         $query = $this->applySorting($query);
+
         return $query->paginate(10);
     }
 
@@ -98,5 +104,4 @@ class RolesEdit extends Component
             'rows' => $this->queryRows,
         ]);
     }
-
 }

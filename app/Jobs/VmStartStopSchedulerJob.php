@@ -31,7 +31,7 @@ class VmStartStopSchedulerJob implements ShouldQueue
      */
     public function handle(): void
     {
-        if (!config('services.scheduler.vm-start-stop-scheduler.enabled')) {
+        if (! config('services.scheduler.vm-start-stop-scheduler.enabled')) {
             return;
         }
 
@@ -43,7 +43,7 @@ class VmStartStopSchedulerJob implements ShouldQueue
             $jobs[] = new VmStartStopProcess($server);
         }
 
-        if (!empty($jobs)) {
+        if (! empty($jobs)) {
             Bus::batch($jobs)
                 ->name('vm-start-stop-scheduler')
                 ->dispatch();
@@ -55,18 +55,20 @@ class VmStartStopSchedulerJob implements ShouldQueue
     {
         $token = decrypt($this->token('lhg_graph'));
 
-        $url = "https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/drives/b!-wUp0h0GOEiIJXb9iEfdAikgMp-EVrBJig5eJNEqyUFv1u2jjdV_QKywhUjwFX3F/items/01K2ZHOAECXE3XURD4SRDZUOVPJDHIU4LI/workbook/worksheets/scheduler/usedRange";
+        $url = 'https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/drives/b!-wUp0h0GOEiIJXb9iEfdAikgMp-EVrBJig5eJNEqyUFv1u2jjdV_QKywhUjwFX3F/items/01K2ZHOAECXE3XURD4SRDZUOVPJDHIU4LI/workbook/worksheets/scheduler/usedRange';
 
         $response = Http::withToken($token)
             ->retry(5, 0, function ($exception, $request) {
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
                     sleep($exception->response->header('Retry-After') ?? 10);
+
                     return true;
                 }
-                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
                 }
                 $request->withToken(decrypt($this->newToken('lhg_graph')));
+
                 return true;
             }, throw: false)
             ->get($url);
@@ -95,6 +97,7 @@ class VmStartStopSchedulerJob implements ShouldQueue
         $normalized['to'] = $this->createFromFormat(data_get($server, '3'));
         $normalized['week'] = Str::lower(data_get($server, '4'));
         $normalized['status'] = Str::lower(data_get($server, '5'));
+
         return $normalized;
     }
 

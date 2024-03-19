@@ -6,11 +6,11 @@ use InvalidArgumentException;
 
 /**
  * It validates the provided properties for use of the azure graph api to get specific user properties
+ *
  * @link  https://learn.microsoft.com/en-us/graph/api/resources/riskyuser?view=graph-rest-1.0#properties
  */
 class RiskyUserTop
 {
-
     protected string $top;
 
     public function __construct(int $top)
@@ -26,7 +26,3 @@ class RiskyUserTop
         return $this->top;
     }
 }
-
-
-
-

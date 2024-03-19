@@ -19,7 +19,7 @@ use Tests\TestCase;
 
 class PdnsTest extends TestCase
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -27,7 +27,7 @@ class PdnsTest extends TestCase
 
         $this->seed([
             DnsSyncAllZonesSeeder::class,
-            TokenCacheProviderSeeder::class
+            TokenCacheProviderSeeder::class,
         ]);
     }
 
@@ -64,7 +64,6 @@ class PdnsTest extends TestCase
         //Assert
         Event::assertDispatched(InterfacesReceived::class);
     }
-
 
     /** @test */
     public function it_dispatches_private_dns_sync_correctly()

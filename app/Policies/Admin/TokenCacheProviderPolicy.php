@@ -14,7 +14,6 @@ class TokenCacheProviderPolicy
     /**
      * Determine whether the user can view any models.
      *
-     * @param \App\Models\User $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function viewAny(User $user)
@@ -27,11 +26,10 @@ class TokenCacheProviderPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\TokenCacheProvider $tokenCacheProvider
+     * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, TokenCacheProvider|null $tokenCacheProvider = null)
+    public function view(User $user, ?TokenCacheProvider $tokenCacheProvider = null)
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/tokenCacheProvider/read', 'Can read Provider')
@@ -41,7 +39,6 @@ class TokenCacheProviderPolicy
     /**
      * Determine whether the user can create models.
      *
-     * @param \App\Models\User $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function create(User $user)
@@ -54,8 +51,7 @@ class TokenCacheProviderPolicy
     /**
      * Determine whether the user can update the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\TokenCacheProvider $tokenCacheProvider
+     * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function update(User $user)
@@ -68,7 +64,6 @@ class TokenCacheProviderPolicy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param User $user
      * @return bool
      */
     public function delete(User $user)
@@ -81,11 +76,9 @@ class TokenCacheProviderPolicy
     /**
      * Determine whether the user can restore the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\TokenCacheProvider $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, TokenCacheProvider|null $tokenCacheProvider)
+    public function restore(User $user, ?TokenCacheProvider $tokenCacheProvider)
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/tokenCacheProvider/restore', 'Can restore Provider')
@@ -96,11 +89,9 @@ class TokenCacheProviderPolicy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\TokenCacheProvider $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, TokenCacheProvider|null $tokenCacheProvider)
+    public function forceDelete(User $user, ?TokenCacheProvider $tokenCacheProvider)
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/tokenCacheProvider/forceDelete', 'Can force delete Provider')

@@ -53,7 +53,7 @@ class Kernel extends HttpKernel
             'throttle:api',
             //'client.scope',
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
-        ]
+        ],
     ];
 
     /**
@@ -78,6 +78,6 @@ class Kernel extends HttpKernel
         'scope' => \Laravel\Passport\Http\Middleware\CheckForAnyScope::class,
         'client' => CheckClientCredentials::class,
         'webhook' => WebhookMiddleware::class,
-        'client.scope' => \App\Http\Middleware\ClientScopesMiddleware::class
-    ];#
+        'client.scope' => \App\Http\Middleware\ClientScopesMiddleware::class,
+    ]; //
 }

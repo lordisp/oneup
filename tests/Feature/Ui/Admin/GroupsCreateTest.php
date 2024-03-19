@@ -3,14 +3,11 @@
 namespace Tests\Feature\Ui\Admin;
 
 use App\Http\Livewire\Admin\GroupsCreate;
-use App\Http\Livewire\Admin\RolesEdit;
 use App\Models\User;
 use Database\Seeders\OperationSeeder;
 use Database\Seeders\RoleSeeder;
 use Database\Seeders\UserAzureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\FrontendTest;
 use Tests\Helper;
@@ -18,8 +15,7 @@ use Tests\TestCase;
 
 class GroupsCreateTest extends TestCase implements FrontendTest
 {
-
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -27,7 +23,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
         $this->seed([
             UserAzureSeeder::class,
             OperationSeeder::class,
-            RoleSeeder::class
+            RoleSeeder::class,
         ]);
     }
 

@@ -12,7 +12,7 @@ trait WithRbacCache
         cache()->tags('rbac')->flush();
     }
 
-    protected function updateOrCreate(string $operation, string $description, int|null $ttl = 3600): string
+    protected function updateOrCreate(string $operation, string $description, ?int $ttl = 3600): string
     {
         $attributes = Validator::validate(
             [
@@ -21,13 +21,13 @@ trait WithRbacCache
             ],
             [
                 'operation' => 'regex:/^[a-zA-Z]+(?:\/[a-zA-Z]+){1,4}$/',
-                'description' => 'required|string|min:4'
+                'description' => 'required|string|min:4',
             ]
         );
 
         return cache()
             ->tags('rbac')
-            ->remember($attributes['operation'], $ttl, fn() => Operation::updateOrCreate(
+            ->remember($attributes['operation'], $ttl, fn () => Operation::updateOrCreate(
                 ['operation' => $attributes['operation']],
                 ['description' => $attributes['description']]
             )->operation);

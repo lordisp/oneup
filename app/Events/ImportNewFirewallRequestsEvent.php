@@ -10,7 +10,7 @@ use Illuminate\Queue\SerializesModels;
 
 class ImportNewFirewallRequestsEvent
 {
-    use Dispatchable, SerializesModels, InteractsWithSockets;
+    use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public function __construct(public User $user, public PendingBatch $batch)
     {

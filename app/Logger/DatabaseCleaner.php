@@ -10,11 +10,11 @@ use InvalidArgumentException;
 
 class DatabaseCleaner
 {
-    const levels = ['EMERGENCY', 'ALERT', 'CRITICAL', 'ERROR', 'WARNING', 'NOTICE', 'INFO', 'DEBUG', 'API',];
+    const levels = ['EMERGENCY', 'ALERT', 'CRITICAL', 'ERROR', 'WARNING', 'NOTICE', 'INFO', 'DEBUG', 'API'];
 
-    protected array|null $level = null;
+    protected ?array $level = null;
 
-    protected Carbon|null $age = null;
+    protected ?Carbon $age = null;
 
     public static function forceDelete(): static
     {
@@ -23,10 +23,10 @@ class DatabaseCleaner
 
     public function level(string $level): static
     {
-        if (!in_array($level, self::levels) && $level != '*') {
+        if (! in_array($level, self::levels) && $level != '*') {
             throw new InvalidArgumentException('Invalid log level!');
         }
-        $this->level = $level === '*' ? self::levels : (array)$level;
+        $this->level = $level === '*' ? self::levels : (array) $level;
 
         return $this;
     }
@@ -41,7 +41,7 @@ class DatabaseCleaner
         return $this;
     }
 
-    public function when($value = null, callable $callback = null, callable $default = null)
+    public function when($value = null, ?callable $callback = null, ?callable $default = null)
     {
         $value = $value instanceof Closure ? $value($this) : $value;
 
@@ -66,8 +66,8 @@ class DatabaseCleaner
     {
         return LogMessage::query()
             ->withTrashed()
-            ->when($this->level, fn($query) => $query->whereIn('level_name', $this->level))
-            ->when($this->age, fn($query) => $query->where('created_at', '>=', $this->age))
+            ->when($this->level, fn ($query) => $query->whereIn('level_name', $this->level))
+            ->when($this->age, fn ($query) => $query->where('created_at', '>=', $this->age))
             ->forceDelete();
     }
 }

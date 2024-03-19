@@ -13,10 +13,9 @@ use Tests\FrontendTest;
 use Tests\Helper;
 use Tests\TestCase;
 
-
 class ClientsTest extends TestCase implements FrontendTest
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     public function setUp(): void
     {
@@ -24,7 +23,6 @@ class ClientsTest extends TestCase implements FrontendTest
 
         $this->user = User::factory()->create();
     }
-
 
     /** @test */
     public function cannot_access_route_as_guest()

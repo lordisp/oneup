@@ -13,8 +13,16 @@ namespace App\Http\Livewire\DataTable;
 
 trait WithBulkActions
 {
-    public bool $selectPage = false, $selectPagePopup = false, $selectAll = false, $action = false;
+    public bool $selectPage = false;
+
+    public bool $selectPagePopup = false;
+
+    public bool $selectAll = false;
+
+    public bool $action = false;
+
     public array $selected = [];
+
     public $objects = [];
 
     public function updatedSelected(): void
@@ -25,7 +33,7 @@ trait WithBulkActions
             ? false
             : $this->selectPage;
 
-        $this->active = !empty($this->selected);
+        $this->active = ! empty($this->selected);
     }
 
     public function updatedSelectPage($value): void
@@ -34,7 +42,7 @@ trait WithBulkActions
         $this->selectPagePopup = count($this->selected) >= $this->queryRows->total()
             ? false
             : $this->selectPage;
-        $this->active = !empty($this->selected);
+        $this->active = ! empty($this->selected);
     }
 
     public function selectAll(): void

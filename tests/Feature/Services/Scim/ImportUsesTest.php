@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 class ImportUsesTest extends TestCase
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     public function setUp(): void
     {
@@ -69,7 +69,7 @@ class ImportUsesTest extends TestCase
         Log::shouldReceive('warning')->times(1)->andReturnSelf();
         $this->scim->provider('lhg_graph')
             ->groups([
-                '64a289f8-7430-40b4-830f-f64ffd6452fc' // OneUp Teams
+                '64a289f8-7430-40b4-830f-f64ffd6452fc', // OneUp Teams
             ]);
         $this->assertDatabaseCount(User::class, 0);
     }
@@ -82,7 +82,7 @@ class ImportUsesTest extends TestCase
         Log::shouldReceive('error')->times(10)->andReturnSelf();
         $this->scim->provider('lhg_graph')
             ->groups([
-                '64a289f8-7430-40b4-830f-f64ffd6452fc' // OneUp Teams
+                '64a289f8-7430-40b4-830f-f64ffd6452fc', // OneUp Teams
             ]);
         $this->assertDatabaseCount(User::class, 0);
     }
@@ -90,7 +90,7 @@ class ImportUsesTest extends TestCase
     /** @test */
     public function successful_response_from_api_and_queue_import()
     {
-        $groupMembers = file_get_contents(__DIR__ . '/stubs/groupmembers.json');
+        $groupMembers = file_get_contents(__DIR__.'/stubs/groupmembers.json');
         Http::fake([
             'graph.microsoft.com/*' => Http::response($groupMembers),
         ]);
@@ -104,7 +104,7 @@ class ImportUsesTest extends TestCase
     public function import_users_job_test()
     {
         $this->assertDatabaseCount(User::class, 0);
-        $groupMembers = file_get_contents(__DIR__ . '/stubs/groupmembers.json');
+        $groupMembers = file_get_contents(__DIR__.'/stubs/groupmembers.json');
         Http::fake([
             'graph.microsoft.com/*' => Http::response($groupMembers),
         ]);
@@ -117,7 +117,7 @@ class ImportUsesTest extends TestCase
     /** @test */
     public function update_users_job_test()
     {
-        $groupMembers = file_get_contents(__DIR__ . '/stubs/groupmembers.json');
+        $groupMembers = file_get_contents(__DIR__.'/stubs/groupmembers.json');
         $user = json_decode($groupMembers, true)['value'][0];
         User::factory()->state([
             'provider' => 'oneup',

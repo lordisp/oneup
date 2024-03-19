@@ -40,10 +40,10 @@ class RulePCI extends Rule
         return $this;
     }
 
-
     private function save(): array|FirewallRule
     {
         $this->rule->save();
+
         return $this->rule;
     }
 }

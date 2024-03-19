@@ -63,7 +63,6 @@ class ServiceNowGroupMembersTest extends TestCase
         $this->assertEquals($response, $cache);
     }
 
-
     /** @test */
     public function invalid_group_types_throw_an_http_exception()
     {

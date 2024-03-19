@@ -34,7 +34,7 @@ use Tests\TestCase;
 
 class FirewallRequestImportTest extends TestCase implements FrontendTest
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -43,7 +43,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
             UserAzureSeeder::class,
             OperationSeeder::class,
             RoleSeeder::class,
-            TokenCacheProviderSeeder::class
+            TokenCacheProviderSeeder::class,
         ]);
         User::first()->unassignRole('Global Administrator');
     }
@@ -53,7 +53,6 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     {
         $this->get('/firewall/requests/import')->assertRedirect('/login');
     }
-
 
     /** @test */
     public function dont_see_firewall_management_menus()
@@ -131,7 +130,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     public function invalid_file_structure_flashes_error_message()
     {
         Storage::fake('tmp-for-tests');
-        $first = file_get_contents(base_path() . '/tests/Feature/Stubs/firewallImport/invalid_1.json');
+        $first = file_get_contents(base_path().'/tests/Feature/Stubs/firewallImport/invalid_1.json');
         $files[] = UploadedFile::fake()->createWithContent('invalid_1.json', $first);
 
         $user = User::first();
@@ -159,9 +158,9 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         User::all()->each->delete();
 
         Http::fake([
-            config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
+            config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
-            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))
+            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true)),
         ]);
 
         // Act
@@ -193,9 +192,9 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         ]);
 
         Http::fake([
-            config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
+            config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
-            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))
+            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true)),
         ]);
 
         $this->seed(SubnetSeeder::class);
@@ -215,9 +214,9 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     public function can_import_a_valid_json_file_twice()
     {
         Http::fake([
-            config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
+            config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
-            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))
+            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true)),
         ]);
 
         Subnet::factory()->createMany([
@@ -255,9 +254,9 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     public function import_firewall_rules_expect_queued_import_event()
     {
         Http::fake([
-            config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
+            config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
-            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))
+            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true)),
         ]);
 
         Event::fake();
@@ -271,9 +270,9 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     public function expect_available_firewall_review_available_events()
     {
         Http::fake([
-            config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
+            config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
-            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))
+            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true)),
         ]);
 
         Event::fake([FirewallReviewAvailableEvent::class]);
@@ -287,9 +286,9 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     public function expect_processing_firewall_review_available_event()
     {
         Http::fake([
-            config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
+            config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
-            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))
+            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true)),
         ]);
 
         Queue::fake([CleanUpFirewallRuleJob::class]);
@@ -306,9 +305,9 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     public function expect_notification_to_admin_after_import()
     {
         Http::fake([
-            config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
+            config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true)),
-            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))
+            'https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true)),
         ]);
 
         Notification::fake();

@@ -30,6 +30,7 @@ class MailTestCommand extends Command
             'to' => $this->argument('to'),
             'subject' => $this->option('subject') ?? 'OneUp TestMail',
         ];
+
         return Validator::validate($data,
             [
                 'to' => 'required|email',

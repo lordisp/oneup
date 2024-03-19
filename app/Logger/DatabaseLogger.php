@@ -7,8 +7,6 @@ use Monolog\Logger;
 
 class DatabaseLogger
 {
-
-
     private string $level;
 
     public function __construct()

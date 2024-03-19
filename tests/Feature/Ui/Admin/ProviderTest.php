@@ -17,7 +17,7 @@ use Tests\TestCase;
 
 class ProviderTest extends TestCase implements FrontendTest
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     public function setUp(): void
     {
@@ -25,7 +25,6 @@ class ProviderTest extends TestCase implements FrontendTest
 
         $this->user = User::factory()->create();
     }
-
 
     /** @test */
     public function cannot_access_route_as_guest()
@@ -163,7 +162,6 @@ class ProviderTest extends TestCase implements FrontendTest
             ->assertHasNoErrors()
             ->assertDispatchedBrowserEvent('notify', ['message' => 'Saved', 'type' => 'success'])
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'edit']);
-
 
     }
 

@@ -14,8 +14,6 @@ class AppServiceProvider extends ServiceProvider
 {
     /**
      * Register any application services.
-     *
-     * @return void
      */
     public function register(): void
     {
@@ -25,8 +23,6 @@ class AppServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap any application services.
-     *
-     * @return void
      */
     public function boot(): void
     {
@@ -47,9 +43,11 @@ class AppServiceProvider extends ServiceProvider
 
     protected function registerAccessor()
     {
-        if (class_exists(Accessor::class)) $this->app->singleton('accessor', function () {
-            return new Accessor();
-        });
+        if (class_exists(Accessor::class)) {
+            $this->app->singleton('accessor', function () {
+                return new Accessor();
+            });
+        }
     }
 
     protected function registerLivewireMacros()
@@ -74,6 +72,7 @@ class AppServiceProvider extends ServiceProvider
             return $string ? $this->orWhere($field, 'like', '%'.$string.'%') : $this;
         });
     }
+
     protected function registerAzureMacros()
     {
         Http::macro('azure', function () {
@@ -97,7 +96,7 @@ class AppServiceProvider extends ServiceProvider
         ];
 
         foreach ($headers as $header => $value) {
-            header($header . ': ' . $value);
+            header($header.': '.$value);
         }
     }
 }

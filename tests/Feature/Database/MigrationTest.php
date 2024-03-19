@@ -64,5 +64,4 @@ class MigrationTest extends TestCase
         $this->assertDatabaseCount('operations', 26);
         $this->assertDatabaseCount('business_services', 0);
     }
-
 }

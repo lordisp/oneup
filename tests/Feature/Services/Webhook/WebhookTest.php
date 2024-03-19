@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 class WebhookTest extends TestCase
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     /** @test
      * @url https://learn.microsoft.com/en-us/rest/api/monitor/alertsmanagement/alerts/change-state?tabs=HTTP#alertstate
@@ -20,7 +20,7 @@ class WebhookTest extends TestCase
         $this->makeAlaProvider();
         Queue::fake();
         $this->post('/api/v1/webhook',
-            json_decode(file_get_contents(__DIR__ . '/stubs/add_member_webhook.json'), true)
+            json_decode(file_get_contents(__DIR__.'/stubs/add_member_webhook.json'), true)
         )->assertStatus(201);
         Queue::assertPushedOn('admin', WebhookJob::class);
     }

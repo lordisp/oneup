@@ -15,9 +15,10 @@ class AddUserFromAADJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token;
 
     const PROVIDER = 'lhg_graph';
+
     protected string $provider;
 
-    public function __construct(protected string $email, string $provider = null)
+    public function __construct(protected string $email, ?string $provider = null)
     {
         $this->provider = $provider ?? self::PROVIDER;
     }
@@ -29,6 +30,4 @@ class AddUserFromAADJob implements ShouldQueue
             ->users($this->email)
             ->add();
     }
-
-
 }

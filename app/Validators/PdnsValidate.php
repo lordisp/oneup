@@ -10,16 +10,15 @@ class PdnsValidate
 {
     public static function recordType(string|array $recordType): array
     {
-        $data['recordType'] = (array)$recordType;
+        $data['recordType'] = (array) $recordType;
 
         return Validator::validate($data, [
             'recordType' => 'required|array',
-            'recordType.*' => Rule::in(['A', 'AAAA', 'MX', 'PTR', 'SRV', 'TXT', 'CNAME'])
+            'recordType.*' => Rule::in(['A', 'AAAA', 'MX', 'PTR', 'SRV', 'TXT', 'CNAME']),
         ], [
             'recordType' => 'Invalid record-type!',
             'recordType.*' => 'Invalid record-type!',
-        ])
-        ['recordType'];
+        ])['recordType'];
     }
 
     public static function provider(string $provider): string
@@ -28,9 +27,8 @@ class PdnsValidate
 
         return Validator::validate($data, [
             'field' => Rule::in(TokenCacheProvider::get('name')
-                ->map(fn($query) => $query->name)
+                ->map(fn ($query) => $query->name)
                 ->toarray()),
-        ],['field'=>__('validation.provider_not_found')])
-        ['field'];
+        ], ['field' => __('validation.provider_not_found')])['field'];
     }
 }

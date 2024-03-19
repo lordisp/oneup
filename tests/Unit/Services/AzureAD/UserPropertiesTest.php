@@ -2,7 +2,6 @@
 
 namespace Tests\Unit\Services\AzureAD;
 
-use App\Services\AzureAD\UserPrincipal;
 use App\Services\AzureAD\UserProperties;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;

@@ -9,9 +9,7 @@ use Livewire\Component;
 
 class AsUser extends Component
 {
-
     protected $listeners = ['refresh' => '$refresh'];
-
 
     public function mount()
     {
@@ -25,7 +23,7 @@ class AsUser extends Component
         $fromUser = User::find($userId);
 
         if (isset($fromUser)) {
-            Log::info($fromUser->email . ' closed session from ' . auth()->user()->email);
+            Log::info($fromUser->email.' closed session from '.auth()->user()->email);
             auth()->logout();
             auth()->login($fromUser);
         }

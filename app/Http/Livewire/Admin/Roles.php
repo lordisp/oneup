@@ -23,7 +23,7 @@ use Livewire\Component;
  */
 class Roles extends Component
 {
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch;
+    use WithBulkActions, WithFilteredColumns, WithPerPagePagination, WithSearch, WithSorting;
 
     public Role $role;
 
@@ -42,7 +42,9 @@ class Roles extends Component
     {
         $id = isset($id) ? (is_array($id) ? $id : [$id]) : $this->selected;
         $this->objects = Role::whereIn('id', $id)->get();
-        if (count($this->objects) >= 1) $this->dispatchBrowserEvent('open-modal', ['modal' => 'delete']); else {
+        if (count($this->objects) >= 1) {
+            $this->dispatchBrowserEvent('open-modal', ['modal' => 'delete']);
+        } else {
             $this->event(__('messages.delete_error', ['attribute' => 'Role']), 'error');
         }
     }
@@ -52,6 +54,7 @@ class Roles extends Component
         if (Gate::denies('roles-delete', $this->objects)) {
             $this->event(__('auth.unauthorized', ['value' => 'to delete roles!']), 'error');
             $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
+
             return redirect()->back();
         }
         if (Role::destroy($this->objects->pluck('id'))) {
@@ -60,7 +63,9 @@ class Roles extends Component
                 'Trigger' => $request->user()->getAuthIdentifier(),
                 'Resource' => $this->objects->toArray(),
             ]);
-        } else $this->event(__('messages.delete_error', ['attribute' => 'Role']), 'error');
+        } else {
+            $this->event(__('messages.delete_error', ['attribute' => 'Role']), 'error');
+        }
 
         $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
         $this->resetBulk();
@@ -74,9 +79,9 @@ class Roles extends Component
 
     public function withQuery($query)
     {
-        return $query->when($this->search, fn($query, $search) => $query
-            ->where('name', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('description', 'like', '%' . Str::of($search)->trim() . '%')
+        return $query->when($this->search, fn ($query, $search) => $query
+            ->where('name', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('description', 'like', '%'.Str::of($search)->trim().'%')
         );
     }
 

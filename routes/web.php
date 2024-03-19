@@ -1,6 +1,5 @@
 <?php
 
-
 use App\Http\Livewire\Admin\Groups;
 use App\Http\Livewire\Admin\GroupsCreate;
 use App\Http\Livewire\Admin\GroupsEdit;
@@ -30,7 +29,7 @@ Route::get('/', function () {
 });
 
 /* auth web routes*/
-Route::middleware(['auth','auth.session'])->group(function () {
+Route::middleware(['auth', 'auth.session'])->group(function () {
 
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -55,5 +54,5 @@ Route::middleware(['auth','auth.session'])->group(function () {
     Route::get('/firewall/requests/import', FirewallRequestsImport::class)->name('firewall.requests.import');
 });
 
-require __DIR__ . '/auth.php';
-require __DIR__ . '/passport.php';
+require __DIR__.'/auth.php';
+require __DIR__.'/passport.php';

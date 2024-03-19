@@ -21,7 +21,7 @@ use Throwable;
 
 class UpdateRecordJob implements ShouldQueue
 {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token, DeveloperNotification;
+    use Batchable, DeveloperNotification, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token;
 
     public int $tries = 10;
 
@@ -39,7 +39,7 @@ class UpdateRecordJob implements ShouldQueue
 
     public function uniqueId(): string
     {
-        return md5($this->attributes['record']['name'] . $this->attributes['spoke']);
+        return md5($this->attributes['record']['name'].$this->attributes['spoke']);
     }
 
     /**
@@ -47,13 +47,14 @@ class UpdateRecordJob implements ShouldQueue
      */
     public function handle(): void
     {
-        if (!$this->recordHasResource($this->attributes['record'])) {
-            Log::debug('No resource found for ' . $this->attributes['record']['name'], [
+        if (! $this->recordHasResource($this->attributes['record'])) {
+            Log::debug('No resource found for '.$this->attributes['record']['name'], [
                 'Trigger' => 'UpdateRecordJob',
                 'batch' => $this->batchId,
                 'spoke' => $this->attributes['spoke'],
-                'properties' => $this->attributes['record']['properties']
+                'properties' => $this->attributes['record']['properties'],
             ]);
+
             return;
         }
 
@@ -96,8 +97,8 @@ class UpdateRecordJob implements ShouldQueue
     }
 
     /**
-     * @return void
      * @description Update the record in the hub
+     *
      * @see https://learn.microsoft.com/en-us/rest/api/dns/privatedns/record-sets/create-or-update?view=rest-dns-privatedns-2018-09-01&tabs=HTTP
      */
     protected function updateRecord(): void
@@ -106,11 +107,11 @@ class UpdateRecordJob implements ShouldQueue
             return;
         }
 
-        Log::debug('Updating ' . $this->attributes['record']['name'], [
+        Log::debug('Updating '.$this->attributes['record']['name'], [
             'Trigger' => 'UpdateRecordJob',
             'batch' => $this->batchId,
             'spoke' => $this->attributes['spoke'],
-            'properties' => $this->attributes['record']['properties']
+            'properties' => $this->attributes['record']['properties'],
         ]);
 
         $this->response = Http::withToken(decrypt($this->attributes['token']))
@@ -122,19 +123,20 @@ class UpdateRecordJob implements ShouldQueue
 
     protected function auditResponse()
     {
-        if (!isset($this->response)) {
+        if (! isset($this->response)) {
             return;
         }
 
         if ($this->response->failed()) {
-            Log::warning('Patching ' . $this->attributes['record']['name'] . ' Failed: ' . $this->response->reason(), $this->response->json());
+            Log::warning('Patching '.$this->attributes['record']['name'].' Failed: '.$this->response->reason(), $this->response->json());
+
             return;
         }
 
         Log::info($this->attributes['message'], [
             'batch' => $this->batchId,
             'spoke' => $this->attributes['spoke'],
-            'properties' => $this->attributes['record']['properties']
+            'properties' => $this->attributes['record']['properties'],
         ]);
     }
 
@@ -154,7 +156,7 @@ class UpdateRecordJob implements ShouldQueue
         $resources = ResourceGraph::fromCache("networkinterfaces:{$this->attributes['spoke']}");
 
         if (empty($resources)) {
-            throw new UpdateRecordJobException('No resources in cache for ' . $this->attributes['spoke']);
+            throw new UpdateRecordJobException('No resources in cache for '.$this->attributes['spoke']);
         }
 
         return (new RecordHasResourceJob(
@@ -167,6 +169,7 @@ class UpdateRecordJob implements ShouldQueue
     protected function normalizeRecord($record)
     {
         Arr::forget($record['properties'], ['metadata', 'isAutoRegistered']);
+
         return $record;
     }
 
@@ -183,8 +186,6 @@ class UpdateRecordJob implements ShouldQueue
     }
 
     /**
-     * @param $exception
-     * @param $request
      * @return true
      */
     private function requestExceptions($exception, $request): bool
@@ -192,13 +193,15 @@ class UpdateRecordJob implements ShouldQueue
         if ($exception instanceof RequestException && $exception->getCode() === 429) {
             $retryAfter = $exception->response->header('Retry-After');
             sleep(empty($retryAfter) ? 10 : $retryAfter);
+
             return true;
         }
 
-        if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+        if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
             return true;
         }
         $request->withToken(decrypt($this->newToken($this->attributes['hub'])));
+
         return true;
     }
 }

@@ -52,7 +52,7 @@ class FirewallRulePolicy
 
     public function update(User $user, FirewallRule $rule): bool
     {
-        $key = $user->id . $rule->id . $rule->business_service;
+        $key = $user->id.$rule->id.$rule->business_service;
 
         return cache()->tags('rbac')->remember($key, now()->addMinutes(15), function () use ($user, $rule) {
             return $user->hasBusinessService($rule->business_service);

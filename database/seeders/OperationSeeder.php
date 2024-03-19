@@ -7,7 +7,6 @@ use Illuminate\Database\Seeder;
 
 class OperationSeeder extends Seeder
 {
-
     protected array $operations = [
         /*Operations*/
         'admin/rbac/operation/read' => 'Can read operation',
@@ -53,10 +52,10 @@ class OperationSeeder extends Seeder
     {
         foreach ($this->operations as $key => $value) {
             Operation::updateOrCreate([
-                'operation' => $key
+                'operation' => $key,
             ], [
                 'operation' => $key,
-                'description' => $value
+                'description' => $value,
             ]);
 
         }

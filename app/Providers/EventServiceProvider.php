@@ -26,11 +26,11 @@ class EventServiceProvider extends ServiceProvider
         ],
 
         \App\Events\NotifyFirewallImportCompletedEvent::class => [
-            \App\Listeners\SendFirewallImportCompletedNotification::class
+            \App\Listeners\SendFirewallImportCompletedNotification::class,
         ],
 
         'session.expire' => [
-            SessionExpiredListener::class
+            SessionExpiredListener::class,
         ],
         VmStateChangeEvent::class => [
             VmStateChangeProcessListener::class,

@@ -59,7 +59,6 @@ class MsGraphTest extends TestCase
         $this->assertCount(100, data_get($results, 'value'));
     }
 
-
     /** @test
      * @throws MsGraphException
      */
@@ -169,7 +168,7 @@ class MsGraphTest extends TestCase
         Http::fake([
             'https://graph.microsoft.com/*' => Http::sequence()
                 ->push(status: 429, headers: ['Retry-After' => 0])
-                ->push(['value' => []], 200)
+                ->push(['value' => []], 200),
         ]);
 
         $results = MsGraph::get('/users')
@@ -210,7 +209,7 @@ class MsGraphTest extends TestCase
     public function request_is_not_retried_when_404_received()
     {
         Http::fake([
-            'https://graph.microsoft.com/*' => Http::response([], 404)
+            'https://graph.microsoft.com/*' => Http::response([], 404),
         ]);
 
         $response = MsGraph::get('/users/67ca2374-1e95-4b38-b2b6-45bf89ced946')
@@ -225,7 +224,7 @@ class MsGraphTest extends TestCase
     {
         cache()->flush();
         Http::fake([
-            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 403)
+            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 403),
         ]);
 
         $this->expectException(MsGraphException::class);
@@ -243,7 +242,7 @@ class MsGraphTest extends TestCase
     {
         cache()->flush();
         Http::fake([
-            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 400)
+            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 400),
         ]);
 
         $this->expectException(MsGraphException::class);
@@ -256,7 +255,6 @@ class MsGraphTest extends TestCase
         $this->assertEmpty($result);
     }
 
-
     /** @test */
     public function test_expired_token_is_refreshed()
     {
@@ -265,7 +263,7 @@ class MsGraphTest extends TestCase
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('tests/Feature/Stubs/app_access_token.json')), true)),
             'https://graph.microsoft.com/*' => Http::sequence()
                 ->push(['error' => 'message'], 401)
-                ->push(['value' => []], 200)
+                ->push(['value' => []], 200),
         ]);
 
         $result = MsGraph::get('/users/1710802e-dc0e-4794-b9b8-a24349c27627')
@@ -280,7 +278,7 @@ class MsGraphTest extends TestCase
     {
         cache()->flush();
         Http::fake([
-            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 500)
+            'https://graph.microsoft.com/*' => Http::response(['error' => 'message'], 500),
         ]);
 
         $this->expectException(MsGraphException::class);
@@ -300,7 +298,7 @@ class MsGraphTest extends TestCase
         Http::fake([
             'https://graph.microsoft.com/*' => Http::sequence()
                 ->push(status: 408)
-                ->push(['value' => []], 200)
+                ->push(['value' => []], 200),
         ]);
 
         $result = MsGraph::get('/users/1710802e-dc0e-4794-b9b8-a24349c27627')
@@ -349,5 +347,4 @@ class MsGraphTest extends TestCase
         $this->assertIsString($result);
         $this->assertStringContainsString('ImageNotFoundException', $result);
     }
-
 }

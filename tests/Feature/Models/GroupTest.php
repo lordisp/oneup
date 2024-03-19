@@ -1,4 +1,6 @@
-<?php /** @noinspection PhpPossiblePolymorphicInvocationInspection */
+<?php
+
+/** @noinspection PhpPossiblePolymorphicInvocationInspection */
 
 namespace Tests\Feature\Models;
 
@@ -27,7 +29,6 @@ class GroupTest extends TestCase
         $this->assertIsString($group->first()->slug);
         $this->assertIsString($group->first()->description);
     }
-
 
     /** @test */
     public function can_assign_and_remove_user_from_group()
@@ -68,7 +69,7 @@ class GroupTest extends TestCase
         $group->assignRole($roles->first()->name);
         $group->assignRole($roles);
 
-        $this->assertCount(3,$group->roles()->get());
+        $this->assertCount(3, $group->roles()->get());
 
         $group->unassignRole($roles->first()->name);
         $group->unassignRole($roles);

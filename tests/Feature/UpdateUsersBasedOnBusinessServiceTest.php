@@ -48,7 +48,7 @@ class UpdateUsersBasedOnBusinessServiceTest extends TestCase
     public function it_remove_user_from_business_service()
     {
         $fake = json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true);
-        Http::fake([config('servicenow.uri') . '/*' => Http::response($fake)]);
+        Http::fake([config('servicenow.uri').'/*' => Http::response($fake)]);
 
         $businessService = BusinessService::factory()->create();
         $userEmails = Arr::flatten($fake['result']);
@@ -98,7 +98,7 @@ class UpdateUsersBasedOnBusinessServiceTest extends TestCase
         $events = $this->app[Schedule::class]->events();
 
         $classnames = [
-            UpdateUsersBasedOnBusinessServiceScheduler::class
+            UpdateUsersBasedOnBusinessServiceScheduler::class,
         ];
         foreach ($classnames as $classname) {
             $this->assertTrue(

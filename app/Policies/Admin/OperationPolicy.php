@@ -17,7 +17,6 @@ class OperationPolicy extends Policy
     /**
      * Determine whether the user can view any models.
      *
-     * @param \App\Models\User $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function viewAny(User $user)
@@ -30,11 +29,10 @@ class OperationPolicy extends Policy
     /**
      * Determine whether the user can view the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Operation $operation
+     * @param  \App\Models\Operation  $operation
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, Operation|null $operation = null)
+    public function view(User $user, ?Operation $operation = null)
     {
         return $user->operations()->contains('admin/rbac/operation/read');
     }
@@ -42,7 +40,6 @@ class OperationPolicy extends Policy
     /**
      * Determine whether the user can create models.
      *
-     * @param \App\Models\User $user
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function create(User $user)
@@ -55,11 +52,9 @@ class OperationPolicy extends Policy
     /**
      * Determine whether the user can update the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Operation $operation
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Operation|null $operation)
+    public function update(User $user, ?Operation $operation)
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/operation/update', 'Can update operations')
@@ -69,17 +64,17 @@ class OperationPolicy extends Policy
     /**
      * Determine whether the user can delete the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Operation $operation
+     * @param  \App\Models\Operation  $operation
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function delete(User $user, Operation|Collection|null $operation)
     {
         if (isset($operation) && $operation instanceof Collection) {
             foreach ($operation as $value) {
-                return !Arr::has(self::operations, $value->operation);
+                return ! Arr::has(self::operations, $value->operation);
             }
         }
+
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/operation/delete', 'Can delete operations')
         );
@@ -88,11 +83,9 @@ class OperationPolicy extends Policy
     /**
      * Determine whether the user can restore the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Operation $operation
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, Operation|null $operation)
+    public function restore(User $user, ?Operation $operation)
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/operation/restore', 'Can restore operations')
@@ -102,11 +95,9 @@ class OperationPolicy extends Policy
     /**
      * Determine whether the user can permanently delete the model.
      *
-     * @param \App\Models\User $user
-     * @param \App\Models\Operation $operation
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, Operation|null $operation)
+    public function forceDelete(User $user, ?Operation $operation)
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/operation/forceDelete', 'Can force-delete operations')

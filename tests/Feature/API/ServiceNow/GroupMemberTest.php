@@ -16,15 +16,15 @@ class GroupMemberTest extends TestCase
 
         $this->username = config('servicenow.client_id');
         $this->password = config('servicenow.client_secret');
-        $this->uri = config('servicenow.uri') . '/api/delag/retrieve_cost_centers/GetGroupFromBsandType';
+        $this->uri = config('servicenow.uri').'/api/delag/retrieve_cost_centers/GetGroupFromBsandType';
     }
 
     /** @test */
     public function api_returns_valid_email_array()
     {
         $response = Http::withBasicAuth($this->username, $this->password)->post($this->uri, [
-            "names" => ['LHG_ONEUP_P'],
-            "types" => ['Responsibles']
+            'names' => ['LHG_ONEUP_P'],
+            'types' => ['Responsibles'],
         ]);
 
         $this->assertequals(200, $response->status());
@@ -43,8 +43,8 @@ class GroupMemberTest extends TestCase
     public function invalid_group_name_throws_http_exception()
     {
         $response = Http::withBasicAuth($this->username, $this->password)->post($this->uri, [
-            "names" => ['LHG_ONEUP_P'],
-            "types" => ['InvalidGroup']
+            'names' => ['LHG_ONEUP_P'],
+            'types' => ['InvalidGroup'],
         ]);
         $json = $response->json();
 
@@ -59,8 +59,8 @@ class GroupMemberTest extends TestCase
     public function api_returns_valid_email_array_with_all_types()
     {
         $response = Http::withBasicAuth($this->username, $this->password)->post($this->uri, [
-            "names" => ['LHG_ONEUP_P'],
-            "types" => ['EscalationNotification', 'Responsibles', 'SecurityContacts']
+            'names' => ['LHG_ONEUP_P'],
+            'types' => ['EscalationNotification', 'Responsibles', 'SecurityContacts'],
         ]);
 
         $this->assertequals(200, $response->status());
@@ -75,13 +75,12 @@ class GroupMemberTest extends TestCase
         }
     }
 
-
     /** @test */
     public function expect_400_for_invalid_business_services()
     {
         $response = Http::withBasicAuth($this->username, $this->password)->post($this->uri, [
-            "names" => ['Invalid'],
-            "types" => ['EscalationNotification', 'Responsibles', 'SecurityContacts']
+            'names' => ['Invalid'],
+            'types' => ['EscalationNotification', 'Responsibles', 'SecurityContacts'],
         ]);
 
         $this->assertEquals(

@@ -29,7 +29,7 @@ class OperationFactory extends Factory
             'ActiveDirectory',
             'ResourceManager',
             'Administration',
-            'Policy'
+            'Policy',
         ];
         $providers = [
             'OneUp',
@@ -55,6 +55,6 @@ class OperationFactory extends Factory
             'edit',
         ];
 
-        return $providers[array_rand($providers)] . "/" . $namespaces[array_rand($namespaces)] . "/" . $resources[array_rand($resources)] . "/" . $actions[array_rand($actions)];
+        return $providers[array_rand($providers)].'/'.$namespaces[array_rand($namespaces)].'/'.$resources[array_rand($resources)].'/'.$actions[array_rand($actions)];
     }
 }

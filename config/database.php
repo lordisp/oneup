@@ -61,9 +61,9 @@ return [
             'sslmode' => 'prefer',
             'options' => env('APP_ENV') != 'local' && env('APP_ENV') != 'testing' ?
                 [
-                    PDO::MYSQL_ATTR_SSL_CA => base_path() . '/ssl/DigiCertGlobalRootCA.crt.pem',
+                    PDO::MYSQL_ATTR_SSL_CA => base_path().'/ssl/DigiCertGlobalRootCA.crt.pem',
                     PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
-                ] : []
+                ] : [],
         ],
 
         'pgsql' => [
@@ -128,7 +128,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'oneup'), '_') . '_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'oneup'), '_').'_database_'),
             'persistent' => env('REDIS_PERSISTENT', true),
             'read_timeout' => env('REDIS_READ_TIMEOUT', 10),
             'retry_interval' => env('REDIS_RETRY_INTERVAL', 100),

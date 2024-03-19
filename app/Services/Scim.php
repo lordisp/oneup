@@ -25,34 +25,41 @@ class Scim
     use Token;
 
     protected string $provider;
+
     protected bool $status;
+
     protected array $users = [];
+
     protected string $businessService = '';
 
     public function provider($provider): static
     {
         $this->provider = $this->preValidateProvider($provider)['provider'];
+
         return $this;
     }
 
     public function groups(string|array $objectIds): static
     {
-        $objectIds = (array)$objectIds;
+        $objectIds = (array) $objectIds;
         foreach ($objectIds as $objectId) {
-            $groupMembersUrl = 'https://graph.microsoft.com/v1.0/groups/' . $objectId . '/members/microsoft.graph.user?$count=true&$select=id,displayName,givenName,surname,mail,userPrincipalName';
+            $groupMembersUrl = 'https://graph.microsoft.com/v1.0/groups/'.$objectId.'/members/microsoft.graph.user?$count=true&$select=id,displayName,givenName,surname,mail,userPrincipalName';
             $response = Http::withHeaders(['ConsistencyLevel' => 'eventual'])
                 ->withToken(decrypt($this->token($this->provider)))
                 ->retry(10, 50, function ($exception, $request): bool {
                     if ($exception instanceof RequestException && $exception->getCode() === 401) {
-                        Log::warning('Scim: Group-Members: ' . $exception->getMessage());
+                        Log::warning('Scim: Group-Members: '.$exception->getMessage());
                         $request->withToken(decrypt($this->token($this->provider)));
+
                         return true;
                     } elseif ($exception instanceof RequestException && $exception->getCode() === 404) {
-                        Log::warning('Scim: Group-Members: ' . $exception->getMessage());
+                        Log::warning('Scim: Group-Members: '.$exception->getMessage());
+
                         return false;
                     } else {
-                        Log::error('Scim: Group-Members: ' . $exception->getMessage());
+                        Log::error('Scim: Group-Members: '.$exception->getMessage());
                         $request->withToken(decrypt($this->token($this->provider)));
+
                         return true;
                     }
                 }, throw: false)
@@ -62,18 +69,20 @@ class Scim
                 $this->importUserAccounts($members);
             }
         }
+
         return $this;
     }
 
     public function withBusinessService($businessService): static
     {
         $this->businessService = $businessService;
+
         return $this;
     }
 
     public function users(string|array $userPrincipalNames): static
     {
-        $userPrincipalNames = (array)$userPrincipalNames;
+        $userPrincipalNames = (array) $userPrincipalNames;
         $users = [];
 
         foreach ($userPrincipalNames as $userPrincipalName) {
@@ -81,7 +90,7 @@ class Scim
             $user = AzureADUser::select(new UserProperties('id,displayName,givenName,surname'))
                 ->get(new UserPrincipal($userPrincipalName));
 
-            if (!Arr::has($user, 'error')) {
+            if (! Arr::has($user, 'error')) {
                 $user['email'] = $userPrincipalName;
                 $user['displayName'] = Str::title($user['displayName']);
                 $user['givenName'] = Str::title($user['givenName']);
@@ -91,6 +100,7 @@ class Scim
         }
 
         $this->users = $users;
+
         return $this;
 
     }
@@ -99,6 +109,7 @@ class Scim
     {
         $this->status = true;
         $this->updateOrCreate($this->users);
+
         return response(status: 201);
     }
 
@@ -108,12 +119,11 @@ class Scim
         $this->updateOrCreate($this->users);
     }
 
-
     protected function updateOrCreate(array $users): void
     {
         foreach ($users as $user) {
             $userInstance = $this->saveUserInstance($user);
-            if (!$this->businessService) {
+            if (! $this->businessService) {
                 continue;
             }
             $this->processBusinessService($userInstance);
@@ -127,17 +137,19 @@ class Scim
             $synced = $userInstance->businessServices()->syncWithoutDetaching($businessService->id);
             $activity = $this->computeActivityDescription($synced);
 
-            if (empty($activity)) return;
+            if (empty($activity)) {
+                return;
+            }
 
             $userInstance->audits()->create([
                 'actor' => 'Scim',
-                'activity' => $activity . ' Business-Service Members',
+                'activity' => $activity.' Business-Service Members',
                 'status' => count($synced) > 0 ? 'Success' : 'Failed',
                 'metadata' => [
                     'business_service' => $businessService->name,
                     'user' => $userInstance->email,
                     'provider' => $this->provider,
-                ]
+                ],
             ]);
         } catch (Exception) {
             Log::error('Scim: Failed to sync business service', [
@@ -150,11 +162,11 @@ class Scim
 
     private function computeActivityDescription(array $synced)
     {
-        if (!empty(data_get($synced, 'attached'))) {
+        if (! empty(data_get($synced, 'attached'))) {
             return 'Added';
         }
 
-        if (!empty(data_get($synced, 'detached'))) {
+        if (! empty(data_get($synced, 'detached'))) {
             return 'Removed';
         }
     }
@@ -169,9 +181,12 @@ class Scim
     protected function preValidateProvider($provider): array
     {
         $provider = TokenCacheProvider::where('name', '=', $provider)->first();
-        if (!empty($provider)) $provider = $provider->name;
+        if (! empty($provider)) {
+            $provider = $provider->name;
+        }
+
         return Validator::make(['provider' => $provider], [
-            'provider' => 'required|string'
+            'provider' => 'required|string',
         ])->validate();
     }
 
@@ -194,14 +209,14 @@ class Scim
             $userInstance = User::whereEmail($user['email'])->first();
 
             if (isset($userInstance) && $userInstance instanceof User) {
-                Log::debug('Scim: User found: ' . $user['email'], (array)$exception);
+                Log::debug('Scim: User found: '.$user['email'], (array) $exception);
+
                 return $userInstance;
             }
 
-            Log::error("Scim: Failed to updateOrCreate {$user['email']}", (array)$exception);
+            Log::error("Scim: Failed to updateOrCreate {$user['email']}", (array) $exception);
 
             return User::newModelInstance();
         }
     }
-
 }

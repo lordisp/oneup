@@ -18,5 +18,4 @@ class FirewallReviewAvailableEvent
     public function __construct(public $event, public $user)
     {
     }
-
 }

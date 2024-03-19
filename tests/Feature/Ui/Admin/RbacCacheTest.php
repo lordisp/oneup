@@ -22,7 +22,7 @@ class RbacCacheTest extends TestCase
 
         $this->updateOrCreate($operation, $description);
 
-        $this->assertDatabaseCount(Operation::class,1);
+        $this->assertDatabaseCount(Operation::class, 1);
     }
 
     /** @test */
@@ -35,7 +35,7 @@ class RbacCacheTest extends TestCase
         $this->flushRbacCache();
 
         $this->assertNull(cache()->tags('rbac')->get($operation));
-        $this->assertDatabaseCount(Operation::class,1);
+        $this->assertDatabaseCount(Operation::class, 1);
     }
 
     /** @test */
@@ -48,7 +48,7 @@ class RbacCacheTest extends TestCase
 
         $this->updateOrCreate($operation, $description);
 
-        $this->assertDatabaseCount(Operation::class,0);
+        $this->assertDatabaseCount(Operation::class, 0);
 
     }
 
@@ -61,7 +61,7 @@ class RbacCacheTest extends TestCase
         $description = 'Awesome Foo';
 
         $this->updateOrCreate($operation, $description);
-        $this->assertDatabaseCount(Operation::class,0);
+        $this->assertDatabaseCount(Operation::class, 0);
     }
 
     /** @test */
@@ -84,7 +84,7 @@ class RbacCacheTest extends TestCase
         $description = 'Foo';
 
         $this->updateOrCreate($operation, $description);
-        $this->assertDatabaseCount(Operation::class,0);
+        $this->assertDatabaseCount(Operation::class, 0);
     }
 
     /** @test */
@@ -96,6 +96,6 @@ class RbacCacheTest extends TestCase
         $description = '';
 
         $this->updateOrCreate($operation, $description);
-        $this->assertDatabaseCount(Operation::class,0);
+        $this->assertDatabaseCount(Operation::class, 0);
     }
 }

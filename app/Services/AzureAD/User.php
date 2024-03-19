@@ -11,7 +11,8 @@ class User
     const PROVIDER = 'lhg_graph';
 
     protected string $userId;
-    protected string|null $properties = null;
+
+    protected ?string $properties = null;
 
     public function __construct()
     {
@@ -27,7 +28,8 @@ class User
     public function select(UserProperties $properties): static
     {
         $properties = $properties->get();
-        $this->properties = $properties ? "?\$select=" . $properties : null;
+        $this->properties = $properties ? '?$select='.$properties : null;
+
         return $this;
     }
 
@@ -40,6 +42,7 @@ class User
                         return false;
                     }
                     $request->withToken($this->getAccessToken());
+
                     return true;
                 }, false)
                 ->get("https://graph.microsoft.com/v1.0/users/{$this->userId}{$this->properties}")

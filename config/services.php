@@ -39,7 +39,7 @@ return [
         'chunk' => [
             'zones' => env('PDNS_CHUNK_ZONES', 10),
             'records' => env('PDNS_CHUNK_RECORDS', 100),
-        ]
+        ],
     ],
 
     'scheduler' => [
@@ -52,7 +52,7 @@ return [
         'prune-failed' => [
             'hours' => env('PRUNE_FAILED_HOURS', 24),
         ],
-        
+
         'prune-telescope' => [
             'hours' => env('PRUNE_TELESCOPE_HOURS', 12),
         ],
@@ -66,5 +66,5 @@ return [
     'azure-ad' => [
         'dismiss-risky-users' => env('DISMISS_RISKY_USERS', true),
         'chunk-dismiss-risky-users' => env('CHUNK_DISMISS_RISKY_USERS', 20),
-    ]
+    ],
 ];

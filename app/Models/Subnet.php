@@ -10,7 +10,7 @@ use Spatie\Sluggable\SlugOptions;
 
 class Subnet extends Model
 {
-    use Uuid, HasSlug, HasFactory;
+    use HasFactory, HasSlug, Uuid;
 
     public function getSlugOptions(): SlugOptions
     {

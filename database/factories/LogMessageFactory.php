@@ -4,7 +4,6 @@ namespace Database\Factories;
 
 use App\Models\LogMessage;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
 
@@ -21,6 +20,7 @@ class LogMessageFactory extends Factory
         550 => 'ALERT',
         600 => 'EMERGENCY',
     ];
+
     protected $model = LogMessage::class;
 
     public function definition(): array
@@ -44,7 +44,7 @@ class LogMessageFactory extends Factory
     public function deleted(): LogMessageFactory
     {
         return $this->state([
-            'deleted_at' => Carbon::now()->subDays(rand(1, 30))->subYears(rand(3, 10))
+            'deleted_at' => Carbon::now()->subDays(rand(1, 30))->subYears(rand(3, 10)),
         ]);
     }
 

@@ -12,11 +12,10 @@ use Illuminate\Support\Str;
 use Laravel\Passport\TokenRepository;
 use Tests\Helper;
 use Tests\TestCase;
-use function PHPUnit\Framework\classHasAttribute;
 
 class ClientTest extends TestCase
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     /** @test */
     public function cannot_access_create_client_as_guest()
@@ -72,7 +71,7 @@ class ClientTest extends TestCase
      */
     public function can_request_an_access_token()
     {
-        list($client, $scope) = $this->getPassportClientWithScopes('subnets-create');
+        [$client, $scope] = $this->getPassportClientWithScopes('subnets-create');
 
         $data = [
             'grant_type' => 'client_credentials',
@@ -130,7 +129,6 @@ class ClientTest extends TestCase
         $this->assertArrayHasKey('sub', get_object_vars($decoded));
         $this->assertArrayHasKey('scopes', get_object_vars($decoded));
     }
-
 
     /** @test
      * @throws BindingResolutionException

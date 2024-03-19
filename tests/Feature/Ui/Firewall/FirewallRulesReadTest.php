@@ -24,7 +24,6 @@ use Tests\FrontendTest;
 
 class FirewallRulesReadTest extends FirewallRequestImportTest implements FrontendTest
 {
-
     /** @test */
     public function cannot_access_route_as_guest()
     {
@@ -114,8 +113,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
             'pci_dss' => Carbon::now(),
         ])->create();
 
-        Http::fake([config('servicenow.uri') . '/*' =>
-            Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true))
+        Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/request.json')), true)),
         ]);
 
         Queue::fake([ImportBusinessServiceMemberJob::class]);
@@ -145,7 +143,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     /** @test */
     public function it_deletes_all_requests_write_a_log_and_notify_the_user()
     {
-        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
         Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
 
@@ -196,7 +194,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     /** @test */
     public function can_delete_all_requests_by_an_administrartor()
     {
-        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
         Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
 
@@ -227,7 +225,6 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
             return $context->message === __('messages.all_requests_deleted');
         });
 
-
         Notification::assertSentTo($user, UserActionNotification::class, function ($context) {
             return $context->message === __('messages.all_requests_deleted');
         });
@@ -237,7 +234,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     /** @test */
     public function can_filter_by_non_pci_and_optional_review()
     {
-        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
         Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
 
@@ -259,7 +256,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     /** @test */
     public function can_filter_by_non_pci_and_decommissioned()
     {
-        Http::fake([config('servicenow.uri') . '/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
+        Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
         Http::fake(['https://graph.microsoft.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/user1.json')), true))]);
         $this->importOneFile();
@@ -284,12 +281,12 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
         $user->assignRole('Global Administrator');
 
         Queue::fake([InviteFirewallReviewerJob::class]);
-        Log::shouldReceive('info')->with(__('messages.dispatched_firewall_review_mails', ['email' => $user->email]),[]);
+        Log::shouldReceive('info')->with(__('messages.dispatched_firewall_review_mails', ['email' => $user->email]), []);
 
         Livewire::actingAs($user)->test(FirewallRulesRead::class)
             ->call('sendNotification');
 
-        Queue::assertPushed(InviteFirewallReviewerJob::class,1);
+        Queue::assertPushed(InviteFirewallReviewerJob::class, 1);
     }
 
     protected function createDeveloperGroup()

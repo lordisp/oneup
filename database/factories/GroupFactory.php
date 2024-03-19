@@ -2,9 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Group;
-use App\Models\Operation;
-use App\Models\Role;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -21,8 +18,7 @@ class GroupFactory extends Factory
     {
         return [
             'name' => $this->faker->jobTitle(),
-            'description' => $this->faker->sentence()
+            'description' => $this->faker->sentence(),
         ];
     }
-
 }

@@ -43,7 +43,6 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-
     public function it_creates_a_notice_log_entry_to_the_database()
     {
         Log::notice('Notice Log', ['context' => 'notice']);

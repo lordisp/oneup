@@ -17,31 +17,33 @@ use Livewire\WithFileUploads;
 
 class FirewallRequestsImport extends Component
 {
-    use WithFileUploads, Converter, ValidationRules;
+    use Converter, ValidationRules, WithFileUploads;
 
     public $attachments = [];
-    public array|null $batch = null;
+
+    public ?array $batch = null;
 
     protected function rules()
     {
         return [
             'attachments' => 'required',
-            'attachments.*' => Rule::forEach(fn() => [
+            'attachments.*' => Rule::forEach(fn () => [
                 'required', new FirewallRequestsRule(),
-            ])
+            ]),
         ];
     }
 
     public function mount()
     {
-        if (Gate::denies('serviceNow-firewallRequests-import')) $this->redirect(RouteServiceProvider::HOME);
+        if (Gate::denies('serviceNow-firewallRequests-import')) {
+            $this->redirect(RouteServiceProvider::HOME);
+        }
     }
 
     public function updatedAttachments()
     {
         $this->validate();
     }
-
 
     public function save()
     {
@@ -54,17 +56,17 @@ class FirewallRequestsImport extends Component
             $jobs[] = $this->import($file);
         }
 
-        if (!empty($jobs)) {
+        if (! empty($jobs)) {
 
             $jobs = Arr::flatten($jobs);
 
-            if (!empty($jobs)) {
+            if (! empty($jobs)) {
 
                 $batch = Bus::batch($jobs);
 
                 event(new ImportNewFirewallRequestsEvent(auth()->user(), $batch));
 
-                $this->event($batch->jobs->count() . ' requests are dispatched for the import. You will be notified, once the import has completed.', 'success');
+                $this->event($batch->jobs->count().' requests are dispatched for the import. You will be notified, once the import has completed.', 'success');
 
             } else {
                 $this->event('Nothing to do!', 'warning');
@@ -89,7 +91,7 @@ class FirewallRequestsImport extends Component
             'notifications' => auth()
                 ->user()
                 ->notifications
-                ->pluck('data.message')
+                ->pluck('data.message'),
         ]);
     }
 }

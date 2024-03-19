@@ -23,8 +23,7 @@ use Livewire\Component;
  */
 class Operations extends Component
 {
-    use WithPerPagePagination, WithSorting, WithFilteredColumns, WithBulkActions, WithSearch;
-
+    use WithBulkActions, WithFilteredColumns, WithPerPagePagination, WithSearch, WithSorting;
 
     public Operation $operation;
 
@@ -88,6 +87,7 @@ class Operations extends Component
         if (Gate::denies('operation-delete', $this->objects)) {
             $this->event(__('auth.unauthorized', ['value' => 'to delete operation!']), 'error');
             $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
+
             return redirect()->back();
         }
         if (Operation::destroy($this->objects->pluck('id'))) {
@@ -96,7 +96,9 @@ class Operations extends Component
                 'Trigger' => $request->user()->getAuthIdentifier(),
                 'Resource' => $this->objects->toArray(),
             ]);
-        } else $this->event(__('messages.delete_error', ['attribute' => 'Operation']), 'error');
+        } else {
+            $this->event(__('messages.delete_error', ['attribute' => 'Operation']), 'error');
+        }
 
         $this->dispatchBrowserEvent('close-modal', ['modal' => 'delete']);
         $this->resetBulk();
@@ -105,9 +107,9 @@ class Operations extends Component
 
     public function withQuery($query)
     {
-        return $query->when($this->search, fn($query, $search) => $query
-            ->where('operation', 'like', '%' . Str::of($search)->trim() . '%')
-            ->orWhere('description', 'like', '%' . Str::of($search)->trim() . '%')
+        return $query->when($this->search, fn ($query, $search) => $query
+            ->where('operation', 'like', '%'.Str::of($search)->trim().'%')
+            ->orWhere('description', 'like', '%'.Str::of($search)->trim().'%')
         );
     }
 

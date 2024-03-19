@@ -17,9 +17,9 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
+class DismissRiskyUsersJob implements ShouldBeUnique, ShouldQueue
 {
-    use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token, DeveloperNotification;
+    use Batchable, DeveloperNotification, Dispatchable, InteractsWithQueue, Queueable, SerializesModels, Token;
 
     const PROVIDER = 'lhg_graph';
 
@@ -47,14 +47,16 @@ class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
         $response = Http::withToken(decrypt($this->token(self::PROVIDER)))
             ->retry(5, 0, function ($exception, $request) {
                 if ($exception instanceof RequestException && $exception->getCode() === 400) {
-                    Log::error('Failed to dismiss risky-users: ' . $exception->getMessage(), [
+                    Log::error('Failed to dismiss risky-users: '.$exception->getMessage(), [
                         'service' => 'risky-users',
-                        'ids' => $this->userIds
+                        'ids' => $this->userIds,
                     ]);
+
                     return false;
                 }
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
                     sleep($exception->response->header('Retry-After') ?? 10);
+
                     return true;
                 }
                 $request->withToken(decrypt($this->newToken(self::PROVIDER)));
@@ -62,13 +64,13 @@ class DismissRiskyUsersJob implements ShouldQueue, ShouldBeUnique
                 return true;
             }, false)
             ->post('https://graph.microsoft.com/v1.0/identityProtection/riskyUsers/dismiss', [
-                'userIds' => $this->userIds
+                'userIds' => $this->userIds,
             ]);
 
         if ($response->successful()) {
             Log::info('Updated User-Risk State', [
                 'service' => 'risky-users',
-                'ids' => $this->userIds
+                'ids' => $this->userIds,
             ]);
         }
     }

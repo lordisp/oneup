@@ -15,12 +15,12 @@ use Tests\TestCase;
 
 class RolesEditTest extends TestCase
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed([UserAzureSeeder::class,OperationSeeder::class,RoleSeeder::class]);
+        $this->seed([UserAzureSeeder::class, OperationSeeder::class, RoleSeeder::class]);
     }
 
     /** @test */
@@ -29,17 +29,17 @@ class RolesEditTest extends TestCase
         $user = User::first();
         $user->assignRole('Roles administrator');
 
-        Role::factory()->state(['name'=>'test1', 'description'=>'description1'])->create();
-        Role::factory()->state(['name'=>'test2', 'description'=>'description2'])->create();
+        Role::factory()->state(['name' => 'test1', 'description' => 'description1'])->create();
+        Role::factory()->state(['name' => 'test2', 'description' => 'description2'])->create();
 
         Livewire::actingAs($user)
             ->test(Roles::class)
-            ->set('search','test1')
+            ->set('search', 'test1')
             ->assertSee('test1')
             ->assertSee('description1')
             ->assertDontSee('test2')
             ->assertDontSee('description2')
-            ->set('search','test2')
+            ->set('search', 'test2')
             ->assertSee('test2')
             ->assertSee('description2')
             ->assertDontSee('test1')

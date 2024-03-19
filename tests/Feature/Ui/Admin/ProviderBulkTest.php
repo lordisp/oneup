@@ -166,7 +166,7 @@ class ProviderBulkTest extends TestCase implements BulkTest
     {
         $selected = TokenCacheProvider::take(2)->pluck('id')->toArray();
 
-        Log::shouldReceive('info')->once()->withArgs(function ($message) use ($selected) {
+        Log::shouldReceive('info')->once()->withArgs(function ($message) {
             return str_contains($message, 'Destroy Token-Cache Provider') == true;
         });
 

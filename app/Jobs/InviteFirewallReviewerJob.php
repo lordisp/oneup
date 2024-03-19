@@ -24,7 +24,6 @@ class InviteFirewallReviewerJob implements ShouldQueue
     /**
      * Send Users a Notification if they have Firewall-Rules under PCI-Scope,
      * which last review is behind a quarter
-     * @return void
      */
     public function handle(): void
     {
@@ -41,7 +40,7 @@ class InviteFirewallReviewerJob implements ShouldQueue
         return FirewallRule::query()
             ->review()
             ->get()
-            ->map(fn($query) => $query->businessService->users()
+            ->map(fn ($query) => $query->businessService->users()
                 ->whereStatus(1)
                 ->select(['id', 'email'])
                 ->get()

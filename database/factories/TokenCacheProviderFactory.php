@@ -23,12 +23,13 @@ class TokenCacheProviderFactory extends Factory
             'client_secret' => encrypt(Str::random(40)),
             'scope' => 'https://graph.microsoft.com/.default',
         ];
+
         return [
             'name' => Str::lower($this->faker->word()),
             'auth_url' => '/oauth2/v2.0/authorize',
             'token_url' => '/oauth2/v2.0/token',
             'auth_endpoint' => 'https://login.microsoftonline.com',
-            'client' => json_encode($client)
+            'client' => json_encode($client),
         ];
     }
 }

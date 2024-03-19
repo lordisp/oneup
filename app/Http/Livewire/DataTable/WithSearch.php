@@ -6,7 +6,8 @@ trait WithSearch
 {
     public string $search = '';
 
-    public function updatedSearch(){
+    public function updatedSearch()
+    {
         $this->resetPage();
     }
 

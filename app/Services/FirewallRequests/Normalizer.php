@@ -9,10 +9,8 @@ use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Str;
 
-
 class Normalizer extends Rule
 {
-
     public static function normalize($rule)
     {
         return (new self($rule))->handle();
@@ -38,14 +36,18 @@ class Normalizer extends Rule
             ? $this->trimConnection($this->rule['destination_url'])
             : $this->trimConnection($this->rule['destination']);
 
-        if ($hasDestinationUrl) unset($this->rule['destination_url']);
+        if ($hasDestinationUrl) {
+            unset($this->rule['destination_url']);
+        }
 
         $hasSourceUrl = array_key_exists('source_url', $this->rule);
         $this->rule['source'] = $hasSourceUrl
             ? $this->trimConnection($this->rule['source_url'])
             : $this->trimConnection($this->rule['source']);
 
-        if ($hasSourceUrl) unset($this->rule['source_url']);
+        if ($hasSourceUrl) {
+            unset($this->rule['source_url']);
+        }
 
         $this->rule['source_ips'] = $this->setConnectionIps($this->rule['source']);
         $this->rule['destination_ips'] = $this->setConnectionIps($this->rule['destination']);
@@ -57,12 +59,13 @@ class Normalizer extends Rule
     {
         $ips = [];
         foreach ($connection as $value) {
-            $value = strstr($value, "/", true) ?: $value;
+            $value = strstr($value, '/', true) ?: $value;
 
             if (filter_var($value, FILTER_VALIDATE_IP)) {
                 $ips[] = $value;
             }
         }
+
         return $ips;
     }
 
@@ -75,25 +78,27 @@ class Normalizer extends Rule
 
     private function trimConnection(string $string): array
     {
-        $string = Str::replace(["\n", ",", " and ", " "], ';', $string);
-        $string = Str::replace([";;"], ';', $string);
-        $string = Str::replace(["https://", "http://"], '', $string);
+        $string = Str::replace(["\n", ',', ' and ', ' '], ';', $string);
+        $string = Str::replace([';;'], ';', $string);
+        $string = Str::replace(['https://', 'http://'], '', $string);
         $array = explode(';', $string);
         $array = array_map('trim', $array);
         $array = Arr::flatten($array);
         $array = array_filter($array);
+
         return array_unique($array);
     }
 
     private function trimPorts(string $string): array
     {
-        $string = Str::replace(["\n", ",", " and ", " - "], ';', $string);
-        $string = Str::replace([";;"], ';', $string);
+        $string = Str::replace(["\n", ',', ' and ', ' - '], ';', $string);
+        $string = Str::replace([';;'], ';', $string);
         $string = Str::replace(' ', ';', $string);
         $array = explode(';', $string);
         $array = array_map('trim', $array);
         $array = Arr::flatten($array);
         $array = array_filter($array);
+
         return array_unique($array);
     }
 
@@ -104,6 +109,7 @@ class Normalizer extends Rule
         } catch (Exception) {
             $this->rule['end_date'] = Carbon::parse(self::FOREVER)->toDateTimeString();
         }
+
         return $this;
     }
 
@@ -174,10 +180,12 @@ class Normalizer extends Rule
 
         if ($action === 'deleted') {
             data_set($this->rule, 'status', 'deleted');
+
             return $this;
         }
 
         data_set($this->rule, 'status', 'open');
+
         return $this;
     }
 
@@ -199,5 +207,4 @@ class Normalizer extends Rule
     {
         return $this->rule;
     }
-
 }

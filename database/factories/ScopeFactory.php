@@ -16,14 +16,14 @@ class ScopeFactory extends Factory
 
         $scope = Scope::where('scope', $scopeName)->first();
 
-        while ($scope!=null){
+        while ($scope != null) {
             $scopeName = $scopeIds[array_rand($scopeIds)];
 
             $scope = Scope::where('scope', $scopeName)->first();
         }
 
-            return [
-                'scope' => $scopeName
-            ];
+        return [
+            'scope' => $scopeName,
+        ];
     }
 }

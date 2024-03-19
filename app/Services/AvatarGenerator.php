@@ -5,6 +5,7 @@ namespace App\Services;
 class AvatarGenerator
 {
     protected $firstName;
+
     protected $lastName;
 
     public function __construct(public int $size = 32, bool $fromDisk = false)
@@ -15,28 +16,27 @@ class AvatarGenerator
 
     public function generate(): string
     {
-        $initials = substr($this->firstName, 0, 1) . substr($this->lastName, 0, 1);
+        $initials = substr($this->firstName, 0, 1).substr($this->lastName, 0, 1);
 
         $bgColor = $this->generateColor();
 
         $textColor = $this->getContrastColor($bgColor);
 
-        return '<svg class="rounded-full" width="' . $this->size . '" height="' . $this->size . '" style="background-color: ' . $bgColor . ';">
-                    <text x="' . ($this->size / 2) . '" y="' . ($this->size / 2) . '" class="text-md font-normal" text-anchor="middle" dominant-baseline="central" fill="' . $textColor . '">' . $initials . '</text>
+        return '<svg class="rounded-full" width="'.$this->size.'" height="'.$this->size.'" style="background-color: '.$bgColor.';">
+                    <text x="'.($this->size / 2).'" y="'.($this->size / 2).'" class="text-md font-normal" text-anchor="middle" dominant-baseline="central" fill="'.$textColor.'">'.$initials.'</text>
                 </svg>';
     }
 
     /**
      * Generates a unique color based on the initials.
-     * @return string
      */
     protected function generateColor(): string
     {
-        $hash = md5($this->firstName[0] . $this->lastName[0]);
+        $hash = md5($this->firstName[0].$this->lastName[0]);
 
         $hex = substr($hash, 0, 6);
 
-        return '#' . $hex;
+        return '#'.$hex;
     }
 
     protected function getContrastColor($color): string
@@ -58,10 +58,10 @@ class AvatarGenerator
 
         switch (strlen($color)) {
             case 6:
-                list($r, $g, $b) = [$color[0] . $color[1], $color[2] . $color[3], $color[4] . $color[5]];
+                [$r, $g, $b] = [$color[0].$color[1], $color[2].$color[3], $color[4].$color[5]];
                 break;
             case 3:
-                list($r, $g, $b) = [$color[0] . $color[0], $color[1] . $color[1], $color[2] . $color[2]];
+                [$r, $g, $b] = [$color[0].$color[0], $color[1].$color[1], $color[2].$color[2]];
                 break;
             default:
                 return false;
@@ -70,12 +70,12 @@ class AvatarGenerator
         return [hexdec($r), hexdec($g), hexdec($b)];
     }
 
-
     protected function getContrastRatio($rgb1, $rgb2): float
     {
         $l1 = $this->getRelativeLuminance($rgb1);
         $l2 = $this->getRelativeLuminance($rgb2);
         $contrast = ($l1 > $l2) ? ($l1 + 0.05) / ($l2 + 0.05) : ($l2 + 0.05) / ($l1 + 0.05);
+
         return round($contrast, 2);
     }
 
@@ -84,6 +84,7 @@ class AvatarGenerator
         $r = $this->convertToSrgb($rgb[0] / 255);
         $g = $this->convertToSrgb($rgb[1] / 255);
         $b = $this->convertToSrgb($rgb[2] / 255);
+
         return 0.2126 * $r + 0.7152 * $g + 0.0722 * $b;
     }
 

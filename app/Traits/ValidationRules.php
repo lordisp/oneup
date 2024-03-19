@@ -30,9 +30,8 @@ trait ValidationRules
             'tag.request_description' => 'required|string',
             'tag.business_service' => 'required|string',
 
-        ]) : ValidationException::withMessages((array)'Invalid File content');
+        ]) : ValidationException::withMessages((array) 'Invalid File content');
     }
-
 
     protected function preValidateFirewallRequestFiles($data)
     {
@@ -68,6 +67,7 @@ trait ValidationRules
                     throw $exception;
                 }
             }
+
             return isset($validator) && $validator->fails() ? $validator->errors()->toArray() : [];
         }
     }

@@ -18,7 +18,7 @@ use Tests\TestCase;
 
 class OperationsTest extends TestCase implements FrontendTest
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -132,7 +132,7 @@ class OperationsTest extends TestCase implements FrontendTest
     /** @test */
     public function can_edit_a_operation()
     {
-        $operation = Operation::where('operation', 'like','%token%')->first();
+        $operation = Operation::where('operation', 'like', '%token%')->first();
         User::first()->assignRole('Operations operator');
         Livewire::actingAs(User::first())
             ->test(Operations::class)
@@ -140,8 +140,8 @@ class OperationsTest extends TestCase implements FrontendTest
             ->assertDispatchedBrowserEvent('open-modal', ['modal' => 'edit'])
             ->assertSee($operation->operation)
             ->assertSee($operation->description)
-            ->set('operation.operation',Str::random(10))
-            ->set('operation.description',Str::random(10))
+            ->set('operation.operation', Str::random(10))
+            ->set('operation.description', Str::random(10))
             ->call('save')
             ->assertHasNoErrors()
             ->assertDispatchedBrowserEvent('close-modal', ['modal' => 'edit'])

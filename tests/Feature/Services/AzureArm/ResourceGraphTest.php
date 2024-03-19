@@ -38,7 +38,7 @@ class ResourceGraphTest extends TestCase
         $resourceName = 'vltlhgsmgixi01p';
 
         $resourceMatch = array_sum(
-            array_map(fn($key) => Str::contains($key['name'], $resourceName), $resources)
+            array_map(fn ($key) => Str::contains($key['name'], $resourceName), $resources)
         );
 
         $this->assertGreaterThan(0, $resourceMatch);

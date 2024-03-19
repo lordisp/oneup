@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             OperationSeeder::class,
             RoleSeeder::class,
             //BusinessServiceSeeder::class
-            SubnetSeeder::class
+            SubnetSeeder::class,
         ]);
     }
 }

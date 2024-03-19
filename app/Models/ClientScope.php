@@ -22,5 +22,4 @@ class ClientScope extends Pivot
     {
         return $query->update(['approved_at' => now(), 'approved_by' => $user->email]);
     }
-
 }

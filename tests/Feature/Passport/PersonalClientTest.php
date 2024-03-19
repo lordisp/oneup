@@ -14,7 +14,7 @@ use Tests\TestCase;
 
 class PersonalClientTest extends TestCase
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     /** @test */
     public function can_create_a_personal_access_client()
@@ -53,7 +53,7 @@ class PersonalClientTest extends TestCase
         $this->createPersonalClient();
 
         Passport::tokensCan([
-            'do-something' => 'Do something amazing stuff!'
+            'do-something' => 'Do something amazing stuff!',
         ]);
 
         $user = User::factory()->create()->createToken('test', ['do-something']);
@@ -62,7 +62,7 @@ class PersonalClientTest extends TestCase
 
         $this->assertArrayHasKey('token', get_object_vars($user));
 
-        $this->assertEquals(["do-something"], $user->token->scopes);
+        $this->assertEquals(['do-something'], $user->token->scopes);
     }
 
     /** @test

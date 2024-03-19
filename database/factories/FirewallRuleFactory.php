@@ -16,6 +16,7 @@ class FirewallRuleFactory extends Factory
         $wellKnownPorts = [20, 21, 22, 23, 25, 53, 80, 110, 443]; // Example well-known ports
         $created_at = $this->faker->dateTimeBetween('-1 year', 'now');
         $updated_at = $this->faker->dateTimeBetween($created_at, 'now');
+
         return [
             'action' => $this->faker->boolean(70) ? 'add' : 'delete',
             'type_destination' => 'ip_address_dest',
@@ -66,6 +67,7 @@ class FirewallRuleFactory extends Factory
                 $ips[] = $this->faker->boolean ? $this->faker->localIpv4 : $this->faker->ipv4;
             }
         }
+
         return $ips;
     }
 }

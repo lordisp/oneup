@@ -18,7 +18,7 @@ use Tests\TestCase;
 
 class RemoveMemberWebhookTest extends TestCase
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
@@ -31,7 +31,7 @@ class RemoveMemberWebhookTest extends TestCase
     {
         Queue::fake([ScimRemoveMemberJob::class]);
         $this->post('/api/v1/webhook',
-            json_decode(file_get_contents(__DIR__ . '/stubs/remove_member_webhook.json'), true)
+            json_decode(file_get_contents(__DIR__.'/stubs/remove_member_webhook.json'), true)
         )->assertStatus(201);
         Queue::assertPushedOn('webhook', ScimRemoveMemberJob::class);
         Queue::assertPushed(ScimRemoveMemberJob::class, 1);
@@ -43,19 +43,19 @@ class RemoveMemberWebhookTest extends TestCase
     {
         $this->makeAlaProvider();
         Http::fake([
-            'https://api.loganalytics.io/v1/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/stubs/remove_member_results.json'), true)),
+            'https://api.loganalytics.io/v1/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/remove_member_results.json'), true)),
             'https://login.microsoftonline.com/*' => Http::sequence()
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/log_analytics_token_response.json'), true))
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/arm_token_response.json'), true)),
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/log_analytics_token_response.json'), true))
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/arm_token_response.json'), true)),
             'https://graph.microsoft.com/v1.0/users/*' => Http::sequence()
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/member1_response.json'), true))
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/member2_response.json'), true))
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/member3_response.json'), true))
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/member_error_response.json'), true), 404),
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/member1_response.json'), true))
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/member2_response.json'), true))
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/member3_response.json'), true))
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/member_error_response.json'), true), 404),
         ]);
         Queue::fake([UpdateUserJob::class, AlertsChangeStateJob::class]);
         $this->post('/api/v1/webhook',
-            json_decode(file_get_contents(__DIR__ . '/stubs/remove_member_webhook.json'), true)
+            json_decode(file_get_contents(__DIR__.'/stubs/remove_member_webhook.json'), true)
         )->assertStatus(201);
         Queue::assertPushed(UpdateUserJob::class, 3);
         Queue::assertPushedOn('webhook', UpdateUserJob::class);
@@ -71,20 +71,20 @@ class RemoveMemberWebhookTest extends TestCase
         $this->seed(UserAzureSeeder::class);
         $this->assertDatabaseCount(User::class, 4);
         Http::fake([
-            'https://api.loganalytics.io/v1/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/stubs/remove_member_results.json'), true)),
+            'https://api.loganalytics.io/v1/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/remove_member_results.json'), true)),
             'https://login.microsoftonline.com/*' => Http::sequence()
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/log_analytics_token_response.json'), true))
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/graph_token_response.json'), true))
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/arm_token_response.json'), true)),
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/log_analytics_token_response.json'), true))
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/graph_token_response.json'), true))
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/arm_token_response.json'), true)),
             'https://graph.microsoft.com/v1.0/users/*' => Http::sequence()
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/member1_response.json'), true))
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/member2_response.json'), true))
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/member3_response.json'), true))
-                ->push(json_decode(file_get_contents(__DIR__ . '/stubs/member_error_response.json'), true), 404),
-            'https://management.azure.com/*' => Http::response(json_decode(file_get_contents(__DIR__ . '/stubs/add_member_change_state_close.json'), true)),
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/member1_response.json'), true))
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/member2_response.json'), true))
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/member3_response.json'), true))
+                ->push(json_decode(file_get_contents(__DIR__.'/stubs/member_error_response.json'), true), 404),
+            'https://management.azure.com/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/add_member_change_state_close.json'), true)),
         ]);
         $this->post('/api/v1/webhook',
-            json_decode(file_get_contents(__DIR__ . '/stubs/remove_member_webhook.json'), true)
+            json_decode(file_get_contents(__DIR__.'/stubs/remove_member_webhook.json'), true)
         )->assertStatus(201);
         $this->assertCount(3, User::where('status', false)->get());
         $this->assertDatabaseCount(User::class, 4);

@@ -16,12 +16,12 @@ class DnsSyncZoneFactory extends Factory
      */
     public function definition(): array
     {
-        $zones = array_map('trim', file(database_path() . '/factories/dns_zones.stup'));
+        $zones = array_map('trim', file(database_path().'/factories/dns_zones.stup'));
 
         shuffle($zones);
 
         return [
-            'name' => $zones[0]
+            'name' => $zones[0],
         ];
     }
 }

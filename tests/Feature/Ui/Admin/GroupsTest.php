@@ -2,8 +2,6 @@
 
 namespace Tests\Feature\Ui\Admin;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
 
 class GroupsTest extends TestCase

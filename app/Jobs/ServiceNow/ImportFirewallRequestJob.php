@@ -45,6 +45,7 @@ class ImportFirewallRequestJob implements ShouldQueue
     private function validate(): static
     {
         $this->container['data'] = FirewallRequestValidation::validate($this->firewallRequest);
+
         return $this;
     }
 
@@ -71,7 +72,9 @@ class ImportFirewallRequestJob implements ShouldQueue
 
     private function createBusinessServiceInstance(): static
     {
-        if (empty(data_get($this->container, 'data'))) return $this;
+        if (empty(data_get($this->container, 'data'))) {
+            return $this;
+        }
 
         data_set(
             $this->container,
@@ -84,7 +87,9 @@ class ImportFirewallRequestJob implements ShouldQueue
 
     private function normalizeRules(): static
     {
-        if (empty(data_get($this->container, 'data'))) return $this;
+        if (empty(data_get($this->container, 'data'))) {
+            return $this;
+        }
 
         $rules = data_get($this->container, 'data.rules');
 
@@ -106,7 +111,9 @@ class ImportFirewallRequestJob implements ShouldQueue
 
     private function normalizeRequest(): static
     {
-        if (empty(data_get($this->container, 'data'))) return $this;
+        if (empty(data_get($this->container, 'data'))) {
+            return $this;
+        }
 
         data_set(
             $this->container,
@@ -134,15 +141,15 @@ class ImportFirewallRequestJob implements ShouldQueue
             return $this;
         }
 
-        Log::debug(sprintf("Insert Request %s", $request->subject));
+        Log::debug(sprintf('Insert Request %s', $request->subject));
 
         try {
             $request->save();
         } catch (\Exception $exception) {
-            Log::debug(sprintf("Insert Request Failed with %s", $exception->getMessage()));
+            Log::debug(sprintf('Insert Request Failed with %s', $exception->getMessage()));
+
             return $this;
         }
-
 
         $rules = $request->rules()->createMany(
             data_get($this->container, 'rules')
@@ -154,7 +161,7 @@ class ImportFirewallRequestJob implements ShouldQueue
                 'activity' => 'Import rule',
                 'status' => 'Success',
             ]);
-        };
+        }
 
         return $this;
     }
@@ -168,12 +175,12 @@ class ImportFirewallRequestJob implements ShouldQueue
         $request = data_get($this->container, 'request');
         $exists = data_get($this->container, 'exists');
 
-        if (!$exists) {
+        if (! $exists) {
             return $this;
         }
         $rules = $request->rules;
 
-        Log::debug(sprintf("Update %s Rules from Request %s", $rules->count(), $request->subject));
+        Log::debug(sprintf('Update %s Rules from Request %s', $rules->count(), $request->subject));
         foreach ($rules as $rule) {
             RuleStatus::reset($rule);
             RulePCI::reset($rule);
@@ -185,7 +192,7 @@ class ImportFirewallRequestJob implements ShouldQueue
                 'activity' => 'Update rule',
                 'status' => 'Success',
             ]);
-        };
+        }
 
         return $this;
     }
@@ -198,7 +205,7 @@ class ImportFirewallRequestJob implements ShouldQueue
 
         $businessService = data_get($this->container, 'business_service');
 
-        if (!empty($businessService)) {
+        if (! empty($businessService)) {
             ImportBusinessServiceMemberJob::dispatch($businessService->name, $businessService->name)
                 ->afterCommit();
         }

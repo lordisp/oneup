@@ -32,6 +32,7 @@ class PrivateDnsSync implements ShouldQueue
     {
         if (empty($this->providers)) {
             Log::info('No providers found to dispatch jobs');
+
             return;
         }
         $jobs = [];
@@ -42,6 +43,7 @@ class PrivateDnsSync implements ShouldQueue
 
         if (empty($jobs)) {
             Log::info('PrivateDnsSync: No jobs found to dispatch');
+
             return;
         }
 

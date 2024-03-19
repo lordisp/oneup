@@ -23,7 +23,7 @@ class TokenCacheServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        $this->app->singleton('tokencache', function (){
+        $this->app->singleton('tokencache', function () {
             return new TokenCache();
         });
 

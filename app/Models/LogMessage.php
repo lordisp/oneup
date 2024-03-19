@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LogMessage extends Model
 {
-    use SoftDeletes, HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'level_name',
@@ -32,7 +32,7 @@ class LogMessage extends Model
     {
         return $query
             ->withTrashed()
-            ->whereIn('level_name', (array)$levelName)
+            ->whereIn('level_name', (array) $levelName)
             ->where('deleted_at', '<', $age);
     }
 }

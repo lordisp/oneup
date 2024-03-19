@@ -12,13 +12,15 @@ use Spatie\Sluggable\SlugOptions;
 
 /**
  * @method static first()
+ *
  * @property mixed $roles
  */
 class Group extends Model
 {
     use HasFactory, HasSlug, Uuid;
 
-    protected $fillable=['*'];
+    protected $fillable = ['*'];
+
     /**
      * Get the options for generating the slug.
      */

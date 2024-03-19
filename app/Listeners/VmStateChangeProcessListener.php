@@ -26,21 +26,24 @@ class VmStateChangeProcessListener
             ->retry(5, 0, function ($exception, $request) {
                 if ($exception instanceof RequestException and $exception->getCode() === 429) {
                     sleep($exception->response->header('Retry-After') ?? 10);
+
                     return true;
                 }
-                if (!$exception instanceof RequestException || $exception->response->status() !== 401) {
+                if (! $exception instanceof RequestException || $exception->response->status() !== 401) {
                     return true;
                 }
                 $request->withToken(decrypt($this->newToken(self::PROVIDER)));
+
                 return true;
             }, throw: false)
             ->post(sprintf("https://management.azure.com%s/{$event->operation}?api-version=2023-07-01", $event->id));
 
         if ($response->failed()) {
-            Log::error(sprintf("Failed to %s %s. %s", $event->operation, $event->vmName, $response->reason()),['VmStartStop']);
+            Log::error(sprintf('Failed to %s %s. %s', $event->operation, $event->vmName, $response->reason()), ['VmStartStop']);
+
             return;
         }
 
-        Log::info(sprintf("%s %s.", Str::title($event->operation), $event->vmName),['VmStartStop']);
+        Log::info(sprintf('%s %s.', Str::title($event->operation), $event->vmName), ['VmStartStop']);
     }
 }

@@ -4,4 +4,6 @@ namespace App\Exceptions;
 
 use Exception;
 
-class TokenCacheException extends Exception {}
+class TokenCacheException extends Exception
+{
+}

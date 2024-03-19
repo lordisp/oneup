@@ -15,11 +15,15 @@ use Illuminate\Support\Str;
 
 class TokenCache
 {
-    use Token, HttpRetryConditions;
+    use HttpRetryConditions, Token;
 
-    protected string $token, $provider;
+    protected string $token;
 
-    protected array $config = [], $client = [];
+    protected string $provider;
+
+    protected array $config = [];
+
+    protected array $client = [];
 
     public bool $cache = true;
 
@@ -31,25 +35,28 @@ class TokenCache
     public function get(): string
     {
         $this->getToken();
+
         return $this->token;
     }
 
     public function provider($provider): static
     {
         $this->provider = $provider;
+
         return $this;
     }
 
     public function withoutEncryption(): static
     {
         $this->config['encrypt'] = false;
+
         return $this;
     }
 
     public function authCode(): string
     {
         $url = sprintf(
-            "https://login.microsoftonline.com/%s%s?",
+            'https://login.microsoftonline.com/%s%s?',
             data_get($this->config[$this->provider], 'client.tenant'),
             data_get($this->config[$this->provider], 'auth_url')
         );
@@ -59,7 +66,7 @@ class TokenCache
         $params = [
             'client_id' => data_get($this->config[$this->provider], 'client.client_id'),
             'response_type' => 'code',
-            'redirect_uri' => config('app.url') . '/callback',
+            'redirect_uri' => config('app.url').'/callback',
             'response_mode' => 'query',
             'prompt' => 'select_account',
             'scope' => 'offline_access email openid profile https://graph.microsoft.com/.default',
@@ -86,27 +93,31 @@ class TokenCache
             $token = Cache::tags($oid)->get('access_token');
             $accessToken = isset($token) ? decrypt($token) : null;
 
-            if (!empty($accessToken) && $accessToken['expire'] >= $now) return encrypt($accessToken['access_token']);
+            if (! empty($accessToken) && $accessToken['expire'] >= $now) {
+                return encrypt($accessToken['access_token']);
+            }
         }
 
-        if (isset($accessToken) && ($accessToken['expire'] <= $now)) $data = [
-            'tenant' => $tenant,
-            'client_id' => $clientId,
-            'client_secret' => $secret,
-            'grant_type' => 'refresh_token',
-            'refresh_token' => $accessToken['refresh_token'],
-        ]; elseif (Arr::has($params, ['code', 'code_challenge'])) $data = [
-            'client_id' => $clientId,
-            'client_secret' => $secret,
-            'code' => $params['code'],
-            'redirect_uri' => config('app.url') . '/callback',
-            'grant_type' => 'authorization_code',
-            'code_verifier' => $params['code_challenge'],
-        ];
-        else {
+        if (isset($accessToken) && ($accessToken['expire'] <= $now)) {
+            $data = [
+                'tenant' => $tenant,
+                'client_id' => $clientId,
+                'client_secret' => $secret,
+                'grant_type' => 'refresh_token',
+                'refresh_token' => $accessToken['refresh_token'],
+            ];
+        } elseif (Arr::has($params, ['code', 'code_challenge'])) {
+            $data = [
+                'client_id' => $clientId,
+                'client_secret' => $secret,
+                'code' => $params['code'],
+                'redirect_uri' => config('app.url').'/callback',
+                'grant_type' => 'authorization_code',
+                'code_verifier' => $params['code_challenge'],
+            ];
+        } else {
             return redirect(route('login'));
         }
-
 
         $url = Str::finish(data_get($this->config[$this->provider], 'auth_endpoint'), '/');
         $url .= $tenant;
@@ -114,7 +125,9 @@ class TokenCache
 
         $response = Http::asForm()->post($url, $data);
 
-        if ($response->successful()) return $this->cacheAccessToken($response->json());
+        if ($response->successful()) {
+            return $this->cacheAccessToken($response->json());
+        }
 
         return redirect(route('login'))->withErrors([
             'error_description' => $response->json('error_description'),
@@ -144,16 +157,17 @@ class TokenCache
     {
         $config = $this->providers();
         $config['encrypt'] = true;
+
         return $config;
     }
 
     protected function providers()
     {
         return TokenCacheProvider::all([
-            'name', 'auth_url', 'token_url', 'auth_endpoint', 'client'
+            'name', 'auth_url', 'token_url', 'auth_endpoint', 'client',
         ])
             ->keyBy('name')
-            ->map(fn($item) => collect([
+            ->map(fn ($item) => collect([
                 'client' => json_decode($item->client, true),
                 'auth_url' => $item->auth_url,
                 'token_url' => $item->token_url,
@@ -174,6 +188,7 @@ class TokenCache
         return Http::asForm()
             ->retry(20, 0, function ($exception, $request) {
                 $this->handleRequestExceptionConditions($exception, TokenCacheException::class);
+
                 return $this->handleRetryConditions($exception, $request, TokenCacheException::class);
             }, throw: false)
             ->post($this->getTokenUrl(), $body)
@@ -189,7 +204,7 @@ class TokenCache
     {
         return implode('/', [
             rtrim($this->config[$this->provider]['auth_endpoint'], '/'),
-            trim($this->config[$this->provider]['client']['tenant'], '/')
+            trim($this->config[$this->provider]['client']['tenant'], '/'),
         ]);
     }
 
@@ -197,7 +212,7 @@ class TokenCache
     {
         return implode('/', [
             $this->getBaseUrl(),
-            trim($this->config[$this->provider]['token_url'], '/')
+            trim($this->config[$this->provider]['token_url'], '/'),
         ]);
     }
 
@@ -211,13 +226,14 @@ class TokenCache
     public function noCache(): static
     {
         $this->cache = false;
+
         return $this;
     }
 
     protected function getToken(): static
     {
         $this->token = cache()->tags($this->provider)
-            ->remember($this->getKey(), now()->addMinutes(30), fn() => $this->config['encrypt']
+            ->remember($this->getKey(), now()->addMinutes(30), fn () => $this->config['encrypt']
                 ? encrypt($this->makeRequest())
                 : $this->makeRequest());
 
@@ -229,4 +245,3 @@ class TokenCache
         return $this->token;
     }
 }
-

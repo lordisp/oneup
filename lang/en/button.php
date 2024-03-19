@@ -1,4 +1,5 @@
 <?php
+
 return [
     'clients_create' => 'Create a client',
     'delete_selected' => 'Delete selected',
@@ -13,5 +14,5 @@ return [
     'roles_bulk_delete' => 'Bulk delete roles',
     'delete' => 'Delete :attribute',
     'apply' => 'Apply',
-    'close' => 'Close'
+    'close' => 'Close',
 ];

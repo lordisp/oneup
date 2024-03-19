@@ -14,11 +14,26 @@ use Livewire\Component;
 
 class GroupsCreate extends Component
 {
-    use WithSearch, WithRbacCache;
+    use WithRbacCache, WithSearch;
 
-    public $group, $results;
-    public array $selected = [], $assignedRoles = [], $owner = [], $member = [], $roles = [];
-    public bool $memberAssigment = false, $roleAssigment = false;
+    public $group;
+
+    public $results;
+
+    public array $selected = [];
+
+    public array $assignedRoles = [];
+
+    public array $owner = [];
+
+    public array $member = [];
+
+    public array $roles = [];
+
+    public bool $memberAssigment = false;
+
+    public bool $roleAssigment = false;
+
     public string $mode = '';
 
     public function mount()
@@ -42,11 +57,11 @@ class GroupsCreate extends Component
         $this->group->save();
         $this->group->owners()->attach(Arr::pluck($this->owner, 'id'));
 
-        if (!empty($this->member)) {
+        if (! empty($this->member)) {
             $this->group->attachUsers(Arr::pluck($this->member, 'id'));
         }
 
-        if (!empty($this->roles)) {
+        if (! empty($this->roles)) {
             $this->group->attachRoles(Arr::pluck($this->roles, 'id'));
         }
 
@@ -58,9 +73,9 @@ class GroupsCreate extends Component
 
     public function memberAssigment()
     {
-        $this->memberAssigment = !$this->memberAssigment;
+        $this->memberAssigment = ! $this->memberAssigment;
 
-        if (!$this->memberAssigment) {
+        if (! $this->memberAssigment) {
             $this->search = '';
             $this->selected = [];
         }
@@ -72,8 +87,8 @@ class GroupsCreate extends Component
             $this->assignedRoles = $this->roles;
             $this->resetPage();
         } else {
-            $this->roleAssigment = !$this->roleAssigment;
-            if (!$this->roleAssigment) {
+            $this->roleAssigment = ! $this->roleAssigment;
+            if (! $this->roleAssigment) {
                 $this->search = '';
                 $this->selected = [];
             }
@@ -82,7 +97,7 @@ class GroupsCreate extends Component
 
     public function updatedSearch($search = null)
     {
-        if (!empty($this->search)) {
+        if (! empty($this->search)) {
             $this->mode === 'roles'
                 ? $this->results = $this->OemRoles
                 : $this->results = $this->OemUsers;

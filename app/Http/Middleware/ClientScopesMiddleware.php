@@ -14,6 +14,7 @@ class ClientScopesMiddleware
             $clientScopes = $this->validateClientScopes($request);
             if (count($clientScopes) > 0) {
                 $request->request->set('scope', implode(' ', $clientScopes));
+
                 return $next($request);
             }
         }
@@ -27,7 +28,7 @@ class ClientScopesMiddleware
             ? $this->getAllApprovedScopesFromCurrentClient($request)
             : $this->getScopesFromRequest($request);
 
-        return !empty($scopes)
+        return ! empty($scopes)
             ? Client::whereId($request->get('client_id'))
                 ->whereRelation('approvedClientScopes', function ($query) use ($scopes) {
                     foreach ($scopes as $scope) {

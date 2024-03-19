@@ -9,8 +9,6 @@ class TokenCacheProviderSeeder extends Seeder
 {
     /**
      * Run the database seeds.
-     *
-     * @return void
      */
     public function run(): void
     {
@@ -24,7 +22,7 @@ class TokenCacheProviderSeeder extends Seeder
                 'client_id' => config('tokencache.azure.client.client_id'),
                 'client_secret' => encrypt(config('tokencache.azure.client.client_secret')),
                 'scope' => 'openid offline_access https://graph.microsoft.com/.default',
-            ])
+            ]),
         ])->create();
 
         TokenCacheProvider::factory()->state([
@@ -37,7 +35,7 @@ class TokenCacheProviderSeeder extends Seeder
                 'client_id' => config('tokencache.azure.client.client_id'),
                 'client_secret' => encrypt(config('tokencache.azure.client.client_secret')),
                 'resource' => 'https://management.azure.com',
-            ])
+            ]),
         ])->create();
 
         TokenCacheProvider::factory()->state([
@@ -50,7 +48,7 @@ class TokenCacheProviderSeeder extends Seeder
                 'client_id' => config('tokencache.azure.client.client_id'),
                 'client_secret' => encrypt(config('tokencache.azure.client.client_secret')),
                 'resource' => 'https://api.loganalytics.io',
-            ])
+            ]),
         ])->create();
 
         TokenCacheProvider::factory()->state([
@@ -63,7 +61,7 @@ class TokenCacheProviderSeeder extends Seeder
                 'client_id' => config('tokencache.azure_test.client.client_id'),
                 'client_secret' => encrypt(config('tokencache.azure_test.client.client_secret')),
                 'resource' => 'https://management.azure.com',
-            ])
+            ]),
         ])->create();
 
         TokenCacheProvider::factory()->state([
@@ -76,7 +74,7 @@ class TokenCacheProviderSeeder extends Seeder
                 'client_id' => config('tokencache.azure_test.client.client_id'),
                 'client_secret' => encrypt(config('tokencache.azure_test.client.client_secret')),
                 'scope' => 'openid offline_access https://graph.microsoft.com/.default',
-            ])
+            ]),
         ])->create();
     }
 }

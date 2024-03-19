@@ -14,7 +14,6 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Laravel\Passport\HasApiTokens;
 
-
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, Uuid;
@@ -62,16 +61,16 @@ class User extends Authenticatable
     public function firstName(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => Str::title($value),
-            set: fn($value) => Str::title($value),
+            get: fn ($value) => Str::title($value),
+            set: fn ($value) => Str::title($value),
         );
     }
 
     public function lastName(): Attribute
     {
         return Attribute::make(
-            get: fn($value) => Str::title($value),
-            set: fn($value) => Str::title($value),
+            get: fn ($value) => Str::title($value),
+            set: fn ($value) => Str::title($value),
         );
     }
 
@@ -174,6 +173,7 @@ class User extends Authenticatable
         if ($rules) {
             return $rules->exists;
         }
+
         return false;
     }
 

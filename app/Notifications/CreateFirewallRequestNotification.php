@@ -49,7 +49,7 @@ class CreateFirewallRequestNotification extends Notification implements ShouldQu
                 ->greeting("Hello {$notifiable->firstName}!")
                 ->line('Your request was saved in OneUp, but we could not reach Service-Now to forward the dismantling. Therefore, we ask you to manually order the dismantling of the rule in Service-Now.')
                 ->action('Decommissioned Rules', url(route('firewall.requests.read', ['filters' => ['own' => '1', 'status' => 'delete']])))
-                ->action('Firewall-Request Form', config('servicenow.uri') . '/sp?id=sc_cat_item&sys_id=960ac540db10eb00fe5d9785ca96191e')
+                ->action('Firewall-Request Form', config('servicenow.uri').'/sp?id=sc_cat_item&sys_id=960ac540db10eb00fe5d9785ca96191e')
                 ->line('If you have any question, dont hesitate to contact us.');
         }
 

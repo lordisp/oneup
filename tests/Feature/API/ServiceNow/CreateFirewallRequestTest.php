@@ -16,9 +16,8 @@ class CreateFirewallRequestTest extends TestCase
 
         $this->username = config('servicenow.client_id');
         $this->password = config('servicenow.client_secret');
-        $this->uri = config('servicenow.uri') . '/api/delag/retrieve_cost_centers/CreateCatalogItem';
+        $this->uri = config('servicenow.uri').'/api/delag/retrieve_cost_centers/CreateCatalogItem';
     }
-
 
     /** @test */
     public function create_a_firewall_rules_request_on_behalf_of_a_user()
@@ -26,7 +25,7 @@ class CreateFirewallRequestTest extends TestCase
         Http::fake([
             'https://lhgroupuat.service-now.com/api/delag/retrieve_cost_centers/CreateCatalogItem' => Http::response(
                 json_decode(file_get_contents(base_path('/tests/Feature/API/ServiceNow/Stubs/FirewallRequest.json')), true)
-            )
+            ),
         ]);
 
         $payload = [
@@ -50,7 +49,7 @@ class CreateFirewallRequestTest extends TestCase
                     'nat_required' => 'No',
                     'application_id' => '',
                     'contact' => '',
-                    'business_purpose' => 'disable FW connection between service A and service B'
+                    'business_purpose' => 'disable FW connection between service A and service B',
                 ],
                 [
                     'action' => 'delete',
@@ -66,9 +65,9 @@ class CreateFirewallRequestTest extends TestCase
                     'nat_required' => 'No',
                     'application_id' => '',
                     'contact' => '',
-                    'business_purpose' => 'disable FW connection between service A and service B'
+                    'business_purpose' => 'disable FW connection between service A and service B',
 
-                ]
+                ],
             ],
         ];
 

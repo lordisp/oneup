@@ -16,7 +16,9 @@ class Notifications extends Component
     {
         $notification = auth()->user()->unreadNotifications->find($key);
 
-        if ($notification) $notification->markAsRead();
+        if ($notification) {
+            $notification->markAsRead();
+        }
 
         $this->emit('refreshComponent');
     }

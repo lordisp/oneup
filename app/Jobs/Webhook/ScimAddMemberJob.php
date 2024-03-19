@@ -15,13 +15,13 @@ class ScimAddMemberJob extends WebhookJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected string $graphProvider = 'lhg_graph';
+
     protected string $armProvider = 'webhook_log_analytics';
+
     protected string $scope = '/subscriptions/881a97ff-f77b-4f60-a853-c10be1183568/resourcegroups/rg_fnds_governance_monitoring/providers/microsoft.operationalinsights/workspaces/log-lhg-ams-governance-default';
 
     /**
      * Execute the job.
-     *
-     * @return void
      */
     public function handle(): void
     {
@@ -32,6 +32,4 @@ class ScimAddMemberJob extends WebhookJob implements ShouldQueue
         }
         $this->updateState('Closed', $this->scope, 'user-import processed');
     }
-
-
 }

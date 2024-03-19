@@ -5,10 +5,8 @@ namespace Tests\Feature\Ui\Admin;
 use App\Http\Livewire\Admin\Roles;
 use App\Models\Role;
 use App\Models\User;
-use Database\Seeders\GlobalAdminSeeder;
 use Database\Seeders\OperationSeeder;
 use Database\Seeders\RoleSeeder;
-use Database\Seeders\TokenCacheProviderSeeder;
 use Database\Seeders\UserAzureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Log;
@@ -19,12 +17,12 @@ use Tests\TestCase;
 
 class RolesTest extends TestCase implements FrontendTest
 {
-    use RefreshDatabase, Helper;
+    use Helper, RefreshDatabase;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->seed([UserAzureSeeder::class,OperationSeeder::class, RoleSeeder::class]);
+        $this->seed([UserAzureSeeder::class, OperationSeeder::class, RoleSeeder::class]);
     }
 
     /** @test */
@@ -68,7 +66,7 @@ class RolesTest extends TestCase implements FrontendTest
     {
         $user = User::first();
         $user->assignRole('Roles administrator');
-        $role = Role::where('name','like','Provider reader')->first();
+        $role = Role::where('name', 'like', 'Provider reader')->first();
         $this->assertDatabaseCount(Role::class, 19);
 
         Log::shouldReceive('info')->once()->withArgs(function ($message, $context) use ($role) {

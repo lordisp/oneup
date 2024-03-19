@@ -13,18 +13,17 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Str;
 
-class ImportUserWithBusinessServiceJob implements ShouldQueue, ShouldBeUnique
+class ImportUserWithBusinessServiceJob implements ShouldBeUnique, ShouldQueue
 {
     use Batchable, Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     const PROVIDER = 'lhg_graph';
 
-
     protected string $uniqueId;
 
     public function __construct(protected string $email, protected string $businessService)
     {
-        $this->uniqueId = md5(Str::lower($this->email) . Str::lower($this->businessService));
+        $this->uniqueId = md5(Str::lower($this->email).Str::lower($this->businessService));
     }
 
     public function retryUntil(): DateTime

@@ -20,7 +20,7 @@ class ClearCommandTest extends TestCase
 
         report(new Exception('This exception should be logged.'));
 
-        $this->artisan("logs:clear --level=error --age=25.3.2018 --job");
+        $this->artisan('logs:clear --level=error --age=25.3.2018 --job');
 
         Queue::assertPushed(DatabaseCleanerJob::class, 1);
 
@@ -45,13 +45,12 @@ class ClearCommandTest extends TestCase
     {
         LogMessage::factory()->count(10)->create();
 
-        $this->artisan("logs:clear --job");
+        $this->artisan('logs:clear --job');
 
         $this->artisan('queue:work --once');
 
         $this->assertDatabaseCount(LogMessage::class, 0);
     }
-
 
     public function it_can_clear_logs_from_database()
     {
@@ -59,9 +58,8 @@ class ClearCommandTest extends TestCase
 
         $this->assertDatabaseCount(LogMessage::class, 10);
 
-        $this->artisan("logs:clear --level=error --age=25.03.2020");
+        $this->artisan('logs:clear --level=error --age=25.03.2020');
 
         $this->assertDatabaseCount(LogMessage::class, 0);
     }
-
 }

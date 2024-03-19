@@ -22,12 +22,11 @@ class update extends Command
 
     /**
      * Execute the console command.
-     *
      */
     public function handle()
     {
-        exec("sudo /usr/local/bin/updater.sh", $output);
+        exec('sudo /usr/local/bin/updater.sh', $output);
 
-        $this->comment( implode( PHP_EOL, $output ) );
+        $this->comment(implode(PHP_EOL, $output));
     }
 }

@@ -34,7 +34,7 @@ class VMStartStopAutomationTest extends TestCase
     public function can_read_data_from_share_point()
     {
         $values = Http::withToken(decrypt($this->newToken('lhg_graph')))
-            ->get("https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/drives/b!-wUp0h0GOEiIJXb9iEfdAikgMp-EVrBJig5eJNEqyUFv1u2jjdV_QKywhUjwFX3F/items/01K2ZHOAECXE3XURD4SRDZUOVPJDHIU4LI/workbook/worksheets/scheduler/usedRange")
+            ->get('https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/drives/b!-wUp0h0GOEiIJXb9iEfdAikgMp-EVrBJig5eJNEqyUFv1u2jjdV_QKywhUjwFX3F/items/01K2ZHOAECXE3XURD4SRDZUOVPJDHIU4LI/workbook/worksheets/scheduler/usedRange')
             ->json('values');
 
         $this->assertIsArray($values);
@@ -54,13 +54,13 @@ class VMStartStopAutomationTest extends TestCase
 
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
-            "https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/*" => Http::sequence()
+            'https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/*' => Http::sequence()
                 ->push('Too Many Requests', 429, ['Retry-After' => '0'])
                 ->push(json_decode(
                     file_get_contents(
                         base_path('/tests/Feature/Stubs/VmStartStop/sharepoint-serverlist.json')
                     ), true
-                ))
+                )),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -75,13 +75,13 @@ class VMStartStopAutomationTest extends TestCase
 
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
-            "https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/*" => Http::sequence()
+            'https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/*' => Http::sequence()
                 ->push(status: 401)
                 ->push(json_decode(
                     file_get_contents(
                         base_path('/tests/Feature/Stubs/VmStartStop/sharepoint-serverlist.json')
                     ), true
-                ))
+                )),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -96,13 +96,13 @@ class VMStartStopAutomationTest extends TestCase
 
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
-            "https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/*" => Http::sequence()
+            'https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/*' => Http::sequence()
                 ->push(status: 403)
                 ->push(json_decode(
                     file_get_contents(
                         base_path('/tests/Feature/Stubs/VmStartStop/sharepoint-serverlist.json')
                     ), true
-                ))
+                )),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -118,7 +118,7 @@ class VMStartStopAutomationTest extends TestCase
 
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
-            "https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/*" => Http::response(status: 400)
+            'https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/*' => Http::response(status: 400),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -165,7 +165,7 @@ class VMStartStopAutomationTest extends TestCase
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
             'https://graph.microsoft.com/v1.0/sites/*' => $this->serverlistFaker(),
-            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => Http::response()
+            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => Http::response(),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -188,7 +188,7 @@ class VMStartStopAutomationTest extends TestCase
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
             'https://graph.microsoft.com/v1.0/sites/*' => $this->serverlistFaker(),
-            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->startingStartGraphFaker()
+            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->startingStartGraphFaker(),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -211,7 +211,7 @@ class VMStartStopAutomationTest extends TestCase
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
             'https://graph.microsoft.com/v1.0/sites/*' => $this->serverlistFaker(),
-            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->startingDeallocatedGraphFaker()
+            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->startingDeallocatedGraphFaker(),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -234,7 +234,7 @@ class VMStartStopAutomationTest extends TestCase
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
             'https://graph.microsoft.com/v1.0/sites/*' => $this->serverlistFaker(),
-            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->runningGraphFaker()
+            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->runningGraphFaker(),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -259,7 +259,7 @@ class VMStartStopAutomationTest extends TestCase
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
             'https://graph.microsoft.com/v1.0/sites/*' => $this->serverlistFaker(),
-            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->deallocatedGraphFaker()
+            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->deallocatedGraphFaker(),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -284,7 +284,7 @@ class VMStartStopAutomationTest extends TestCase
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
             'https://graph.microsoft.com/v1.0/sites/*' => $this->serverlistFaker(),
-            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->stoppedGraphFaker()
+            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->stoppedGraphFaker(),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -308,7 +308,7 @@ class VMStartStopAutomationTest extends TestCase
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
             'https://graph.microsoft.com/v1.0/sites/*' => $this->serverlistFaker(),
-            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->deallocatedGraphFaker()
+            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->deallocatedGraphFaker(),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
@@ -330,7 +330,7 @@ class VMStartStopAutomationTest extends TestCase
         Http::fake([
             'https://login.microsoftonline.com/*' => $this->accessTokenFaker(),
             'https://graph.microsoft.com/v1.0/sites/*' => $this->serverlistFaker(),
-            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->startingGraphFaker()
+            'https://management.azure.com/providers/Microsoft.ResourceGraph/*' => $this->startingGraphFaker(),
         ]);
 
         VmStartStopSchedulerJob::dispatch();
