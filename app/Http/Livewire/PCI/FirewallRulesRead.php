@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\PCI;
 
+use App\Providers\AppServiceProvider;
 use App\Http\Livewire\DataTable\WithBulkActions;
 use App\Http\Livewire\DataTable\WithCachedRows;
 use App\Http\Livewire\DataTable\WithFilteredColumns;
@@ -44,7 +45,7 @@ class FirewallRulesRead extends Component
     public function mount()
     {
         if (! Gate::any(['viewAny'], FirewallRule::class)) {
-            $this->redirect(RouteServiceProvider::HOME);
+            $this->redirect(AppServiceProvider::HOME);
         }
     }
 

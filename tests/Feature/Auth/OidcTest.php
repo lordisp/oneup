@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Auth;
 
+use App\Providers\AppServiceProvider;
 use App\Facades\TokenCache;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
@@ -66,7 +67,7 @@ class OidcTest extends TestCase
         $this->assertGuest();
         session(['authState' => '498d9e97a9117d0aad6a2f5d1aba87a316c2f6d2d80f92aa920f64f31fa4b674']);
         $this->get('/callback?code='.self::code)
-            ->assertRedirect(RouteServiceProvider::HOME);
+            ->assertRedirect(AppServiceProvider::HOME);
 
         $this->assertAuthenticated();
     }

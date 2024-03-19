@@ -3,8 +3,12 @@
 namespace App\Providers;
 
 use App\Services\Accessor;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
@@ -12,6 +16,15 @@ use Livewire\Component;
 
 class AppServiceProvider extends ServiceProvider
 {
+    /**
+     * The path to the "home" route for your application.
+     *
+     * Typically, users are redirected here after authentication.
+     *
+     * @var string
+     */
+    public const HOME = '/dashboard';
+
     /**
      * Register any application services.
      */
@@ -31,6 +44,8 @@ class AppServiceProvider extends ServiceProvider
         $this->registerAccessor();
         $this->registerLivewireMacros();
         $this->registerAzureMacros();
+
+        $this->bootRoute();
     }
 
     protected function handleHttpSchema()
@@ -98,5 +113,14 @@ class AppServiceProvider extends ServiceProvider
         foreach ($headers as $header => $value) {
             header($header.': '.$value);
         }
+    }
+
+    public function bootRoute()
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(config('rates.api'))->by($request->user()?->id ?: $request->ip());
+        });
+
+
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Rbac;
 
+use App\Providers\AppServiceProvider;
 use App\Http\Livewire\DataTable\WithFilteredColumns;
 use App\Http\Livewire\DataTable\WithPerPagePagination;
 use App\Http\Livewire\DataTable\WithSorting;
@@ -52,7 +53,7 @@ class Users extends component
         auth()->login($asUser);
         $this->emit('refresh');
 
-        return redirect(RouteServiceProvider::HOME);
+        return redirect(AppServiceProvider::HOME);
     }
 
     public function openLogoutUserModal($userId)

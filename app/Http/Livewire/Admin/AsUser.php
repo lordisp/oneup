@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\Admin;
 
+use App\Providers\AppServiceProvider;
 use App\Models\User;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Support\Facades\Log;
@@ -29,7 +30,7 @@ class AsUser extends Component
         }
         session()->flash('fromUser');
 
-        $this->redirect(RouteServiceProvider::HOME);
+        $this->redirect(AppServiceProvider::HOME);
 
         $this->emit('refresh');
     }

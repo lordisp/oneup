@@ -2,6 +2,7 @@
 
 namespace App\Http\Livewire\PCI;
 
+use App\Providers\AppServiceProvider;
 use App\Events\ImportNewFirewallRequestsEvent;
 use App\Jobs\ServiceNow\ImportFirewallRequestJob;
 use App\Providers\RouteServiceProvider;
@@ -36,7 +37,7 @@ class FirewallRequestsImport extends Component
     public function mount()
     {
         if (Gate::denies('serviceNow-firewallRequests-import')) {
-            $this->redirect(RouteServiceProvider::HOME);
+            $this->redirect(AppServiceProvider::HOME);
         }
     }
 

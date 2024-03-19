@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Providers\AppServiceProvider;
 use App\Facades\TokenCache;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -17,7 +18,7 @@ class AuthenticatedOidcController extends Controller
     public function signin()
     {
         if (Auth::check()) {
-            return redirect()->intended(RouteServiceProvider::HOME);
+            return redirect()->intended(AppServiceProvider::HOME);
         }
 
         auth()->logout();
@@ -62,7 +63,7 @@ class AuthenticatedOidcController extends Controller
     {
         auth()->login($user);
 
-        return Auth::check() ? redirect()->intended(RouteServiceProvider::HOME) : redirect(route('login'))->withErrors(['error_description' => 'Failed to login.']);
+        return Auth::check() ? redirect()->intended(AppServiceProvider::HOME) : redirect(route('login'))->withErrors(['error_description' => 'Failed to login.']);
     }
 
     public function logout(Request $request)
