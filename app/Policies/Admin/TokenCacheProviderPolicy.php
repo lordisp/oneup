@@ -26,7 +26,6 @@ class TokenCacheProviderPolicy
     /**
      * Determine whether the user can view the model.
      *
-     * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function view(User $user, ?TokenCacheProvider $tokenCacheProvider = null): bool
@@ -63,8 +62,6 @@ class TokenCacheProviderPolicy
 
     /**
      * Determine whether the user can delete the model.
-     *
-     * @return bool
      */
     public function delete(User $user): bool
     {

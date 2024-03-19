@@ -29,7 +29,6 @@ class OperationPolicy extends Policy
     /**
      * Determine whether the user can view the model.
      *
-     * @param  \App\Models\Operation  $operation
      * @return \Illuminate\Auth\Access\Response|bool
      */
     public function view(User $user, ?Operation $operation = null): bool

@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\LogMessage;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Str;
@@ -20,6 +19,7 @@ class LogMessageFactory extends Factory
         550 => 'ALERT',
         600 => 'EMERGENCY',
     ];
+
     public function definition(): array
     {
 

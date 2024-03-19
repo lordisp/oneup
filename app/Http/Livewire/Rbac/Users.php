@@ -2,12 +2,11 @@
 
 namespace App\Http\Livewire\Rbac;
 
-use App\Providers\AppServiceProvider;
 use App\Http\Livewire\DataTable\WithFilteredColumns;
 use App\Http\Livewire\DataTable\WithPerPagePagination;
 use App\Http\Livewire\DataTable\WithSorting;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
+use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;

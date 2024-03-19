@@ -2,10 +2,9 @@
 
 namespace App\Http\Livewire\PCI;
 
-use App\Providers\AppServiceProvider;
 use App\Events\ImportNewFirewallRequestsEvent;
 use App\Jobs\ServiceNow\ImportFirewallRequestJob;
-use App\Providers\RouteServiceProvider;
+use App\Providers\AppServiceProvider;
 use App\Rules\FirewallRequestsRule;
 use App\Traits\Converter;
 use App\Traits\ValidationRules;

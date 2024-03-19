@@ -2,10 +2,9 @@
 
 namespace Tests\Feature\Auth;
 
-use App\Providers\AppServiceProvider;
 use App\Facades\TokenCache;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
+use App\Providers\AppServiceProvider;
 use Database\Seeders\TokenCacheProviderSeeder;
 use Database\Seeders\UserAzureSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;

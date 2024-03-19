@@ -2,7 +2,6 @@
 
 namespace App\Http\Livewire\PCI;
 
-use App\Providers\AppServiceProvider;
 use App\Http\Livewire\DataTable\WithBulkActions;
 use App\Http\Livewire\DataTable\WithCachedRows;
 use App\Http\Livewire\DataTable\WithFilteredColumns;
@@ -15,7 +14,7 @@ use App\Jobs\ServiceNowDeleteAllJob;
 use App\Models\BusinessService;
 use App\Models\FirewallRule;
 use App\Models\ServiceNowRequest;
-use App\Providers\RouteServiceProvider;
+use App\Providers\AppServiceProvider;
 use Illuminate\Contracts\View\View;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Gate;

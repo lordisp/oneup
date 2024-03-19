@@ -121,6 +121,5 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(config('rates.api'))->by($request->user()?->id ?: $request->ip());
         });
 
-
     }
 }

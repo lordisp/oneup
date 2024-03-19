@@ -2,9 +2,8 @@
 
 namespace App\Http\Livewire\Admin;
 
-use App\Providers\AppServiceProvider;
 use App\Models\User;
-use App\Providers\RouteServiceProvider;
+use App\Providers\AppServiceProvider;
 use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 
