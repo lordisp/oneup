@@ -17,7 +17,7 @@ class ProviderBulkTest extends TestCase implements BulkTest
 {
     use RefreshDatabase;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         parent::setUp();
 
