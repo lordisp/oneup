@@ -31,7 +31,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function can_read_data_from_share_point()
+    public function can_read_data_from_share_point(): void
     {
         $values = Http::withToken(decrypt($this->newToken('lhg_graph')))
             ->get('https://graph.microsoft.com/v1.0/sites/lufthansagroup.sharepoint.com/drives/b!-wUp0h0GOEiIJXb9iEfdAikgMp-EVrBJig5eJNEqyUFv1u2jjdV_QKywhUjwFX3F/items/01K2ZHOAECXE3XURD4SRDZUOVPJDHIU4LI/workbook/worksheets/scheduler/usedRange')
@@ -48,7 +48,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function request_retries_on_too_many_requests()
+    public function request_retries_on_too_many_requests(): void
     {
         Queue::fake([VmStartStopProcess::class]);
 
@@ -69,7 +69,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function request_retries_unauthenticated()
+    public function request_retries_unauthenticated(): void
     {
         Queue::fake([VmStartStopProcess::class]);
 
@@ -90,7 +90,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function request_retries_unauthorized()
+    public function request_retries_unauthorized(): void
     {
         Queue::fake([VmStartStopProcess::class]);
 
@@ -111,7 +111,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function sharepoint_request_failed()
+    public function sharepoint_request_failed(): void
     {
         Queue::fake([VmStartStopProcess::class]);
         Log::shouldReceive('error')->once();
@@ -127,7 +127,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function it_queues_the_vm_start_stop_process()
+    public function it_queues_the_vm_start_stop_process(): void
     {
         Queue::fake([VmStartStopProcess::class]);
         Http::fake([
@@ -142,7 +142,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function vm_state_change_event_throws_invalid_argument_exception()
+    public function vm_state_change_event_throws_invalid_argument_exception(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(__('messages.failed.invalid_operation_argument'));
@@ -151,7 +151,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function a_server_not_found_warning_will_be_logged()
+    public function a_server_not_found_warning_will_be_logged(): void
     {
         Event::fake([VmStateChangeEvent::class]);
         Log::shouldReceive('warning')->twice();
@@ -174,7 +174,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function invalid_provisioning_start_state_will_be_logged()
+    public function invalid_provisioning_start_state_will_be_logged(): void
     {
         Event::fake([VmStateChangeEvent::class]);
         Log::shouldReceive('error')->between(4, 4);
@@ -197,7 +197,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function invalid_provisioning_deallocation_state_will_be_logged()
+    public function invalid_provisioning_deallocation_state_will_be_logged(): void
     {
         Event::fake([VmStateChangeEvent::class]);
         Log::shouldReceive('error')->between(4, 4);
@@ -220,7 +220,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function vm_state_change_event_deallocate_server()
+    public function vm_state_change_event_deallocate_server(): void
     {
         Event::fake([VmStateChangeEvent::class]);
         Log::shouldReceive('info')->once();
@@ -245,7 +245,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function vm_state_change_event_start_server()
+    public function vm_state_change_event_start_server(): void
     {
         Event::fake([VmStateChangeEvent::class]);
         Log::shouldReceive('info')->once();
@@ -270,7 +270,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function vm_state_change_event_deallocate_a_stopped_server()
+    public function vm_state_change_event_deallocate_a_stopped_server(): void
     {
         Event::fake([VmStateChangeEvent::class]);
         Log::shouldReceive('info')->once();
@@ -295,7 +295,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function vm_state_change_event_skips_a_deallocated_server_for_deallocation()
+    public function vm_state_change_event_skips_a_deallocated_server_for_deallocation(): void
     {
         Event::fake([VmStateChangeEvent::class]);
 
@@ -317,7 +317,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function vm_state_change_event_skips_a_starting_server_for_deallocation()
+    public function vm_state_change_event_skips_a_starting_server_for_deallocation(): void
     {
         Event::fake([VmStateChangeEvent::class]);
 
@@ -339,7 +339,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function run_a_full_event()
+    public function run_a_full_event(): void
     {
         Log::shouldReceive('error')->atMost();
         Log::shouldReceive('warning')->atMost();
@@ -351,7 +351,7 @@ class VMStartStopAutomationTest extends TestCase
     }
 
     /** @test */
-    public function start_top_scheduler_runs_every_fifteen_minutes()
+    public function start_top_scheduler_runs_every_fifteen_minutes(): void
     {
         $schedule = app()->make(Schedule::class);
 

@@ -12,7 +12,7 @@ class RbacCacheTest extends TestCase
     use RefreshDatabase, WithRbacCache;
 
     /** @test */
-    public function can_create_operation_by_trait()
+    public function can_create_operation_by_trait(): void
     {
         $operation = 'foo/bar/baz/qux';
         $description = 'Awesome Foo';
@@ -26,7 +26,7 @@ class RbacCacheTest extends TestCase
     }
 
     /** @test */
-    public function can_flush_cache_for_rbac()
+    public function can_flush_cache_for_rbac(): void
     {
         $operation = 'foo/bar/baz';
         $description = 'Awesome Foo';
@@ -39,7 +39,7 @@ class RbacCacheTest extends TestCase
     }
 
     /** @test */
-    public function validation_throws_error_for_operation_1()
+    public function validation_throws_error_for_operation_1(): void
     {
         $this->expectExceptionMessage('The operation format is invalid.');
 
@@ -53,7 +53,7 @@ class RbacCacheTest extends TestCase
     }
 
     /** @test */
-    public function validation_throws_error_for_operation_2()
+    public function validation_throws_error_for_operation_2(): void
     {
         $this->expectExceptionMessage('The operation format is invalid.');
 
@@ -65,7 +65,7 @@ class RbacCacheTest extends TestCase
     }
 
     /** @test */
-    public function validation_throws_error_for_operation_3()
+    public function validation_throws_error_for_operation_3(): void
     {
         $this->expectExceptionMessage('The operation format is invalid.');
 
@@ -76,7 +76,7 @@ class RbacCacheTest extends TestCase
     }
 
     /** @test */
-    public function validation_throws_error_for_description_1()
+    public function validation_throws_error_for_description_1(): void
     {
         $this->expectExceptionMessage('The description must be at least 4 characters.');
 
@@ -88,7 +88,7 @@ class RbacCacheTest extends TestCase
     }
 
     /** @test */
-    public function validation_throws_error_for_description_2()
+    public function validation_throws_error_for_description_2(): void
     {
         $this->expectExceptionMessage('The description field is required.');
 

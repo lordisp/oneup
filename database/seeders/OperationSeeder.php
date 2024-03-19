@@ -48,7 +48,7 @@ class OperationSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         foreach ($this->operations as $key => $value) {
             Operation::updateOrCreate([

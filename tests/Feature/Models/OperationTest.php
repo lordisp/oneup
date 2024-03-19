@@ -16,7 +16,7 @@ class OperationTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function can_create_operation()
+    public function can_create_operation(): void
     {
         $this->assertDatabaseCount(Operation::class, 0);
 
@@ -31,7 +31,7 @@ class OperationTest extends TestCase
     }
 
     /** @test */
-    public function can_search_for_operations()
+    public function can_search_for_operations(): void
     {
         $this->seed(OperationSeeder::class);
 
@@ -41,7 +41,7 @@ class OperationTest extends TestCase
     }
 
     /** @test */
-    public function can_list_related_roles()
+    public function can_list_related_roles(): void
     {
         $this->assertEquals(
             expected: Role::factory()->withOperations()->create()->name,

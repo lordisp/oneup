@@ -19,7 +19,7 @@ class EnrollementApiTests extends TestCase
      *
      * @test
      */
-    public function billing_role_assignments_get_by_enrollment_account()
+    public function billing_role_assignments_get_by_enrollment_account(): void
     {
         $billingAccountName = self::billingAccountName;
         $enrollmentAccountName = self::enrollmentAccountName;
@@ -35,7 +35,7 @@ class EnrollementApiTests extends TestCase
      *
      * @test
      */
-    public function authorize_service_principal_for_managing_subscriptions()
+    public function authorize_service_principal_for_managing_subscriptions(): void
     {
         $token = env('TOKEN');
         $billingAccountName = self::billingAccountName; // Deutsche Lufthansa AG (82133742)
@@ -59,7 +59,7 @@ class EnrollementApiTests extends TestCase
     }
 
     /** @test */
-    public function list_subscription_by_service_principal()
+    public function list_subscription_by_service_principal(): void
     {
         $url = 'https://management.azure.com/providers/Microsoft.Subscription/operations?api-version=2021-10-01';
         $response = Http::withToken($this->accessToken())->get($url);
@@ -75,7 +75,7 @@ class EnrollementApiTests extends TestCase
      *
      * @var string Allowed values for Workload are Production and DevTest.
      */
-    public function can_create_subscription_by_service_principal()
+    public function can_create_subscription_by_service_principal(): void
     {
         $displayName = 'LHG_SM_CAMISON_N';
         $workload = 'DevTest';

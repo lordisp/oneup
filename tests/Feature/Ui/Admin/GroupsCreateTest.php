@@ -28,13 +28,13 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function cannot_access_route_as_guest()
+    public function cannot_access_route_as_guest(): void
     {
         $this->get('/admin/group/create')->assertRedirect('/login');
     }
 
     /** @test */
-    public function can_access_route_as_user()
+    public function can_access_route_as_user(): void
     {
         User::first()->assignRole('Group Operator');
         $this->actingAs(User::first())
@@ -43,7 +43,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_render_the_component()
+    public function can_render_the_component(): void
     {
         User::first()->assignRole('Group Operator');
         Livewire::actingAs(User::first())
@@ -52,7 +52,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_view_component()
+    public function can_view_component(): void
     {
         User::first()->assignRole('Group Administrator');
         $this->actingAs(User::first())
@@ -63,7 +63,7 @@ class GroupsCreateTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_create_a_group()
+    public function can_create_a_group(): void
     {
         User::first()->assignRole('Group Administrator');
         Livewire::actingAs(User::first())

@@ -20,7 +20,7 @@ class CreateFirewallRequestTest extends TestCase
     }
 
     /** @test */
-    public function create_a_firewall_rules_request_on_behalf_of_a_user()
+    public function create_a_firewall_rules_request_on_behalf_of_a_user(): void
     {
         Http::fake([
             'https://lhgroupuat.service-now.com/api/delag/retrieve_cost_centers/CreateCatalogItem' => Http::response(

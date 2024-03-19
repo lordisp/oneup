@@ -30,7 +30,7 @@ class ScheduledUserImportJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $this->scim->provider('lhg_graph')
             ->groups(['64a289f8-7430-40b4-830f-f64ffd6452fc']);

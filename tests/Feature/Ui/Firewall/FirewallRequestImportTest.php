@@ -49,13 +49,13 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function cannot_access_route_as_guest()
+    public function cannot_access_route_as_guest(): void
     {
         $this->get('/firewall/requests/import')->assertRedirect('/login');
     }
 
     /** @test */
-    public function dont_see_firewall_management_menus()
+    public function dont_see_firewall_management_menus(): void
     {
         $user = User::first();
         $this->actingAs($user)
@@ -68,7 +68,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_see_firewall_reader_management_menus()
+    public function can_see_firewall_reader_management_menus(): void
     {
         $user = User::first();
         $user->assignRole('Firewall-Requests Reader');
@@ -81,7 +81,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_see_firewall_admin_management_menus()
+    public function can_see_firewall_admin_management_menus(): void
     {
         $user = User::first();
         $user->assignRole('Firewall-Requests Operator');
@@ -94,7 +94,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_access_route_as_user()
+    public function can_access_route_as_user(): void
     {
         $user = User::first();
         $user->assignRole('Firewall-Requests Operator');
@@ -104,7 +104,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_render_the_component()
+    public function can_render_the_component(): void
     {
         $user = User::first();
         $user->assignRole('Firewall-Requests Operator');
@@ -114,7 +114,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_view_component()
+    public function can_view_component(): void
     {
         $user = User::first();
         $user->assignRole('Firewall-Requests Operator');
@@ -127,7 +127,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function invalid_file_structure_flashes_error_message()
+    public function invalid_file_structure_flashes_error_message(): void
     {
         Storage::fake('tmp-for-tests');
         $first = file_get_contents(base_path().'/tests/Feature/Stubs/firewallImport/invalid_1.json');
@@ -141,7 +141,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function test_import_job()
+    public function test_import_job(): void
     {
         // Arrange
         Subnet::factory()->createMany([
@@ -183,7 +183,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_import_a_valid_json_file()
+    public function can_import_a_valid_json_file(): void
     {
         Subnet::factory()->createMany([
             ['name' => '10.253.207.0', 'size' => 24],
@@ -211,7 +211,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_import_a_valid_json_file_twice()
+    public function can_import_a_valid_json_file_twice(): void
     {
         Http::fake([
             config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
@@ -241,7 +241,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function import_firewall_rules_expect_queued_import_jobs()
+    public function import_firewall_rules_expect_queued_import_jobs(): void
     {
         Queue::fake();
 
@@ -251,7 +251,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function import_firewall_rules_expect_queued_import_event()
+    public function import_firewall_rules_expect_queued_import_event(): void
     {
         Http::fake([
             config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
@@ -267,7 +267,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function expect_available_firewall_review_available_events()
+    public function expect_available_firewall_review_available_events(): void
     {
         Http::fake([
             config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
@@ -283,7 +283,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function expect_processing_firewall_review_available_event()
+    public function expect_processing_firewall_review_available_event(): void
     {
         Http::fake([
             config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),
@@ -302,7 +302,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function expect_notification_to_admin_after_import()
+    public function expect_notification_to_admin_after_import(): void
     {
         Http::fake([
             config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true)),

@@ -19,7 +19,7 @@ class AvatarTest extends TestCase
         $this->seed([TokenCacheProviderSeeder::class]);
     }
 
-    public function testBasic()
+    public function testBasic(): void
     {
         $component = Livewire::test(Avatar::class);
 
@@ -27,7 +27,7 @@ class AvatarTest extends TestCase
     }
 
     /** @test */
-    public function it_loads_the_avatar()
+    public function it_loads_the_avatar(): void
     {
         Livewire::test(Avatar::class)
             ->call('loadAvatar')
@@ -35,7 +35,7 @@ class AvatarTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_the_avatar_from_a_given_user()
+    public function it_returns_the_avatar_from_a_given_user(): void
     {
         Livewire::test(Avatar::class, ['userId' => 'rafael.camison@austrian.com', 'alt' => 'Camison, Rafael'])
             ->call('getAvatarProperty')
@@ -43,7 +43,7 @@ class AvatarTest extends TestCase
     }
 
     /** @test */
-    public function it_returns_the_fallback_avatar_from_a_given_user()
+    public function it_returns_the_fallback_avatar_from_a_given_user(): void
     {
         Livewire::test(Avatar::class, ['userId' => 'A300250@dlh.de', 'alt' => 'ONEUP INTEGRATION TESTER'])
             ->call('getAvatarProperty')
@@ -53,7 +53,7 @@ class AvatarTest extends TestCase
     /** @test
      * @throws \ReflectionException
      */
-    public function it_fetches_fallback_avatar_when_no_user_id_is_set()
+    public function it_fetches_fallback_avatar_when_no_user_id_is_set(): void
     {
         \cache()->flush();
         $avatarComponent = new Avatar();

@@ -30,7 +30,7 @@ class CreateFirewallRequestTest extends TestCase
     }
 
     /** @test */
-    public function a_firewall_request_returns_a_successful_response()
+    public function a_firewall_request_returns_a_successful_response(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -55,7 +55,7 @@ class CreateFirewallRequestTest extends TestCase
     }
 
     /** @test */
-    public function a_connection_timeout_force_a_call_retry()
+    public function a_connection_timeout_force_a_call_retry(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -76,7 +76,7 @@ class CreateFirewallRequestTest extends TestCase
     }
 
     /** @test */
-    public function bad_requests()
+    public function bad_requests(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -96,7 +96,7 @@ class CreateFirewallRequestTest extends TestCase
     }
 
     /** @test */
-    public function it_sends_a_mail_notification_to_the_user()
+    public function it_sends_a_mail_notification_to_the_user(): void
     {
         // Arrange
         $user = User::factory()->create();
@@ -115,7 +115,7 @@ class CreateFirewallRequestTest extends TestCase
     }
 
     /** @test */
-    public function only_the_first_attempt_to_delete_a_rule_files_a_snow_request()
+    public function only_the_first_attempt_to_delete_a_rule_files_a_snow_request(): void
     {
         $user1 = User::first();
         $user1->businessServices()->attach(

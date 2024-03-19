@@ -15,7 +15,7 @@ class UserPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/user/readAll', 'Can read all users')
@@ -80,7 +80,7 @@ class UserPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, User $model)
+    public function restore(User $user, User $model): bool
     {
         //
     }
@@ -90,7 +90,7 @@ class UserPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, User $model)
+    public function forceDelete(User $user, User $model): bool
     {
         //
     }

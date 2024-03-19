@@ -19,7 +19,7 @@ class OperationPolicy extends Policy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/operation/readAll', 'Can read all operations')
@@ -32,7 +32,7 @@ class OperationPolicy extends Policy
      * @param  \App\Models\Operation  $operation
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, ?Operation $operation = null)
+    public function view(User $user, ?Operation $operation = null): bool
     {
         return $user->operations()->contains('admin/rbac/operation/read');
     }
@@ -42,7 +42,7 @@ class OperationPolicy extends Policy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/operation/create', 'Can create operations')
@@ -54,7 +54,7 @@ class OperationPolicy extends Policy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, ?Operation $operation)
+    public function update(User $user, ?Operation $operation): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/operation/update', 'Can update operations')
@@ -67,7 +67,7 @@ class OperationPolicy extends Policy
      * @param  \App\Models\Operation  $operation
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Operation|Collection|null $operation)
+    public function delete(User $user, Operation|Collection|null $operation): bool
     {
         if (isset($operation) && $operation instanceof Collection) {
             foreach ($operation as $value) {
@@ -85,7 +85,7 @@ class OperationPolicy extends Policy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, ?Operation $operation)
+    public function restore(User $user, ?Operation $operation): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/operation/restore', 'Can restore operations')
@@ -97,7 +97,7 @@ class OperationPolicy extends Policy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, ?Operation $operation)
+    public function forceDelete(User $user, ?Operation $operation): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/operation/forceDelete', 'Can force-delete operations')

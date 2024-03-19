@@ -33,7 +33,7 @@ class ServiceNowDeleteAllJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $all = ServiceNowRequest::all();
         if ($all->count() > 0) {

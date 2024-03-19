@@ -27,7 +27,7 @@ class CleanUpFirewallRuleJob implements ShouldQueue
      *
      * @description This job will clean up the firewall rule that was created by the previous Service-Now request.
      */
-    public function handle()
+    public function handle(): void
     {
         $rule = FirewallRule::with(['request' => fn ($request) => $request
             ->where('created_at', '<', $this->firewallRule['created_at'])

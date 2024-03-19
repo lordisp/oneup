@@ -20,7 +20,7 @@ class TokenCacheTest extends TestCase
     }
 
     /** @test */
-    public function can_acquire_an_access_token()
+    public function can_acquire_an_access_token(): void
     {
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/provider_lhg_arm_token_response.json'), true)),
@@ -32,7 +32,7 @@ class TokenCacheTest extends TestCase
     }
 
     /** @test */
-    public function can_disable_token_encryption()
+    public function can_disable_token_encryption(): void
     {
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/provider_lhg_arm_token_response.json'), true)),
@@ -46,7 +46,7 @@ class TokenCacheTest extends TestCase
     }
 
     /** @test */
-    public function can_reuse_a_token()
+    public function can_reuse_a_token(): void
     {
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/provider_lhg_arm_token_response.json'), true)),
@@ -57,7 +57,7 @@ class TokenCacheTest extends TestCase
     }
 
     /** @test */
-    public function can_acquire_an_azure_arm_token()
+    public function can_acquire_an_azure_arm_token(): void
     {
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(__DIR__.'/stubs/provider_lhg_arm_token_response.json'), true)),
@@ -68,7 +68,7 @@ class TokenCacheTest extends TestCase
     }
 
     /** @test */
-    public function can_acquire_token_from_different_providers()
+    public function can_acquire_token_from_different_providers(): void
     {
         Http::fake([
             'https://login.microsoftonline.com/*' => Http::sequence()

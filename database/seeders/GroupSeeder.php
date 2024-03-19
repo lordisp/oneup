@@ -12,7 +12,7 @@ class GroupSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         Group::factory()->count(10)->create();
     }

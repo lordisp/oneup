@@ -12,7 +12,7 @@ class UserAzureSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         User::firstOrCreate(['email' => 'rafael.camison@austrian.com'], [
             'firstName' => 'Rafael',

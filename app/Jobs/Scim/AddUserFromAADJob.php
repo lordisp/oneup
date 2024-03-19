@@ -23,7 +23,7 @@ class AddUserFromAADJob implements ShouldQueue
         $this->provider = $provider ?? self::PROVIDER;
     }
 
-    public function handle()
+    public function handle(): void
     {
         $scim = new Scim();
         $scim->provider($this->provider)

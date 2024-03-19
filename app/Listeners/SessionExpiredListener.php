@@ -11,7 +11,7 @@ class SessionExpiredListener
     {
     }
 
-    public function handle()
+    public function handle(): void
     {
         Auth::logout();
 

@@ -29,7 +29,7 @@ class BusinessServiceSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         foreach ($this->businessServices as $businessService) {
             BusinessService::firstOrCreate(['name' => $businessService], ['name' => $businessService]);

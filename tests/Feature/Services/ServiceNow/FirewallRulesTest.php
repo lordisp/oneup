@@ -9,7 +9,7 @@ use Tests\TestCase;
 class FirewallRulesTest extends TestCase
 {
     /** @test */
-    public function it_must_contain_at_least_one_valid_rule()
+    public function it_must_contain_at_least_one_valid_rule(): void
     {
         $request = [
             'request_description' => 'Some useful description',
@@ -43,7 +43,7 @@ class FirewallRulesTest extends TestCase
     }
 
     /** @test */
-    public function invalid_content_throws_validation_exception()
+    public function invalid_content_throws_validation_exception(): void
     {
         $this->expectException(ValidationException::class);
 

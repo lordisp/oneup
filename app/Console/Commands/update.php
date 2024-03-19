@@ -23,7 +23,7 @@ class update extends Command
     /**
      * Execute the console command.
      */
-    public function handle()
+    public function handle(): void
     {
         exec('sudo /usr/local/bin/updater.sh', $output);
 

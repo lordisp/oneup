@@ -29,21 +29,21 @@ class ImportUsesTest extends TestCase
     /** @test
      * @throws Exception
      */
-    public function throw_validation_exception_by_invalid_provider_name()
+    public function throw_validation_exception_by_invalid_provider_name(): void
     {
         $this->expectExceptionMessage(__('validation.required', ['attribute' => 'provider']));
         $this->scim->provider('');
     }
 
     /** @test */
-    public function throw_exception_if_provider_is_invalid()
+    public function throw_exception_if_provider_is_invalid(): void
     {
         $this->expectExceptionMessage(__('validation.required', ['attribute' => 'provider']));
         $this->scim->provider('invalid');
     }
 
     /** @test */
-    public function can_select_a_provider()
+    public function can_select_a_provider(): void
     {
         $instance = $this->scim->provider('lhtest_arm');
         $provider = $this->accessProtected($instance, 'provider');
@@ -51,7 +51,7 @@ class ImportUsesTest extends TestCase
     }
 
     /** @test */
-    public function exception_401_handling_with_waring_log()
+    public function exception_401_handling_with_waring_log(): void
     {
         $this->assertDatabaseCount(User::class, 0);
         Http::fake(['graph.microsoft.com/*' => Http::response(status: 401)]);
@@ -62,7 +62,7 @@ class ImportUsesTest extends TestCase
     }
 
     /** @test */
-    public function exception_404_handling_with_waring_log()
+    public function exception_404_handling_with_waring_log(): void
     {
         $this->assertDatabaseCount(User::class, 0);
         Http::fake(['graph.microsoft.com/*' => Http::response(status: 404)]);
@@ -75,7 +75,7 @@ class ImportUsesTest extends TestCase
     }
 
     /** @test */
-    public function exception_50x_handling_with_error_log()
+    public function exception_50x_handling_with_error_log(): void
     {
         $this->assertDatabaseCount(User::class, 0);
         Http::fake(['graph.microsoft.com/*' => Http::response(status: 500)]);
@@ -88,7 +88,7 @@ class ImportUsesTest extends TestCase
     }
 
     /** @test */
-    public function successful_response_from_api_and_queue_import()
+    public function successful_response_from_api_and_queue_import(): void
     {
         $groupMembers = file_get_contents(__DIR__.'/stubs/groupmembers.json');
         Http::fake([
@@ -101,7 +101,7 @@ class ImportUsesTest extends TestCase
     }
 
     /** @test */
-    public function import_users_job_test()
+    public function import_users_job_test(): void
     {
         $this->assertDatabaseCount(User::class, 0);
         $groupMembers = file_get_contents(__DIR__.'/stubs/groupmembers.json');
@@ -115,7 +115,7 @@ class ImportUsesTest extends TestCase
     }
 
     /** @test */
-    public function update_users_job_test()
+    public function update_users_job_test(): void
     {
         $groupMembers = file_get_contents(__DIR__.'/stubs/groupmembers.json');
         $user = json_decode($groupMembers, true)['value'][0];
@@ -139,7 +139,7 @@ class ImportUsesTest extends TestCase
     }
 
     /** @test */
-    public function can_import_a_user_with_a_business_service()
+    public function can_import_a_user_with_a_business_service(): void
     {
         (new Scim())
             ->provider('lhg_graph')

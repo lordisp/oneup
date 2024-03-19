@@ -15,7 +15,7 @@ class WebhookTest extends TestCase
     /** @test
      * @url https://learn.microsoft.com/en-us/rest/api/monitor/alertsmanagement/alerts/change-state?tabs=HTTP#alertstate
      */
-    public function webhook_can_accept_data_to_process_by_middleware()
+    public function webhook_can_accept_data_to_process_by_middleware(): void
     {
         $this->makeAlaProvider();
         Queue::fake();
@@ -26,7 +26,7 @@ class WebhookTest extends TestCase
     }
 
     /** @test */
-    public function webhook_returns_400_if_body_is_invalid()
+    public function webhook_returns_400_if_body_is_invalid(): void
     {
         Queue::fake();
         $this->post('api/v1/webhook', ['data' => ['foo']])->assertStatus(400);
@@ -34,7 +34,7 @@ class WebhookTest extends TestCase
     }
 
     /** @test */
-    public function hit_rate_limit_if_more_than_allowed_requests_where_made()
+    public function hit_rate_limit_if_more_than_allowed_requests_where_made(): void
     {
         $i = 1;
         while ($i < 61) {

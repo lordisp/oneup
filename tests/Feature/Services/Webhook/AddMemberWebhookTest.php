@@ -24,7 +24,7 @@ class AddMemberWebhookTest extends TestCase
     }
 
     /** @test */
-    public function add_members_job_can_be_dispatched()
+    public function add_members_job_can_be_dispatched(): void
     {
         Queue::fake([ScimAddMemberJob::class]);
         $this->post('/api/v1/webhook',
@@ -35,7 +35,7 @@ class AddMemberWebhookTest extends TestCase
     }
 
     /** @test */
-    public function remove_members_job_dispatches_user_import_and_alert_change_state_jobs()
+    public function remove_members_job_dispatches_user_import_and_alert_change_state_jobs(): void
     {
         $this->makeAlaProvider();
         Http::fake([
@@ -61,7 +61,7 @@ class AddMemberWebhookTest extends TestCase
     }
 
     /** @test */
-    public function add_members_job_retrieves_data_from_log_analytics_api_and_dispatch_import()
+    public function add_members_job_retrieves_data_from_log_analytics_api_and_dispatch_import(): void
     {
         $this->makeAlaProvider();
         Http::fake([
@@ -84,7 +84,7 @@ class AddMemberWebhookTest extends TestCase
     }
 
     /** @test */
-    public function add_members_job_imports_user_to_database()
+    public function add_members_job_imports_user_to_database(): void
     {
         $this->makeAlaProvider();
         $this->assertDatabaseCount(User::class, 0);

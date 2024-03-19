@@ -17,7 +17,7 @@ class GroupPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return $user->operations()->contains($this->updateOrCreate('admin/rbac/group/readAll', 'Can read all groups'));
     }
@@ -28,7 +28,7 @@ class GroupPolicy
      * @param  \App\Models\Group  $group
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user)
+    public function view(User $user): bool
     {
         $owners = [];
         $groups = cache()->tags('rbac')->remember('groups', 3600, function () {
@@ -47,7 +47,7 @@ class GroupPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/group/create', 'Can create a group')
@@ -59,7 +59,7 @@ class GroupPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, Group $group)
+    public function update(User $user, Group $group): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/group/update', 'Can update groups')
@@ -72,7 +72,7 @@ class GroupPolicy
      * @param  \App\Models\Group  $group
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user/*, Collection|Group|null $group*/)
+    public function delete(User $user/*, Collection|Group|null $group*/): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/group/delete', 'Can delete groups')
@@ -131,7 +131,7 @@ class GroupPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, Group $group)
+    public function restore(User $user, Group $group): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/group/restore', 'Can restore groups')
@@ -143,7 +143,7 @@ class GroupPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, Group $group)
+    public function forceDelete(User $user, Group $group): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/rbac/group/forceDelete', 'Can force-delete groups')

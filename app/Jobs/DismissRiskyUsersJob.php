@@ -42,7 +42,7 @@ class DismissRiskyUsersJob implements ShouldBeUnique, ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $response = Http::withToken(decrypt($this->token(self::PROVIDER)))
             ->retry(5, 0, function ($exception, $request) {

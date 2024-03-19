@@ -12,7 +12,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         $password = Hash::make(md5(config('app.key')));
         Schema::table('users', function (Blueprint $table) use ($password) {
@@ -26,7 +26,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         $password = Hash::make(now());
         Schema::table('users', function (Blueprint $table) use ($password) {

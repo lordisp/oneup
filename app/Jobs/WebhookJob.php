@@ -36,7 +36,7 @@ class WebhookJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         foreach ($this->jobs as $key => $job) {
             if ($this->validateJob($job, $key, $this->data)) {

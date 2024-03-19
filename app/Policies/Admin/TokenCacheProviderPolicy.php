@@ -16,7 +16,7 @@ class TokenCacheProviderPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/tokenCacheProvider/readAll', 'Can read all Providers')
@@ -29,7 +29,7 @@ class TokenCacheProviderPolicy
      * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, ?TokenCacheProvider $tokenCacheProvider = null)
+    public function view(User $user, ?TokenCacheProvider $tokenCacheProvider = null): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/tokenCacheProvider/read', 'Can read Provider')
@@ -41,7 +41,7 @@ class TokenCacheProviderPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/tokenCacheProvider/create', 'Can create Provider')
@@ -54,7 +54,7 @@ class TokenCacheProviderPolicy
      * @param  \App\Models\TokenCacheProvider  $tokenCacheProvider
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user)
+    public function update(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/tokenCacheProvider/update', 'Can update Provider')
@@ -66,7 +66,7 @@ class TokenCacheProviderPolicy
      *
      * @return bool
      */
-    public function delete(User $user)
+    public function delete(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/tokenCacheProvider/delete', 'Can delete Provider')
@@ -78,7 +78,7 @@ class TokenCacheProviderPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, ?TokenCacheProvider $tokenCacheProvider)
+    public function restore(User $user, ?TokenCacheProvider $tokenCacheProvider): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/tokenCacheProvider/restore', 'Can restore Provider')
@@ -91,7 +91,7 @@ class TokenCacheProviderPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, ?TokenCacheProvider $tokenCacheProvider)
+    public function forceDelete(User $user, ?TokenCacheProvider $tokenCacheProvider): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('admin/tokenCacheProvider/forceDelete', 'Can force delete Provider')

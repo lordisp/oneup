@@ -21,7 +21,7 @@ class ResourceGraphTest extends TestCase
     }
 
     /** @test */
-    public function an_invalid_subscription_id_throws_an_exception()
+    public function an_invalid_subscription_id_throws_an_exception(): void
     {
         $this->expectException(ResourceGraphException::class);
 
@@ -29,7 +29,7 @@ class ResourceGraphTest extends TestCase
     }
 
     /** @test */
-    public function a_resource_can_be_found_in_the_request()
+    public function a_resource_can_be_found_in_the_request(): void
     {
         $subscriptionId = '636529f0-5874-4a7f-9641-054746c3e250';
 
@@ -46,7 +46,7 @@ class ResourceGraphTest extends TestCase
     }
 
     /** @test */
-    public function can_cache_results_and_delete_the_cached_data()
+    public function can_cache_results_and_delete_the_cached_data(): void
     {
         $cached = ResourceGraph::type('microsoft.network/networkinterfaces')
             ->extend('key', 'id')
@@ -71,7 +71,7 @@ class ResourceGraphTest extends TestCase
     }
 
     /** @test */
-    public function set_values_with_extend()
+    public function set_values_with_extend(): void
     {
         $results = ResourceGraph::type('microsoft.network/networkinterfaces')
             ->extend('ipConfigurationsString', 'tostring(properties.ipConfigurations)')

@@ -2,13 +2,14 @@
 
 namespace App\Http\Middleware;
 
+use Symfony\Component\HttpFoundation\Response;
 use App\Models\Passport\Client;
 use Closure;
 use Illuminate\Http\Request;
 
 class ClientScopesMiddleware
 {
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         if ($this->isClientCredentialsGrant($request)) {
             $clientScopes = $this->validateClientScopes($request);

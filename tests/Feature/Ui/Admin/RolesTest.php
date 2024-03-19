@@ -26,13 +26,13 @@ class RolesTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function cannot_access_route_as_guest()
+    public function cannot_access_route_as_guest(): void
     {
         $this->get('/admin/roles')->assertRedirect('/login');
     }
 
     /** @test */
-    public function can_access_route_as_user()
+    public function can_access_route_as_user(): void
     {
         $user = User::first();
         $user->assignRole('Roles reader');
@@ -42,7 +42,7 @@ class RolesTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_render_the_component()
+    public function can_render_the_component(): void
     {
         $user = User::first();
         $user->assignRole('Roles reader');
@@ -50,7 +50,7 @@ class RolesTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_view_component()
+    public function can_view_component(): void
     {
         $user = User::first();
         $user->assignRole('Roles reader');
@@ -62,7 +62,7 @@ class RolesTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_delete_a_role()
+    public function can_delete_a_role(): void
     {
         $user = User::first();
         $user->assignRole('Roles administrator');

@@ -27,7 +27,7 @@ class RemoveMemberWebhookTest extends TestCase
     }
 
     /** @test */
-    public function remove_members_job_can_be_dispatched()
+    public function remove_members_job_can_be_dispatched(): void
     {
         Queue::fake([ScimRemoveMemberJob::class]);
         $this->post('/api/v1/webhook',
@@ -39,7 +39,7 @@ class RemoveMemberWebhookTest extends TestCase
     }
 
     /** @test */
-    public function remove_members_job_dispatches_user_update_and_alert_change_state_jobs()
+    public function remove_members_job_dispatches_user_update_and_alert_change_state_jobs(): void
     {
         $this->makeAlaProvider();
         Http::fake([
@@ -65,7 +65,7 @@ class RemoveMemberWebhookTest extends TestCase
     }
 
     /** @test */
-    public function remove_members_job_disable_users_in_database()
+    public function remove_members_job_disable_users_in_database(): void
     {
         $this->makeAlaProvider();
         $this->seed(UserAzureSeeder::class);

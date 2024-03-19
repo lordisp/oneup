@@ -14,7 +14,7 @@ class ClearCommandTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function it_dispatches_the_cleaner_job()
+    public function it_dispatches_the_cleaner_job(): void
     {
         Queue::fake();
 
@@ -27,7 +27,7 @@ class ClearCommandTest extends TestCase
     }
 
     /** @test */
-    public function it_can_clear_logs_from_database_as_job()
+    public function it_can_clear_logs_from_database_as_job(): void
     {
         LogMessage::factory()->deleted()->level(400)->count(5)->create();
 
@@ -41,7 +41,7 @@ class ClearCommandTest extends TestCase
     }
 
     /** @test */
-    public function it_can_clear_all_logs_from_database_as_job()
+    public function it_can_clear_all_logs_from_database_as_job(): void
     {
         LogMessage::factory()->count(10)->create();
 

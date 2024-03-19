@@ -12,7 +12,7 @@ class TokenCacheServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
     }
 
@@ -21,7 +21,7 @@ class TokenCacheServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot()
+    public function boot(): void
     {
         $this->app->singleton('tokencache', function () {
             return new TokenCache();

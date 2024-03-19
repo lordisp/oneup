@@ -40,7 +40,7 @@ class SubnetSeeder extends Seeder
         ];
     }
 
-    public function run()
+    public function run(): void
     {
         foreach ($this->subnets as $name => $size) {
             Subnet::firstOrCreate([

@@ -25,25 +25,25 @@ class ClientsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function cannot_access_route_as_guest()
+    public function cannot_access_route_as_guest(): void
     {
         $this->get('/profile/clients')->assertRedirect('/login');
     }
 
     /** @test */
-    public function can_access_route_as_user()
+    public function can_access_route_as_user(): void
     {
         $this->actingAs($this->user)->get('/profile/clients')->assertOk();
     }
 
     /** @test */
-    public function can_render_the_component()
+    public function can_render_the_component(): void
     {
         Livewire::actingAs($this->user)->test(Clients::class)->assertOk();
     }
 
     /** @test */
-    public function can_view_component()
+    public function can_view_component(): void
     {
         $component = $this->actingAs($this->user)->get('/profile/clients');
         $component->assertSeeLivewire('profile.clients');
@@ -53,7 +53,7 @@ class ClientsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function create_new_client_validation_test()
+    public function create_new_client_validation_test(): void
     {
         $this->actingAs($this->user);
         Livewire::test(Clients::class)
@@ -68,7 +68,7 @@ class ClientsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_create_new_client()
+    public function can_create_new_client(): void
     {
         $this->actingAs($this->user);
         $secret = Livewire::test(Clients::class)
@@ -103,7 +103,7 @@ class ClientsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_create_new_pkce_client()
+    public function can_create_new_pkce_client(): void
     {
         $this->actingAs($this->user);
         $secret = Livewire::test(Clients::class)
@@ -139,7 +139,7 @@ class ClientsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function can_delete_a_client()
+    public function can_delete_a_client(): void
     {
         $this->actingAs($this->user);
         $client = Client::factory()->state(['user_id' => $this->user->getAuthIdentifier()])->create();
@@ -162,7 +162,7 @@ class ClientsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function test_search_bar()
+    public function test_search_bar(): void
     {
         $this->actingAs($this->user);
         $this->post('/oauth/clients', [
@@ -188,7 +188,7 @@ class ClientsTest extends TestCase implements FrontendTest
     }
 
     /** @test */
-    public function test_pagination()
+    public function test_pagination(): void
     {
         $this->actingAs($this->user);
         Client::factory()->count(16)->state(

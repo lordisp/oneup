@@ -24,7 +24,7 @@ class WebhookMiddleware
      * @param  Closure(Request): (Response|RedirectResponse)  $next
      * @return RedirectResponse|Response|mixed|void
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next): \Symfony\Component\HttpFoundation\Response
     {
         if ($request->filled('data') && ! empty($this->config) && $this->validateBody($request->data)) {
             return $next($request);

@@ -17,7 +17,7 @@ class PersonalClientTest extends TestCase
     use Helper, RefreshDatabase;
 
     /** @test */
-    public function can_create_a_personal_access_client()
+    public function can_create_a_personal_access_client(): void
     {
         Passport::$hashesClientSecrets = false;
 
@@ -32,7 +32,7 @@ class PersonalClientTest extends TestCase
     /** @test
      * @depends can_create_a_personal_access_client
      */
-    public function can_issue_a_personal_access_token()
+    public function can_issue_a_personal_access_token(): void
     {
         $this->createPersonalClient();
 
@@ -48,7 +48,7 @@ class PersonalClientTest extends TestCase
     /** @test
      * @depends can_create_a_personal_access_client
      */
-    public function can_issue_a_personal_access_toke_with_scope()
+    public function can_issue_a_personal_access_toke_with_scope(): void
     {
         $this->createPersonalClient();
 
@@ -68,7 +68,7 @@ class PersonalClientTest extends TestCase
     /** @test
      * @depends can_create_a_personal_access_client
      */
-    public function list_the_scopes_a_user_may_assign_to_a_personal_access_token()
+    public function list_the_scopes_a_user_may_assign_to_a_personal_access_token(): void
     {
         $this->createPersonalClient();
 

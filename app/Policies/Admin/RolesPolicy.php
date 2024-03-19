@@ -18,7 +18,7 @@ class RolesPolicy extends Policy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return $user->operations()->contains(
             cache()->tags('rbac')->remember('admin/rbac/role/readAll', 3600, function () {
@@ -36,7 +36,7 @@ class RolesPolicy extends Policy
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user)
+    public function view(User $user): bool
     {
         return $user->operations()->contains('admin/rbac/role/read');
     }
@@ -46,7 +46,7 @@ class RolesPolicy extends Policy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         return $user->operations()->contains('admin/rbac/role/create');
     }
@@ -57,7 +57,7 @@ class RolesPolicy extends Policy
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user)
+    public function update(User $user): bool
     {
         return $user->operations()->contains('admin/rbac/role/update');
     }
@@ -68,7 +68,7 @@ class RolesPolicy extends Policy
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, Collection|Role|null $role)
+    public function delete(User $user, Collection|Role|null $role): bool
     {
         $Name = 'Global Administrator';
         if ($role instanceof Collection) {
@@ -89,7 +89,7 @@ class RolesPolicy extends Policy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, Role $role)
+    public function restore(User $user, Role $role): bool
     {
         return $user->operations()->contains('admin/rbac/role/restore');
     }
@@ -100,7 +100,7 @@ class RolesPolicy extends Policy
      * @param  \App\Models\Role  $role
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user)
+    public function forceDelete(User $user): bool
     {
         return $user->operations()->contains('admin/rbac/role/forceDelete');
     }

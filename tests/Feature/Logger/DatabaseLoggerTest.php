@@ -13,7 +13,7 @@ class DatabaseLoggerTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function it_creates_log_entry_to_the_database()
+    public function it_creates_log_entry_to_the_database(): void
     {
         Log::info('Info Log');
 
@@ -21,7 +21,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_a_debug_log_entry_to_the_database()
+    public function it_creates_a_debug_log_entry_to_the_database(): void
     {
         Log::debug('Debug Log', ['context' => 'debug']);
 
@@ -32,7 +32,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_an_info_log_entry_to_the_database()
+    public function it_creates_an_info_log_entry_to_the_database(): void
     {
         Log::info('Info Log', ['context' => 'info']);
 
@@ -43,7 +43,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_a_notice_log_entry_to_the_database()
+    public function it_creates_a_notice_log_entry_to_the_database(): void
     {
         Log::notice('Notice Log', ['context' => 'notice']);
 
@@ -54,7 +54,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_a_warning_log_entry_to_the_database()
+    public function it_creates_a_warning_log_entry_to_the_database(): void
     {
         Log::warning('Waring Log', ['context' => 'warning']);
 
@@ -65,7 +65,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_an_error_log_entry_to_the_database()
+    public function it_creates_an_error_log_entry_to_the_database(): void
     {
         Log::error('Error Log', ['context' => 'error']);
 
@@ -76,7 +76,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_an_critical_log_entry_to_the_database()
+    public function it_creates_an_critical_log_entry_to_the_database(): void
     {
         Log::critical('Critical Log', ['context' => 'critical']);
 
@@ -87,7 +87,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_an_alert_log_entry_to_the_database()
+    public function it_creates_an_alert_log_entry_to_the_database(): void
     {
         Log::alert('Alert Log', ['context' => 'alert']);
 
@@ -98,7 +98,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_creates_an_emergency_log_entry_to_the_database()
+    public function it_creates_an_emergency_log_entry_to_the_database(): void
     {
         Log::emergency('Emergency Log', ['context' => 'emergency']);
 
@@ -109,7 +109,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_logs_exceptions_as_error_to_the_database()
+    public function it_logs_exceptions_as_error_to_the_database(): void
     {
         report(new Exception('This exception should be logged.'));
 
@@ -117,7 +117,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function a_database_entry_can_be_soft_deleted()
+    public function a_database_entry_can_be_soft_deleted(): void
     {
         Log::info('Info Log');
 
@@ -127,7 +127,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function a_database_entry_can_be_restored()
+    public function a_database_entry_can_be_restored(): void
     {
         Log::info('Info Log');
 
@@ -141,7 +141,7 @@ class DatabaseLoggerTest extends TestCase
     }
 
     /** @test */
-    public function it_deletes_all_soft_deleted_entries()
+    public function it_deletes_all_soft_deleted_entries(): void
     {
         Log::info('Info Log');
         Log::debug('Debug Log');

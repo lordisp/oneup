@@ -16,7 +16,7 @@ class ServiceNowRequestPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('serviceNow/firewall/request/readAll', 'Can read all firewall-requests')
@@ -28,7 +28,7 @@ class ServiceNowRequestPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user)
+    public function view(User $user): bool
     {
         $request = ServiceNowRequest::where('requestor_mail', $user->email)
             ->select('requestor_mail')
@@ -42,7 +42,7 @@ class ServiceNowRequestPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         return $user->operations()->contains(
             $this->updateOrCreate('serviceNow/firewall/import', 'Can import firewall-requests from Service-Now')
@@ -61,7 +61,7 @@ class ServiceNowRequestPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, ServiceNowRequest $serviceNowRequest)
+    public function update(User $user, ServiceNowRequest $serviceNowRequest): bool
     {
         //
     }
@@ -84,7 +84,7 @@ class ServiceNowRequestPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, ServiceNowRequest $serviceNowRequest)
+    public function delete(User $user, ServiceNowRequest $serviceNowRequest): bool
     {
         //
     }
@@ -94,7 +94,7 @@ class ServiceNowRequestPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, ServiceNowRequest $serviceNowRequest)
+    public function restore(User $user, ServiceNowRequest $serviceNowRequest): bool
     {
         //
     }
@@ -104,7 +104,7 @@ class ServiceNowRequestPolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, ServiceNowRequest $serviceNowRequest)
+    public function forceDelete(User $user, ServiceNowRequest $serviceNowRequest): bool
     {
         //
     }

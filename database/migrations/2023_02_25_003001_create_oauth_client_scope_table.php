@@ -11,7 +11,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('oauth_client_scope', function (Blueprint $table) {
             $table->uuid('oauth_client_id');
@@ -38,7 +38,7 @@ return new class extends Migration
      *
      * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('oauth_client_scope');
     }

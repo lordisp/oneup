@@ -25,7 +25,7 @@ class ScimRemoveMemberJob extends WebhookJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $this->updateState('Acknowledged', $this->scope, 'processing disable-user');
         $members = $this->getMembers();

@@ -29,7 +29,7 @@ class GlobalAdminSeeder extends Seeder
      *
      * @return void
      */
-    public function run()
+    public function run(): void
     {
         $role = Role::factory()->state([
             'name' => 'Global Administrator', 'description' => 'Can manage all features in '.config('app.name'),

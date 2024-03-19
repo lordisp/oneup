@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 class UserPropertiesTest extends TestCase
 {
     /** @test */
-    public function it_must_be_a_valid_email_address()
+    public function it_must_be_a_valid_email_address(): void
     {
         $properties = new UserProperties('mail,displayName,companyName');
 
@@ -17,7 +17,7 @@ class UserPropertiesTest extends TestCase
     }
 
     /** @test */
-    public function invalid_user_principal_throws_exception()
+    public function invalid_user_principal_throws_exception(): void
     {
         $this->expectException(InvalidArgumentException::class);
 

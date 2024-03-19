@@ -15,7 +15,7 @@ class FirewallRulePolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function viewAny(User $user)
+    public function viewAny(User $user): bool
     {
         //
     }
@@ -25,7 +25,7 @@ class FirewallRulePolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function view(User $user, FirewallRule $firewallRule)
+    public function view(User $user, FirewallRule $firewallRule): bool
     {
         return $user->businessServices->where('name', $firewallRule->businessService->name)->first()->exists;
     }
@@ -35,7 +35,7 @@ class FirewallRulePolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function create(User $user)
+    public function create(User $user): bool
     {
         //
     }
@@ -45,7 +45,7 @@ class FirewallRulePolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function update(User $user, FirewallRule $firewallRule)
+    public function update(User $user, FirewallRule $firewallRule): bool
     {
         //
     }
@@ -55,7 +55,7 @@ class FirewallRulePolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function delete(User $user, FirewallRule $firewallRule)
+    public function delete(User $user, FirewallRule $firewallRule): bool
     {
         //
     }
@@ -65,7 +65,7 @@ class FirewallRulePolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function restore(User $user, FirewallRule $firewallRule)
+    public function restore(User $user, FirewallRule $firewallRule): bool
     {
         //
     }
@@ -75,7 +75,7 @@ class FirewallRulePolicy
      *
      * @return \Illuminate\Auth\Access\Response|bool
      */
-    public function forceDelete(User $user, FirewallRule $firewallRule)
+    public function forceDelete(User $user, FirewallRule $firewallRule): bool
     {
         //
     }

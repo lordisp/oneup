@@ -20,7 +20,7 @@ class GroupMemberTest extends TestCase
     }
 
     /** @test */
-    public function api_returns_valid_email_array()
+    public function api_returns_valid_email_array(): void
     {
         $response = Http::withBasicAuth($this->username, $this->password)->post($this->uri, [
             'names' => ['LHG_ONEUP_P'],
@@ -40,7 +40,7 @@ class GroupMemberTest extends TestCase
     }
 
     /** @test */
-    public function invalid_group_name_throws_http_exception()
+    public function invalid_group_name_throws_http_exception(): void
     {
         $response = Http::withBasicAuth($this->username, $this->password)->post($this->uri, [
             'names' => ['LHG_ONEUP_P'],
@@ -56,7 +56,7 @@ class GroupMemberTest extends TestCase
     }
 
     /** @test */
-    public function api_returns_valid_email_array_with_all_types()
+    public function api_returns_valid_email_array_with_all_types(): void
     {
         $response = Http::withBasicAuth($this->username, $this->password)->post($this->uri, [
             'names' => ['LHG_ONEUP_P'],
@@ -76,7 +76,7 @@ class GroupMemberTest extends TestCase
     }
 
     /** @test */
-    public function expect_400_for_invalid_business_services()
+    public function expect_400_for_invalid_business_services(): void
     {
         $response = Http::withBasicAuth($this->username, $this->password)->post($this->uri, [
             'names' => ['Invalid'],

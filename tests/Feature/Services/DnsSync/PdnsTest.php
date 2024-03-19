@@ -32,7 +32,7 @@ class PdnsTest extends TestCase
     }
 
     /** @test */
-    public function it_should_dispatch_request_network_interfaces_job_when_private_dns_sync_is_run()
+    public function it_should_dispatch_request_network_interfaces_job_when_private_dns_sync_is_run(): void
     {
         //Arrange
         app()->get('config')->set('dnssync.provider', 'lhtest_arm');
@@ -52,7 +52,7 @@ class PdnsTest extends TestCase
     }
 
     /** @test */
-    public function private_dns_sync_dispatch_should_trigger_interfaces_received_event_when_data_is_cached()
+    public function private_dns_sync_dispatch_should_trigger_interfaces_received_event_when_data_is_cached(): void
     {
         //Arrange
         app()->get('config')->set('dnssync.provider', 'lhtest_arm');
@@ -66,7 +66,7 @@ class PdnsTest extends TestCase
     }
 
     /** @test */
-    public function it_dispatches_private_dns_sync_correctly()
+    public function it_dispatches_private_dns_sync_correctly(): void
     {
         app()->get('config')->set('dnssync.provider', 'lhtest_arm');
 
@@ -79,7 +79,7 @@ class PdnsTest extends TestCase
     }
 
     /** @test */
-    public function query_zone_records_is_queued_when_private_dns_sync_is_dispatched()
+    public function query_zone_records_is_queued_when_private_dns_sync_is_dispatched(): void
     {
         app()->get('config')->set('dnssync.provider', 'lhtest_arm');
         Queue::fake([QueryZoneRecords::class]);

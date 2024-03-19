@@ -29,7 +29,7 @@ class AlertsChangeStateJob implements ShouldQueue
      *
      * @return void
      */
-    public function handle()
+    public function handle(): void
     {
         $provider = 'lhg_arm';
         $alertId = basename($this->alertId);

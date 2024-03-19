@@ -27,7 +27,7 @@ class OidcTest extends TestCase
     }
 
     /** @test */
-    public function redirect_to_azure_idp_and_set_auth_state_to_session()
+    public function redirect_to_azure_idp_and_set_auth_state_to_session(): void
     {
         $this->post('/signin')
             ->assertRedirect()
@@ -35,7 +35,7 @@ class OidcTest extends TestCase
     }
 
     /** @test */
-    public function can_acquire_an_code_access_token()
+    public function can_acquire_an_code_access_token(): void
     {
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(
             json_decode(file_get_contents(base_path('/tests/Feature/Stubs/oidc_access_token.json')), true)
@@ -58,7 +58,7 @@ class OidcTest extends TestCase
     }
 
     /** @test */
-    public function can_login_over_oidc()
+    public function can_login_over_oidc(): void
     {
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(
             json_decode(file_get_contents(base_path('/tests/Feature/Stubs/oidc_access_token.json')), true)
@@ -75,7 +75,7 @@ class OidcTest extends TestCase
     /** @test
      *@depends  can_login_over_oidc
      */
-    public function user_can_logout_from_oidc()
+    public function user_can_logout_from_oidc(): void
     {
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(
             json_decode(file_get_contents(base_path('/tests/Feature/Stubs/oidc_access_token.json')), true)

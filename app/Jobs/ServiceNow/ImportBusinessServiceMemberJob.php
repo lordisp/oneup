@@ -42,7 +42,7 @@ class ImportBusinessServiceMemberJob implements ShouldBeUnique, ShouldQueue
         return $this->identifier;
     }
 
-    public function handle()
+    public function handle(): void
     {
         $emails = $this->getBusinessServiceResponsibles();
 

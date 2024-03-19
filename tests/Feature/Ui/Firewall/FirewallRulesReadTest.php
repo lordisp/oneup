@@ -25,13 +25,13 @@ use Tests\FrontendTest;
 class FirewallRulesReadTest extends FirewallRequestImportTest implements FrontendTest
 {
     /** @test */
-    public function cannot_access_route_as_guest()
+    public function cannot_access_route_as_guest(): void
     {
         $this->get('/firewall/requests/read')->assertRedirect('/login');
     }
 
     /** @test */
-    public function can_access_route_as_user()
+    public function can_access_route_as_user(): void
     {
         $user = User::first();
         $user->assignRole('Firewall-Requests Reader');
@@ -41,7 +41,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     }
 
     /** @test */
-    public function can_render_the_component()
+    public function can_render_the_component(): void
     {
         $user = User::first();
         $user->assignRole('Firewall-Requests Reader');
@@ -51,7 +51,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     }
 
     /** @test */
-    public function can_view_component()
+    public function can_view_component(): void
     {
         $user = User::first();
         $user->assignRole('Firewall-Requests Reader');
@@ -64,7 +64,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     }
 
     /** @test */
-    public function can_extend_rules()
+    public function can_extend_rules(): void
     {
         Subnet::factory([
             'name' => '10.0.0.0',
@@ -101,7 +101,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     }
 
     /** @test */
-    public function can_decommission_rules()
+    public function can_decommission_rules(): void
     {
         Log::shouldReceive('info')->atMost();
         Log::shouldReceive('error')->atMost();
@@ -141,7 +141,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     }
 
     /** @test */
-    public function it_deletes_all_requests_write_a_log_and_notify_the_user()
+    public function it_deletes_all_requests_write_a_log_and_notify_the_user(): void
     {
         Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
@@ -161,7 +161,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     }
 
     /** @test */
-    public function it_fail_to_deletes_requests_write_a_log_and_notify_the_developers()
+    public function it_fail_to_deletes_requests_write_a_log_and_notify_the_developers(): void
     {
         Subnet::factory([
             'name' => '10.0.0.0',
@@ -192,7 +192,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     }
 
     /** @test */
-    public function can_delete_all_requests_by_an_administrartor()
+    public function can_delete_all_requests_by_an_administrartor(): void
     {
         Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
@@ -232,7 +232,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     }
 
     /** @test */
-    public function can_filter_by_non_pci_and_optional_review()
+    public function can_filter_by_non_pci_and_optional_review(): void
     {
         Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
@@ -254,7 +254,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     }
 
     /** @test */
-    public function can_filter_by_non_pci_and_decommissioned()
+    public function can_filter_by_non_pci_and_decommissioned(): void
     {
         Http::fake([config('servicenow.uri').'/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/ServiceNow/bs01.json')), true))]);
         Http::fake(['https://login.microsoftonline.com/*' => Http::response(json_decode(file_get_contents(base_path('/tests/Feature/Stubs/app_access_token.json')), true))]);
@@ -275,7 +275,7 @@ class FirewallRulesReadTest extends FirewallRequestImportTest implements Fronten
     }
 
     /** @test */
-    public function can_send_firewall_review_email()
+    public function can_send_firewall_review_email(): void
     {
         $user = User::first();
         $user->assignRole('Global Administrator');

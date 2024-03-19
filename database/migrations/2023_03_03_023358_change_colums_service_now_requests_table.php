@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up()
+    public function up(): void
     {
         Schema::table('service_now_requests', function (Blueprint $table) {
             $table->dropColumn('template');
@@ -19,7 +19,7 @@ return new class extends Migration
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::table('service_now_requests', function (Blueprint $table) {
             $table->string('template');

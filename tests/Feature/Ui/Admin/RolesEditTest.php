@@ -24,7 +24,7 @@ class RolesEditTest extends TestCase
     }
 
     /** @test */
-    public function can_search_for_roles()
+    public function can_search_for_roles(): void
     {
         $user = User::first();
         $user->assignRole('Roles administrator');

@@ -11,7 +11,7 @@ class EmptyTest extends TestCase
      *
      * @return void
      */
-    public function test_placeholder()
+    public function test_placeholder(): void
     {
         $this->assertTrue(true);
     }
