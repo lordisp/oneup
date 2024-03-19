@@ -5,7 +5,9 @@ namespace App\Console;
 use App\Jobs\DismissRiskyUsersScheduler;
 use App\Jobs\Pdns\PrivateDnsSync;
 use App\Jobs\Scim\ScheduledUserImportJob;
+use App\Jobs\ServiceNow\UpdateUsersBasedOnBusinessServiceScheduler;
 use App\Jobs\VmStartStopSchedulerJob;
+use App\Models\BusinessService;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
@@ -55,6 +57,10 @@ class Kernel extends ConsoleKernel
 
         $schedule->job(new DismissRiskyUsersScheduler)
             ->everyFiveMinutes()
+            ->onOneServer();
+
+        $schedule->job(new UpdateUsersBasedOnBusinessServiceScheduler(BusinessService::all()))
+            ->everyTenMinutes()
             ->onOneServer();
     }
 

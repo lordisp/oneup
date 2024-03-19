@@ -174,7 +174,7 @@ class FirewallRequestImportTest extends TestCase implements FrontendTest
         $this->assertDatabaseCount(User::class, 4);
         $this->assertDatabaseCount(BusinessService::class, 2);
         $this->assertDatabaseCount(FirewallRule::class, 5);
-        $this->assertDatabaseCount(Audit::class, 5);
+        $this->assertDatabaseCount(Audit::class, 7);
         $this->assertCount(
             3,
             FirewallRule::query()

@@ -6,7 +6,6 @@ use App\Models\Group;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
 
 /**
  * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\User>
@@ -20,13 +19,14 @@ class UserFactory extends Factory
      */
     public function definition()
     {
+
         return [
-            'firstName' => $this->faker->firstName(),
-            'lastName' => $this->faker->lastName(),
-            'displayName' => $this->faker->lastName().', '.$this->faker->firstName(),
-            'provider_id' => $this->faker->uuid(),
-            'provider' => implode('_',$this->faker->words(2)),
-            'email' => $this->faker->unique()->safeEmail(),
+            'firstName' => $this->faker->firstName,
+            'lastName' => $this->faker->lastName,
+            'displayName' => $this->faker->name,
+            'provider_id' => $this->faker->unique()->uuid(),
+            'provider' => 'oneup_aad',
+            'email' => $this->faker->unique()->safeEmail,
         ];
     }
 

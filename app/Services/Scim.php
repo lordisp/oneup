@@ -113,14 +113,49 @@ class Scim
     {
         foreach ($users as $user) {
             $userInstance = $this->saveUserInstance($user);
-            if (isset($this->businessService)) {
-                $businessService = BusinessService::firstOrCreate(['name' => $this->businessService]);
-                try {
-                    $userInstance->businessServices()->syncWithoutDetaching($businessService->id);
-                } catch (Exception) {
-                    break;
-                }
+            if (!$this->businessService) {
+                continue;
             }
+            $this->processBusinessService($userInstance);
+        }
+    }
+
+    private function processBusinessService(User $userInstance): void
+    {
+        $businessService = BusinessService::firstOrCreate(['name' => $this->businessService]);
+        try {
+            $synced = $userInstance->businessServices()->syncWithoutDetaching($businessService->id);
+            $activity = $this->computeActivityDescription($synced);
+
+            if (empty($activity)) return;
+
+            $userInstance->audits()->create([
+                'actor' => 'Scim',
+                'activity' => $activity . ' Business-Service Members',
+                'status' => count($synced) > 0 ? 'Success' : 'Failed',
+                'metadata' => [
+                    'business_service' => $businessService->name,
+                    'user' => $userInstance->email,
+                    'provider' => $this->provider,
+                ]
+            ]);
+        } catch (Exception) {
+            Log::error('Scim: Failed to sync business service', [
+                'business_service' => $businessService->name,
+                'user' => $userInstance->email,
+                'provider' => $this->provider,
+            ]);
+        }
+    }
+
+    private function computeActivityDescription(array $synced)
+    {
+        if (!empty(data_get($synced, 'attached'))) {
+            return 'Added';
+        }
+
+        if (!empty(data_get($synced, 'detached'))) {
+            return 'Removed';
         }
     }
 

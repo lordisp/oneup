@@ -5,9 +5,11 @@ namespace App\Models;
 use App\Traits\Uuid;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Support\Str;
 use Spatie\Sluggable\HasSlug;
 use Spatie\Sluggable\SlugOptions;
@@ -17,7 +19,7 @@ use Spatie\Sluggable\SlugOptions;
  */
 class BusinessService extends Model
 {
-    use Uuid, HasSlug;
+    use Uuid, HasSlug, HasFactory;
 
     protected $fillable = ['name', 'pci_dss'];
 
@@ -33,6 +35,11 @@ class BusinessService extends Model
     public function rules(): HasMany
     {
         return $this->hasMany(FirewallRule::class);
+    }
+
+    public function audits(): MorphMany
+    {
+        return $this->morphMany(Audit::class, 'auditable');
     }
 
     public function users(): BelongsToMany

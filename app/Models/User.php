@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
@@ -53,6 +54,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function audits(): MorphMany
+    {
+        return $this->morphMany(Audit::class, 'auditable');
+    }
+
     public function firstName(): Attribute
     {
         return Attribute::make(
@@ -69,7 +75,7 @@ class User extends Authenticatable
         );
     }
 
-    public function groups($type = 'user')
+    public function groups($type = 'user'): BelongsToMany
     {
         $table = match ($type) {
             'owner' => 'groups_owners',
@@ -79,7 +85,7 @@ class User extends Authenticatable
         return $this->belongsToMany(Group::class, $table)->withTimestamps();
     }
 
-    public function assignGroup($group)
+    public function assignGroup($group): void
     {
         if (is_string($group)) {
             $group = Group::whereName($group)->firstOrFail();
@@ -87,7 +93,7 @@ class User extends Authenticatable
         $this->groups()->sync($group, false);
     }
 
-    public function unassignGroup($group)
+    public function unassignGroup($group): void
     {
         if (is_string($group)) {
             $group = Group::whereName($group)->firstOrFail();
@@ -95,7 +101,7 @@ class User extends Authenticatable
         $this->groups()->detach($group);
     }
 
-    public function roles()
+    public function roles(): BelongsToMany
     {
         return $this->belongsToMany(Role::class, 'roles_users')->withTimestamps();
     }
@@ -108,7 +114,7 @@ class User extends Authenticatable
         return $roles->get()->collect()->flatten()->pluck('name')->push(...$rolesFromGroups)->unique();
     }
 
-    public function assignRole($role)
+    public function assignRole($role): void
     {
         if (is_string($role)) {
             $role = Role::whereName($role)->firstOrFail();
@@ -116,7 +122,7 @@ class User extends Authenticatable
         $this->roles()->sync($role, false);
     }
 
-    public function unassignRole($role)
+    public function unassignRole($role): void
     {
         if (is_string($role)) {
             $role = Role::whereName($role)->firstOrFail();
