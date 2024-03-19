@@ -22,11 +22,14 @@ class LogMessage extends Model
         'deleted_at',
     ];
 
-    protected $casts = [
-        'logged_at' => 'datetime',
-        'context' => 'array',
-        'extra' => 'array',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'logged_at' => 'datetime',
+            'context' => 'array',
+            'extra' => 'array',
+        ];
+    }
 
     public function scopeTrashedBy(Builder $query, string|array $levelName, Carbon $age): Builder
     {

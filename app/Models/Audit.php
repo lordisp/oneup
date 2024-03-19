@@ -18,9 +18,12 @@ class Audit extends Model
         'metadata',
     ];
 
-    protected $casts = [
-        'metadata' => 'json',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'metadata' => 'json',
+        ];
+    }
 
     public function auditable(): MorphTo
     {

@@ -40,13 +40,16 @@ class FirewallRule extends Model
         'business_service_id',
     ];
 
-    protected $casts = [
-        'end_date' => 'datetime',
-        'last_review' => 'datetime',
-        'destination' => 'json',
-        'source' => 'json',
-        'destination_port' => 'json',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'end_date' => 'datetime',
+            'last_review' => 'datetime',
+            'destination' => 'json',
+            'source' => 'json',
+            'destination_port' => 'json',
+        ];
+    }
 
     public function request(): BelongsTo
     {

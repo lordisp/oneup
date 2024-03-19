@@ -23,7 +23,10 @@ class TokenCacheProvider extends Model
         'client',
     ];
 
-    protected $casts = [
-        'client' => 'json',
-    ];
+    protected function casts(): array
+    {
+        return [
+            'client' => 'json',
+        ];
+    }
 }
