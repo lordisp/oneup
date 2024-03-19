@@ -1,41 +1,42 @@
 <?php
 
+use App\Http\Controllers\Laravel;
 use Illuminate\Support\Facades\Route;
 
-Route::name('passport.')->prefix(config('passport.path', 'oauth'))->namespace('Laravel\Passport\Http\Controllers')->group(function () {
+Route::name('passport.')->prefix(config('passport.path', 'oauth'))->group(function () {
 
-    Route::post('/token', 'AccessTokenController@issueToken')->name('token')->middleware('throttle', 'client.scope');
+    Route::post('/token', [Laravel\Passport\Http\Controllers\AccessTokenController::class, 'issueToken'])->name('token')->middleware('throttle', 'client.scope');
 
-    Route::get('/authorize', 'AuthorizationController@authorize')->name('authorizations.authorize')->middleware('web');
+    Route::get('/authorize', [Laravel\Passport\Http\Controllers\AuthorizationController::class, 'authorize'])->name('authorizations.authorize')->middleware('web');
 
     $guard = config('passport.guard', null);
 
     Route::middleware(['web', $guard ? 'auth:'.$guard : 'auth'])->group(function () {
-        Route::post('/token/refresh', 'TransientTokenController@refresh')->name('token.refresh');
+        Route::post('/token/refresh', [Laravel\Passport\Http\Controllers\TransientTokenController::class, 'refresh'])->name('token.refresh');
 
-        Route::post('/authorize', 'ApproveAuthorizationController@approve')->name('authorizations.approve');
+        Route::post('/authorize', [Laravel\Passport\Http\Controllers\ApproveAuthorizationController::class, 'approve'])->name('authorizations.approve');
 
-        Route::delete('/authorize', 'DenyAuthorizationController@deny')->name('authorizations.deny');
+        Route::delete('/authorize', [Laravel\Passport\Http\Controllers\DenyAuthorizationController::class, 'deny'])->name('authorizations.deny');
 
-        Route::get('/tokens', 'AuthorizedAccessTokenController@forUser')->name('tokens.index');
+        Route::get('/tokens', [Laravel\Passport\Http\Controllers\AuthorizedAccessTokenController::class, 'forUser'])->name('tokens.index');
 
-        Route::delete('/tokens/{token_id}', 'AuthorizedAccessTokenController@destroy')->name('tokens.destroy');
+        Route::delete('/tokens/{token_id}', [Laravel\Passport\Http\Controllers\AuthorizedAccessTokenController::class, 'destroy'])->name('tokens.destroy');
 
-        Route::get('/clients', 'ClientController@forUser')->name('clients.index');
+        Route::get('/clients', [Laravel\Passport\Http\Controllers\ClientController::class, 'forUser'])->name('clients.index');
 
-        Route::post('/clients', 'ClientController@store')->name('clients.store');
+        Route::post('/clients', [Laravel\Passport\Http\Controllers\ClientController::class, 'store'])->name('clients.store');
 
-        Route::put('/clients/{client_id}', 'ClientController@update')->name('clients.update');
+        Route::put('/clients/{client_id}', [Laravel\Passport\Http\Controllers\ClientController::class, 'update'])->name('clients.update');
 
-        Route::delete('/clients/{client_id}', 'ClientController@destroy')->name('clients.destroy');
+        Route::delete('/clients/{client_id}', [Laravel\Passport\Http\Controllers\ClientController::class, 'destroy'])->name('clients.destroy');
 
-        Route::get('/scopes', 'ScopeController@all')->name('scopes.index');
+        Route::get('/scopes', [Laravel\Passport\Http\Controllers\ScopeController::class, 'all'])->name('scopes.index');
 
-        Route::get('/personal-access-tokens', 'PersonalAccessTokenController@forUser')->name('personal.tokens.index');
+        Route::get('/personal-access-tokens', [Laravel\Passport\Http\Controllers\PersonalAccessTokenController::class, 'forUser'])->name('personal.tokens.index');
 
-        Route::post('/personal-access-tokens', 'PersonalAccessTokenController@store')->name('personal.tokens.store');
+        Route::post('/personal-access-tokens', [Laravel\Passport\Http\Controllers\PersonalAccessTokenController::class, 'store'])->name('personal.tokens.store');
 
-        Route::delete('/personal-access-tokens/{token_id}', 'PersonalAccessTokenController@destroy')->name('personal.tokens.destroy');
+        Route::delete('/personal-access-tokens/{token_id}', [Laravel\Passport\Http\Controllers\PersonalAccessTokenController::class, 'destroy'])->name('personal.tokens.destroy');
     });
 
 });
