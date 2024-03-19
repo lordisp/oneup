@@ -2,91 +2,40 @@
 
 use Illuminate\Support\Facades\Route;
 
-Route::group([
-    'as' => 'passport.',
-    'prefix' => config('passport.path', 'oauth'),
-    'namespace' => 'Laravel\Passport\Http\Controllers',
-], function () {
+Route::name('passport.')->prefix(config('passport.path', 'oauth'))->namespace('Laravel\Passport\Http\Controllers')->group(function () {
 
-    Route::post('/token', [
-        'uses' => 'AccessTokenController@issueToken',
-        'as' => 'token',
-        'middleware' => ['throttle', 'client.scope'],
-    ]);
+    Route::post('/token', 'AccessTokenController@issueToken')->name('token')->middleware('throttle', 'client.scope');
 
-    Route::get('/authorize', [
-        'uses' => 'AuthorizationController@authorize',
-        'as' => 'authorizations.authorize',
-        'middleware' => 'web',
-    ]);
+    Route::get('/authorize', 'AuthorizationController@authorize')->name('authorizations.authorize')->middleware('web');
 
     $guard = config('passport.guard', null);
 
     Route::middleware(['web', $guard ? 'auth:'.$guard : 'auth'])->group(function () {
-        Route::post('/token/refresh', [
-            'uses' => 'TransientTokenController@refresh',
-            'as' => 'token.refresh',
-        ]);
+        Route::post('/token/refresh', 'TransientTokenController@refresh')->name('token.refresh');
 
-        Route::post('/authorize', [
-            'uses' => 'ApproveAuthorizationController@approve',
-            'as' => 'authorizations.approve',
-        ]);
+        Route::post('/authorize', 'ApproveAuthorizationController@approve')->name('authorizations.approve');
 
-        Route::delete('/authorize', [
-            'uses' => 'DenyAuthorizationController@deny',
-            'as' => 'authorizations.deny',
-        ]);
+        Route::delete('/authorize', 'DenyAuthorizationController@deny')->name('authorizations.deny');
 
-        Route::get('/tokens', [
-            'uses' => 'AuthorizedAccessTokenController@forUser',
-            'as' => 'tokens.index',
-        ]);
+        Route::get('/tokens', 'AuthorizedAccessTokenController@forUser')->name('tokens.index');
 
-        Route::delete('/tokens/{token_id}', [
-            'uses' => 'AuthorizedAccessTokenController@destroy',
-            'as' => 'tokens.destroy',
-        ]);
+        Route::delete('/tokens/{token_id}', 'AuthorizedAccessTokenController@destroy')->name('tokens.destroy');
 
-        Route::get('/clients', [
-            'uses' => 'ClientController@forUser',
-            'as' => 'clients.index',
-        ]);
+        Route::get('/clients', 'ClientController@forUser')->name('clients.index');
 
-        Route::post('/clients', [
-            'uses' => 'ClientController@store',
-            'as' => 'clients.store',
-        ]);
+        Route::post('/clients', 'ClientController@store')->name('clients.store');
 
-        Route::put('/clients/{client_id}', [
-            'uses' => 'ClientController@update',
-            'as' => 'clients.update',
-        ]);
+        Route::put('/clients/{client_id}', 'ClientController@update')->name('clients.update');
 
-        Route::delete('/clients/{client_id}', [
-            'uses' => 'ClientController@destroy',
-            'as' => 'clients.destroy',
-        ]);
+        Route::delete('/clients/{client_id}', 'ClientController@destroy')->name('clients.destroy');
 
-        Route::get('/scopes', [
-            'uses' => 'ScopeController@all',
-            'as' => 'scopes.index',
-        ]);
+        Route::get('/scopes', 'ScopeController@all')->name('scopes.index');
 
-        Route::get('/personal-access-tokens', [
-            'uses' => 'PersonalAccessTokenController@forUser',
-            'as' => 'personal.tokens.index',
-        ]);
+        Route::get('/personal-access-tokens', 'PersonalAccessTokenController@forUser')->name('personal.tokens.index');
 
-        Route::post('/personal-access-tokens', [
-            'uses' => 'PersonalAccessTokenController@store',
-            'as' => 'personal.tokens.store',
-        ]);
+        Route::post('/personal-access-tokens', 'PersonalAccessTokenController@store')->name('personal.tokens.store');
 
-        Route::delete('/personal-access-tokens/{token_id}', [
-            'uses' => 'PersonalAccessTokenController@destroy',
-            'as' => 'personal.tokens.destroy',
-        ]);
+        Route::delete('/personal-access-tokens/{token_id}', 'PersonalAccessTokenController@destroy')->name('personal.tokens.destroy');
     });
 
 });
